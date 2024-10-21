@@ -31,7 +31,16 @@ namespace DeliveryProject.Persistence.Repositories
             await _context.SaveChangesAsync();
         }
 
-        public async Task<List<Order>> FilterOrder(int areaId, DateTime fromTime, DateTime toTime)
+        public async Task<DateTime?> GetFirstOrderTime(int areaId)
+        {
+            var firstOrder = await _context.Orders
+                .Where(o => o.AreaId == areaId)
+                .MinAsync(o => (DateTime?)o.DeliveryTime);
+
+            return firstOrder;
+        }
+
+        public async Task<List<Order>> GetOrdersWithinTimeRange(int areaId, DateTime fromTime, DateTime toTime)
         {
             var filteredOrders = await _context.Orders
                 .Where(o => o.AreaId == areaId && o.DeliveryTime >= fromTime && o.DeliveryTime <= toTime)

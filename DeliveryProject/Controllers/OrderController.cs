@@ -38,17 +38,21 @@ namespace DeliveryProject.Controllers
         }
 
         [HttpGet("filter")]
-        public async Task<IActionResult> FilterOrders(int areaId, DateTime fromTime, DateTime toTime)
+        public async Task<IActionResult> FilterOrders(int areaId)
         {
-            if (toTime <= fromTime)
+            var firstOrderTime = await _orderRepository.GetFirstOrderTime(areaId);
+            if (firstOrderTime == null)
             {
-                _logger.LogError("Некорректный диапазон времени: {FromTime} - {ToTime}", fromTime, toTime);
-                return BadRequest("Некорректный диапазон времени.");
+                _logger.LogWarning("Нет заказов для района с ID {AreaId}", areaId);
+                return NotFound("Заказы для данного района не найдены.");
             }
 
-            var filteredOrders = await _orderRepository.FilterOrder(areaId, fromTime, toTime);
+            var timeRangeEnd = firstOrderTime.AddMinutes(30);
 
-            _logger.LogInformation("Отфильтровано {OrderCount} заказов для района {AreaId} в диапазоне {FromTime} - {ToTime}", filteredOrders.Count, areaId, fromTime, toTime);
+            var filteredOrders = await _orderRepository.GetOrdersWithinTimeRange(areaId, firstOrderTime, timeRangeEnd);
+
+            _logger.LogInformation("Найдено {OrderCount} заказов для района {AreaId} в диапазоне от {FirstOrderTime} до {TimeRangeEnd}",
+                filteredOrders.Count, areaId, firstOrderTime, timeRangeEnd);
 
             return Ok(filteredOrders);
         }
