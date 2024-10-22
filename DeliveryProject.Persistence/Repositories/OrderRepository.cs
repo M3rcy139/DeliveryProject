@@ -21,7 +21,7 @@ namespace DeliveryProject.Persistence.Repositories
         {
             var orderEntity = new OrderEntity()
             {
-                Id = Guid.NewGuid(),
+                Id = order.Id,
                 Weight = order.Weight,
                 AreaId = order.AreaId,
                 DeliveryTime = order.DeliveryTime,
@@ -31,11 +31,13 @@ namespace DeliveryProject.Persistence.Repositories
             await _context.SaveChangesAsync();
         }
 
-        public async Task<DateTime?> GetFirstOrderTime(int areaId)
+        public async Task<DateTime> GetFirstOrderTime(int areaId)
         {
             var firstOrder = await _context.Orders
                 .Where(o => o.AreaId == areaId)
-                .MinAsync(o => (DateTime?)o.DeliveryTime);
+                .MinAsync(o => o.DeliveryTime);
+
+            if (firstOrder == default) throw new ArgumentException($"Заказов в данном районе({areaId}) не найдено");
 
             return firstOrder;
         }
