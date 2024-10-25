@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using DeliveryProject.Persistence;
 using DeliveryProject.Core.Models;
 using DeliveryProject.Persistence.Interfaces;
 using DeliveryProject.Application.Contracts;
+using FluentValidation;
 
 namespace DeliveryProject.Controllers
 {
@@ -14,24 +14,31 @@ namespace DeliveryProject.Controllers
         private readonly DeliveryDbContext _context;
         private readonly ILogger<OrderController> _logger;
         private readonly IOrderRepository _orderRepository;
+        private readonly IValidator<AddOrderRequest> _addOrderValidator;
 
-        public OrderController(DeliveryDbContext context, ILogger<OrderController> logger, IOrderRepository orderRepository)
+        public OrderController(DeliveryDbContext context, ILogger<OrderController> logger, 
+            IOrderRepository orderRepository, IValidator<AddOrderRequest> addOrderValidator)
         {
             _context = context;
             _logger = logger;
             _orderRepository = orderRepository;
+            _addOrderValidator = addOrderValidator;
         }
 
-        // Добавление нового заказа
         [HttpPost("add-order")]
         public async Task<IActionResult> AddOrder([FromBody] AddOrderRequest request)
         {
             try
             {
-                if (request == null || request.Weight <= 0 || request.AreaId <= 0)
+                var validationResult = await _addOrderValidator.ValidateAsync(request);
+                if (!validationResult.IsValid)
                 {
-                    _logger.LogError("Некорректные данные заказа");
-                    return BadRequest("Некорректные данные заказа");
+                    foreach (var error in validationResult.Errors)
+                    {
+                        _logger.LogError("Ошибка валидации: {ErrorMessage}", error.ErrorMessage);
+                    }
+
+                    return BadRequest(validationResult.Errors);
                 }
 
                 var order = new Order()
@@ -59,12 +66,13 @@ namespace DeliveryProject.Controllers
         {
             try
             {
+                if (areaId <= 0)
+                {
+                    _logger.LogError("Некорректные данные заказа");
+                    return BadRequest("Некорректные данные заказа");
+                }
+
                 var firstOrderTime = await _orderRepository.GetFirstOrderTime(areaId);
-                //if (firstOrderTime == null)
-                //{
-                //    _logger.LogWarning("Нет заказов для района с ID {AreaId}", areaId);
-                //    return NotFound("Заказы для данного района не найдены.");
-                //}
 
                 var timeRangeEnd = firstOrderTime.AddMinutes(30);
 
@@ -87,7 +95,6 @@ namespace DeliveryProject.Controllers
             }
         }
 
-        // Получение всех заказов
         [HttpGet("get-all-orders")]
         public async Task<IActionResult> GetAllOrders()
         {
@@ -96,6 +103,11 @@ namespace DeliveryProject.Controllers
                 var orders = await _orderRepository.GetAllOrders();
                 _logger.LogInformation("Получено {OrderCount} заказов", orders.Count);
                 return Ok(orders);
+            }
+            catch (ArgumentException ex)
+            {
+                _logger.LogError($"Error {ex.Message}");
+                return BadRequest(new { error = ex.Message });
             }
             catch (Exception ex)
             {

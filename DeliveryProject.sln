@@ -3,13 +3,15 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.10.35013.160
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DeliveryProject", "DeliveryProject\DeliveryProject.csproj", "{395C1F82-005C-419E-8B03-4E6D48946D38}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DeliveryProject", "DeliveryProject\DeliveryProject.csproj", "{395C1F82-005C-419E-8B03-4E6D48946D38}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DeliveryProject.Core", "DeliveryProject.Core\DeliveryProject.Core.csproj", "{CE865C41-9327-4FF8-B78C-F3FD1CF8D495}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DeliveryProject.Core", "DeliveryProject.Core\DeliveryProject.Core.csproj", "{CE865C41-9327-4FF8-B78C-F3FD1CF8D495}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DeliveryProject.Application", "DeliveryProject.Application\DeliveryProject.Application.csproj", "{07EEE185-BFDD-44FC-9649-2BEAFE3CD0D7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DeliveryProject.Application", "DeliveryProject.Application\DeliveryProject.Application.csproj", "{07EEE185-BFDD-44FC-9649-2BEAFE3CD0D7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DeliveryProject.Persistence", "DeliveryProject.Persistence\DeliveryProject.Persistence.csproj", "{8FB87099-2249-4487-8EAA-0079D7BB69F4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DeliveryProject.Persistence", "DeliveryProject.Persistence\DeliveryProject.Persistence.csproj", "{8FB87099-2249-4487-8EAA-0079D7BB69F4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DeliveryProject.Tests", "DeliveryProject.Tests\DeliveryProject.Tests.csproj", "{5533D49A-EB36-4817-A2C3-A0F891823827}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{8FB87099-2249-4487-8EAA-0079D7BB69F4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8FB87099-2249-4487-8EAA-0079D7BB69F4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8FB87099-2249-4487-8EAA-0079D7BB69F4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5533D49A-EB36-4817-A2C3-A0F891823827}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5533D49A-EB36-4817-A2C3-A0F891823827}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5533D49A-EB36-4817-A2C3-A0F891823827}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5533D49A-EB36-4817-A2C3-A0F891823827}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
