@@ -23,7 +23,7 @@ public class OrderControllerTests
         _loggerMock = new Mock<ILogger<OrderController>>();
         _orderValidatorMock = new Mock<IValidator<AddOrderRequest>>();
 
-        _orderController = new OrderController(null, _loggerMock.Object, _orderRepositoryMock.Object, _orderValidatorMock.Object);
+        _orderController = new OrderController(_loggerMock.Object, _orderRepositoryMock.Object, _orderValidatorMock.Object);
     }
 
     [Fact]
@@ -54,7 +54,6 @@ public class OrderControllerTests
         result.Should().BeOfType<BadRequestObjectResult>();
     }
 
-    // Тест для FilterOrders
     [Fact]
     public async Task FilterOrders_ShouldReturnOk_WhenOrdersExist()
     {
@@ -86,7 +85,6 @@ public class OrderControllerTests
         result.Should().BeOfType<BadRequestObjectResult>();
     }
 
-    // Тест для GetAllOrders
     [Fact]
     public async Task GetAllOrders_ShouldReturnOk_WhenOrdersExist()
     {

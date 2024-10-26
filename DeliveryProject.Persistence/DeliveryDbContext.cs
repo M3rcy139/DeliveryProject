@@ -1,5 +1,4 @@
-﻿
-using DeliveryProject.Persistence.Entities;
+﻿using DeliveryProject.Persistence.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace DeliveryProject.Persistence

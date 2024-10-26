@@ -11,15 +11,13 @@ namespace DeliveryProject.Controllers
     [Route("api/[controller]")]
     public class OrderController : ControllerBase
     {
-        private readonly DeliveryDbContext _context;
         private readonly ILogger<OrderController> _logger;
         private readonly IOrderRepository _orderRepository;
         private readonly IValidator<AddOrderRequest> _addOrderValidator;
 
-        public OrderController(DeliveryDbContext context, ILogger<OrderController> logger, 
+        public OrderController(ILogger<OrderController> logger, 
             IOrderRepository orderRepository, IValidator<AddOrderRequest> addOrderValidator)
         {
-            _context = context;
             _logger = logger;
             _orderRepository = orderRepository;
             _addOrderValidator = addOrderValidator;
