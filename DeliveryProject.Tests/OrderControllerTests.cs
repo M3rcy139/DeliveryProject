@@ -3,9 +3,9 @@ using Moq;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Mvc;
 using DeliveryProject.Controllers;
-using DeliveryProject.Persistence.Interfaces;
+using DeliveryProject.Core.Interfaces.Repositories;
 using DeliveryProject.Core.Models;
-using DeliveryProject.Application.Contracts;
+using DeliveryProject.API.Contracts;
 using FluentAssertions;
 using FluentValidation;
 using FluentValidation.Results;
@@ -76,7 +76,8 @@ public class OrderControllerTests
     {
         // Arrange
         var areaId = 1;
-        _orderRepositoryMock.Setup(repo => repo.GetFirstOrderTime(areaId)).ThrowsAsync(new ArgumentException("Заказов в данном районе не найдено"));
+        _orderRepositoryMock.Setup(repo => repo.GetFirstOrderTime(areaId))
+            .ThrowsAsync(new ArgumentException($"Заказов в данном районе({areaId}) не найдено"));
 
         // Act
         var result = await _orderController.FilterOrders(areaId);

@@ -1,4 +1,4 @@
-﻿namespace DeliveryProject.Application.Contracts
+﻿namespace DeliveryProject.Application.Dto
 {
     public record AddOrderRequest
     (

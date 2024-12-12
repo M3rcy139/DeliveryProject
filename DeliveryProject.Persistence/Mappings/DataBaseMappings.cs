@@ -1,8 +1,8 @@
-﻿using DeliveryProject.Persistence.Entities;
+﻿using DeliveryProject.Access.Entities;
 using DeliveryProject.Core.Models;
 using AutoMapper;
 
-namespace DeliveryProject.Persistence.Mappings
+namespace DeliveryProject.Access.Mappings
 {
     public class DataBaseMappings : Profile
     {

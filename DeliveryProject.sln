@@ -9,9 +9,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DeliveryProject.Core", "Del
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DeliveryProject.Application", "DeliveryProject.Application\DeliveryProject.Application.csproj", "{07EEE185-BFDD-44FC-9649-2BEAFE3CD0D7}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DeliveryProject.Persistence", "DeliveryProject.Persistence\DeliveryProject.Persistence.csproj", "{8FB87099-2249-4487-8EAA-0079D7BB69F4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DeliveryProject.DataAccess", "DeliveryProject.Persistence\DeliveryProject.DataAccess.csproj", "{8FB87099-2249-4487-8EAA-0079D7BB69F4}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DeliveryProject.Tests", "DeliveryProject.Tests\DeliveryProject.Tests.csproj", "{5533D49A-EB36-4817-A2C3-A0F891823827}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DeliveryProject.API", "DeliveryProject.API\DeliveryProject.API.csproj", "{31549FBC-5A61-4019-AE61-6A119AAB57E2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,6 +41,10 @@ Global
 		{5533D49A-EB36-4817-A2C3-A0F891823827}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5533D49A-EB36-4817-A2C3-A0F891823827}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5533D49A-EB36-4817-A2C3-A0F891823827}.Release|Any CPU.Build.0 = Release|Any CPU
+		{31549FBC-5A61-4019-AE61-6A119AAB57E2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{31549FBC-5A61-4019-AE61-6A119AAB57E2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{31549FBC-5A61-4019-AE61-6A119AAB57E2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{31549FBC-5A61-4019-AE61-6A119AAB57E2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,8 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using DeliveryProject.Persistence.Entities;
+using DeliveryProject.Access.Entities;
 
-namespace DeliveryProject.Persistence.Configurations
+namespace DeliveryProject.Access.Configurations
 {
     public class OrderConfiguration : IEntityTypeConfiguration<OrderEntity>
     {

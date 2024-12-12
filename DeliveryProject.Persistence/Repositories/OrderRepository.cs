@@ -1,10 +1,10 @@
 ﻿using AutoMapper;
 using DeliveryProject.Core.Models;
-using DeliveryProject.Persistence.Entities;
-using DeliveryProject.Persistence.Interfaces;
+using DeliveryProject.Access.Entities;
+using DeliveryProject.Core.Interfaces.Repositories;
 using Microsoft.EntityFrameworkCore;
 
-namespace DeliveryProject.Persistence.Repositories
+namespace DeliveryProject.Access.Repositories
 {
     public class OrderRepository : IOrderRepository
     {

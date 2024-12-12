@@ -1,8 +1,9 @@
-using DeliveryProject.Persistence;
-using DeliveryProject.Persistence.Mappings;
+using DeliveryProject.Access;
+using DeliveryProject.Access.Mappings;
 using DeliveryProject.Application;
 using NLog;
 using NLog.Web;
+using DeliveryProject.API.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 var services = builder.Services;
@@ -17,13 +18,14 @@ try
     builder.Logging.ClearProviders();
     builder.Host.UseNLog();
 
-    builder.Services.AddControllers();
-    builder.Services.AddEndpointsApiExplorer();
-    builder.Services.AddSwaggerGen();
+    services.AddControllers();
+    services.AddEndpointsApiExplorer();
+    services.AddSwaggerGen();
 
-    builder.Services.AddApplication(builder.Configuration);
-    builder.Services.AddPersistence(builder.Configuration);
-    builder.Services.AddAutoMapper(typeof(DataBaseMappings));
+    services.AddApplication(builder.Configuration);
+    services.AddPersistence(builder.Configuration);
+    services.AddAutoMapper(typeof(DataBaseMappings));
+  
 
     var app = builder.Build();
 
@@ -38,6 +40,8 @@ try
         app.UseExceptionHandler("/error");
         app.UseHsts();
     }
+
+    app.UseMiddleware<ExceptionHandlingMiddleware>();
 
     app.UseHttpsRedirection();
     app.MapControllers();

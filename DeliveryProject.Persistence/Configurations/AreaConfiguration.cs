@@ -1,8 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using DeliveryProject.Persistence.Entities;
+using DeliveryProject.Access.Entities;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace DeliveryProject.Persistence.Configurations
+namespace DeliveryProject.Access.Configurations
 {
     public class AreaConfiguration : IEntityTypeConfiguration<AreaEntity>
     {

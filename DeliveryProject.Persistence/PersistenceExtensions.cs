@@ -1,10 +1,10 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
-using DeliveryProject.Persistence.Interfaces;
-using DeliveryProject.Persistence.Repositories;
+using DeliveryProject.Core.Interfaces.Repositories;
+using DeliveryProject.Access.Repositories;
 
-namespace DeliveryProject.Persistence
+namespace DeliveryProject.Access
 {
     public static class PersistenceExtensions
     {

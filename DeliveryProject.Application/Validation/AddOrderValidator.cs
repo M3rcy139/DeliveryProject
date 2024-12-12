@@ -1,10 +1,11 @@
 ﻿using FluentValidation;
+using DeliveryProject.Core.Models;
 
-namespace DeliveryProject.Application.Contracts
+namespace DeliveryProject.Application.Validation
 {
-    public class AddOrderRequestValidator : AbstractValidator<AddOrderRequest>
+    public class AddOrderValidator : AbstractValidator<Order>
     {
-        public AddOrderRequestValidator()
+        public AddOrderValidator()
         {
             RuleFor(x => x.AreaId)
                 .GreaterThan(0).WithMessage("AreaId должен быть больше нуля.");

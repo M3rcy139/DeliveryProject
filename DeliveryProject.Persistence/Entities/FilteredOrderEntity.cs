@@ -1,6 +1,6 @@
 ﻿
 
-namespace DeliveryProject.Persistence.Entities
+namespace DeliveryProject.Access.Entities
 {
     public class FilteredOrderEntity
     {

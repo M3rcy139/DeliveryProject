@@ -1,7 +1,7 @@
-﻿using DeliveryProject.Persistence.Entities;
+﻿using DeliveryProject.Access.Entities;
 using Microsoft.EntityFrameworkCore;
 
-namespace DeliveryProject.Persistence
+namespace DeliveryProject.Access
 {
     public class DeliveryDbContext(DbContextOptions<DeliveryDbContext> options) : DbContext(options)
     {

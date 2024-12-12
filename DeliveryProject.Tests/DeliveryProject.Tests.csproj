@@ -24,7 +24,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\DeliveryProject.Persistence\DeliveryProject.Persistence.csproj" />
+    <ProjectReference Include="..\DeliveryProject.Persistence\DeliveryProject.DataAccess.csproj" />
     <ProjectReference Include="..\DeliveryProject\DeliveryProject.csproj" />
   </ItemGroup>
 

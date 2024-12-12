@@ -1,8 +1,8 @@
-﻿using DeliveryProject.Persistence.Entities;
+﻿using DeliveryProject.Access.Entities;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore;
 
-namespace DeliveryProject.Persistence.Configurations
+namespace DeliveryProject.Access.Configurations
 {
     public class FilteredOrderConfiguration : IEntityTypeConfiguration<FilteredOrderEntity>
     {
