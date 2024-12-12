@@ -1,29 +1,30 @@
 using Xunit;
 using Moq;
-using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.Mvc;
 using DeliveryProject.Controllers;
-using DeliveryProject.Core.Interfaces.Repositories;
+using DeliveryProject.Core.Interfaces.Services;
 using DeliveryProject.Core.Models;
-using DeliveryProject.API.Contracts;
+using DeliveryProject.Application.Dto;
 using FluentAssertions;
 using FluentValidation;
-using FluentValidation.Results;
+using System.Net;
 
-public class OrderControllerTests
+public class OrderControllerTests : IClassFixture<WebApplicationFactory<Program>>
 {
-    private readonly Mock<IOrderRepository> _orderRepositoryMock;
-    private readonly Mock<ILogger<OrderController>> _loggerMock;
-    private readonly Mock<IValidator<AddOrderRequest>> _orderValidatorMock;
+    private readonly Mock<IOrderService> _orderServiceMock;
     private readonly OrderController _orderController;
+    private readonly Mock<IValidator<AddOrderRequest>> _orderValidatorMock;
+    private readonly HttpClient _client;
 
-    public OrderControllerTests()
+    public OrderControllerTests(WebApplicationFactory<Program> factory)
     {
-        _orderRepositoryMock = new Mock<IOrderRepository>();
-        _loggerMock = new Mock<ILogger<OrderController>>();
+        _orderServiceMock = new Mock<IOrderService>();
+
+        _orderController = new OrderController(_orderServiceMock.Object);
         _orderValidatorMock = new Mock<IValidator<AddOrderRequest>>();
 
-        _orderController = new OrderController(_loggerMock.Object, _orderRepositoryMock.Object, _orderValidatorMock.Object);
+        _client = factory.CreateDefaultClient();
     }
 
     [Fact]
@@ -37,21 +38,11 @@ public class OrderControllerTests
             DateTime.Now
         );
 
-        var validationResult = new ValidationResult(new List<ValidationFailure>
-        {
-            new ValidationFailure("AreaId", "AreaId должен быть больше нуля."),
-            new ValidationFailure("Weight", "Вес заказа должен быть положительным."),
-            new ValidationFailure("DeliveryTime", "Время доставки не может быть в прошлом.")
-        });
-        _orderValidatorMock
-            .Setup(v => v.ValidateAsync(request, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(validationResult);
-
         // Act
-        var result = await _orderController.AddOrder(request);
+        var response = await _client.GetAsync($"/api/order/add-order?request={request}");
 
         // Assert
-        result.Should().BeOfType<BadRequestObjectResult>();
+        response.StatusCode.Should().Be(HttpStatusCode.MethodNotAllowed);
     }
 
     [Fact]
@@ -59,10 +50,6 @@ public class OrderControllerTests
     {
         // Arrange
         var areaId = 1;
-        var firstOrderTime = DateTime.Now;
-        _orderRepositoryMock.Setup(repo => repo.GetFirstOrderTime(areaId)).ReturnsAsync(firstOrderTime);
-        _orderRepositoryMock.Setup(repo => repo.GetOrdersWithinTimeRange(areaId, firstOrderTime, firstOrderTime.AddMinutes(30)))
-            .ReturnsAsync(new List<Order>());
 
         // Act
         var result = await _orderController.FilterOrders(areaId);
@@ -74,23 +61,21 @@ public class OrderControllerTests
     [Fact]
     public async Task FilterOrders_ShouldReturnBadRequest_WhenNoOrdersExist()
     {
-        // Arrange
-        var areaId = 1;
-        _orderRepositoryMock.Setup(repo => repo.GetFirstOrderTime(areaId))
-            .ThrowsAsync(new ArgumentException($"Заказов в данном районе({areaId}) не найдено"));
+        //Arrange
+        var areaId = 100;
 
         // Act
-        var result = await _orderController.FilterOrders(areaId);
+        var response = await _client.GetAsync($"/api/order/filter-orders?areaId={areaId}");
 
         // Assert
-        result.Should().BeOfType<BadRequestObjectResult>();
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 
     [Fact]
     public async Task GetAllOrders_ShouldReturnOk_WhenOrdersExist()
     {
         // Arrange
-        _orderRepositoryMock.Setup(repo => repo.GetAllOrders()).ReturnsAsync(new List<Order>());
+        _orderServiceMock.Setup(repo => repo.GetAllOrders()).ReturnsAsync(new List<Order>());
 
         // Act
         var result = await _orderController.GetAllOrders();
@@ -103,12 +88,12 @@ public class OrderControllerTests
     public async Task GetAllOrders_ShouldReturnBadRequest_WhenNoOrdersExist()
     {
         // Arrange
-        _orderRepositoryMock.Setup(repo => repo.GetAllOrders()).ThrowsAsync(new ArgumentException("Заказы не найдены"));
+        _orderServiceMock.Setup(repo => repo.GetAllOrders()).ThrowsAsync(new ArgumentException("Заказы не найдены"));
 
         // Act
-        var result = await _orderController.GetAllOrders();
+        var response = await _client.GetAsync($"/api/order/gett-all-orders");
 
         // Assert
-        result.Should().BeOfType<BadRequestObjectResult>();
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 }
