@@ -1,10 +1,11 @@
 ﻿using AutoMapper;
+using DeliveryProject.Core.Exceptions;
 using DeliveryProject.Core.Models;
-using DeliveryProject.Access.Entities;
-using DeliveryProject.Core.Interfaces.Repositories;
+using DeliveryProject.DataAccess.Entities;
+using DeliveryProject.DataAccess.Interfaces.Repositories;
 using Microsoft.EntityFrameworkCore;
 
-namespace DeliveryProject.Access.Repositories
+namespace DeliveryProject.DataAccess.Repositories
 {
     public class OrderRepository : IOrderRepository
     {
@@ -17,57 +18,74 @@ namespace DeliveryProject.Access.Repositories
             _mapper = mapper;
         }
 
-        public async Task AddOrder(Order order)
+        public async Task<int> AddOrder(Order order)
         {
             var orderEntity = new OrderEntity()
             {
                 Id = order.Id,
                 Weight = order.Weight,
-                AreaId = order.AreaId,
+                RegionId = order.RegionId,
                 DeliveryTime = order.DeliveryTime,
             };
 
-            _context.Orders.Add(orderEntity);
-            await _context.SaveChangesAsync();
+            await _context.Orders.AddAsync(orderEntity);
+            
+            return await _context.SaveChangesAsync();
         }
 
-        public async Task<DateTime> GetFirstOrderTime(int areaId)
+        public async Task<Region> GetRegionByName(string regionName)
+        {
+            var region = await _context.Regions
+                .AsNoTracking() 
+                .Include(r => r.Orders)
+                .Where(r => r.Name.ToLower() == regionName.ToLower())
+                .FirstOrDefaultAsync();
+
+            if (region == null)
+            {
+                throw new BussinessArgumentException($"Регион с названием {regionName} не найден.");
+            }
+
+            return _mapper.Map<Region>(region);
+        }
+
+        public async Task<DateTime> GetFirstOrderTime(int regionId)
         {
             var hasOrders = await _context.Orders
-                .Where(o => o.AreaId == areaId)
+                .Where(o => o.RegionId == regionId)
                 .AnyAsync();
 
             if (!hasOrders)
             {
-                throw new ArgumentException($"Заказов в данном районе({areaId}) не найдено");
+                throw new BussinessArgumentException($"Заказов в данном районе({regionId}) не найдено");
             }
 
             var firstOrder = await _context.Orders
-                .Where(o => o.AreaId == areaId)
+                .Where(o => o.RegionId == regionId)
                 .MinAsync(o => o.DeliveryTime);
 
             return firstOrder;
         }
 
-        public async Task<List<Order>> GetOrdersWithinTimeRange(int areaId, DateTime fromTime, DateTime toTime)
+        public async Task<List<Order>> GetOrdersWithinTimeRange(int regionId, DateTime fromTime, DateTime toTime)
         {
             var filteredOrders = await _context.Orders
-                .Where(o => o.AreaId == areaId && o.DeliveryTime >= fromTime && o.DeliveryTime <= toTime)
+                .Where(o => o.RegionId == regionId && o.DeliveryTime >= fromTime && o.DeliveryTime <= toTime)
                 .ToListAsync();
 
             if (filteredOrders == null || filteredOrders.Count == 0)
             {
-                throw new ArgumentException($"Заказы не найдены для района {areaId} в диапазоне времени с {fromTime} по {toTime}");
+                throw new BussinessArgumentException($"Заказы не найдены для района {regionId} в диапазоне времени с {fromTime} по {toTime}");
             }
 
             var filteredOrderEntities = filteredOrders.Select(o => new FilteredOrderEntity
             {
                 Id = Guid.NewGuid(), 
                 OrderId = o.Id,      
-                AreaId = o.AreaId,   
+                RegionId = o.RegionId,   
                 DeliveryTime = o.DeliveryTime, 
                 Order = o,           
-                Area = o.Area        
+                Region = o.Region        
             }).ToList();
 
             await _context.FilteredOrders.AddRangeAsync(filteredOrderEntities);
@@ -82,7 +100,7 @@ namespace DeliveryProject.Access.Repositories
 
             if (orders == null || orders.Count == 0)
             {
-                throw new ArgumentException("Заказы не найдены");
+                throw new BussinessArgumentException("Заказы не найдены");
             }
 
             return _mapper.Map<List<Order>>(orders);

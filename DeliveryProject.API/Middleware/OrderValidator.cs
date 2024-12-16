@@ -1,14 +1,14 @@
 ﻿using FluentValidation;
 using DeliveryProject.Core.Models;
 
-namespace DeliveryProject.Application.Validation
+namespace DeliveryProject.API.Middleware
 {
-    public class AddOrderValidator : AbstractValidator<Order>
+    public class OrderValidator : AbstractValidator<Order>
     {
-        public AddOrderValidator()
+        public OrderValidator()
         {
-            RuleFor(x => x.AreaId)
-                .GreaterThan(0).WithMessage("AreaId должен быть больше нуля.");
+            RuleFor(x => x.RegionId)
+                .GreaterThan(0).WithMessage("RegionId должен быть больше нуля.");
 
             RuleFor(x => x.Weight)
                 .GreaterThan(0).WithMessage("Вес заказа должен быть положительным.");

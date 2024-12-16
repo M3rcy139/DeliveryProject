@@ -1,6 +1,12 @@
-﻿using FluentValidation;
+﻿using DeliveryProject.Core.Exceptions;
+using FluentValidation;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using System.Net;
+using System.Text;
 
 namespace DeliveryProject.API.Middleware
 {
@@ -8,11 +14,14 @@ namespace DeliveryProject.API.Middleware
     {
         private readonly RequestDelegate _next;
         private readonly ILogger<ExceptionHandlingMiddleware> _logger;
+        private readonly IWebHostEnvironment _environment;
 
-        public ExceptionHandlingMiddleware(RequestDelegate next, ILogger<ExceptionHandlingMiddleware> logger)
+        public ExceptionHandlingMiddleware(RequestDelegate next, ILogger<ExceptionHandlingMiddleware> logger,
+            IWebHostEnvironment environment)
         {
             _next = next;
             _logger = logger;
+            _environment = environment;
         }
 
         public async Task InvokeAsync(HttpContext context)
@@ -21,23 +30,68 @@ namespace DeliveryProject.API.Middleware
             {
                 await _next(context);
             }
+            catch (ValidationException ex)
+            {
+                _logger.LogError("Ошибка валидации: {Errors}", ex.Errors);
+
+                await HandleExceptionAsync(context, ex, HttpStatusCode.BadRequest);
+            }
+            catch (BussinessArgumentException ex)
+            {
+                _logger.LogError($"Бизнес-логическое исключение: {ex.Message}");
+
+                await HandleExceptionAsync(context, ex, HttpStatusCode.BadRequest);
+            }
             catch (ArgumentException ex)
             {
                 _logger.LogError($"Аргументное исключение: {ex.Message}");
 
-                context.Response.StatusCode = StatusCodes.Status404NotFound;
-
-                await context.Response.WriteAsJsonAsync(new { error = "Данные не найдены", details = ex.Message });
+                await HandleExceptionAsync(context, ex, HttpStatusCode.BadRequest);
             }
             catch (Exception ex)
             {
                 _logger.LogError($"Непредвиденная ошибка: {ex.Message}");
-                
-                context.Response.StatusCode = StatusCodes.Status500InternalServerError;
-                
-                await context.Response.WriteAsJsonAsync(new { error = "Произошла ошибка непредвиденная ошибка", details = ex.Message });
+
+                await HandleExceptionAsync(context, ex, HttpStatusCode.InternalServerError);
             }
+        }
+
+        private async Task HandleExceptionAsync(HttpContext context, Exception exp, HttpStatusCode code)
+        {
+            var resultObject = new ProblemDetails
+            {
+                Status = (int)code,
+                Title = exp.Message,
+                Instance = context.Request.Path,
+                Type = code.ToString(),
+                Detail = !_environment.IsProduction() ? exp.FullMessage() : null
+            };
+
+            context.Response.ContentType = "application/json";
+            context.Response.StatusCode = (int)code;
+
+            await context.Response.WriteAsJsonAsync(resultObject);
         }
     }
 
+    public static class ExceptionExtensions
+    {
+        public static string FullMessage(this Exception exception, bool needStackTrace = true)
+        {
+            var message = new StringBuilder();
+
+            if (needStackTrace)
+                message.AppendLine(exception.StackTrace);
+
+            message.AppendLine(exception.Message);
+
+            while (exception.InnerException != null)
+            {
+                exception = exception.InnerException;
+                message.AppendLine(exception.Message);
+            }
+
+            return message.ToString();
+        }
+    }
 }

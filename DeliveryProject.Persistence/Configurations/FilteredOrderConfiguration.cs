@@ -1,8 +1,8 @@
-﻿using DeliveryProject.Access.Entities;
+﻿using DeliveryProject.DataAccess.Entities;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore;
 
-namespace DeliveryProject.Access.Configurations
+namespace DeliveryProject.DataAccess.Configurations
 {
     public class FilteredOrderConfiguration : IEntityTypeConfiguration<FilteredOrderEntity>
     {
@@ -17,9 +17,9 @@ namespace DeliveryProject.Access.Configurations
                 .WithMany()
                 .HasForeignKey(f => f.OrderId);
 
-            builder.HasOne(f => f.Area)
+            builder.HasOne(f => f.Region)
                 .WithMany()
-                .HasForeignKey(f => f.AreaId);
+                .HasForeignKey(f => f.RegionId);
         }
     }
 }

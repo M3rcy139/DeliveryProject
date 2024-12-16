@@ -1,8 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using DeliveryProject.Core.Models;
-using DeliveryProject.Application.Dto;
+using DeliveryProject.API.Dto;
 using FluentValidation;
-using DeliveryProject.Core.Interfaces.Services;
+using DeliveryProject.Bussiness.Contract.Interfaces.Services;
+using DeliveryProject.API.Attributes;
 
 namespace DeliveryProject.Controllers
 {
@@ -17,43 +18,36 @@ namespace DeliveryProject.Controllers
             _orderService = orderService;
         }
 
-        [HttpPost("add-order")]
+        [HttpPost("Order/Add")]
         public async Task<IActionResult> AddOrder([FromBody] AddOrderRequest request)
         {
-
-            try 
-            { 
-                var order = new Order()
-                {
-                    Id = Guid.NewGuid(),
-                    AreaId = request.AreaId,
-                    Weight = request.Weight,
-                    DeliveryTime = request.DeliveryTime
-                };
-
-                await _orderService.AddOrder(order);
-
-                return Ok(order);
-            }
-            catch (ValidationException ex)
+            var order = new Order()
             {
-                return BadRequest(new
-                {
-                    error = "Ошибка валидации",
-                    details = ex.Errors.Select(e => e.ErrorMessage)
-                });
-            }
+                Id = Guid.NewGuid(),
+                RegionId = request.regionId,
+                Weight = request.Weight,
+                DeliveryTime = request.DeliveryTime
+            };
+
+            var affectedRows = await _orderService.AddOrder(order);
+
+            return Ok(new
+            {
+                order,
+                affectedRows,
+                message = "Заказ успешно добавлен"
+            });
         }
 
-        [HttpGet("filter-orders")]
-        public async Task<IActionResult> FilterOrders(int areaId)
+        [HttpGet("Orders/Filter")]
+        public async Task<IActionResult> FilterOrders(string regionName)
         {
-            var filteredOrders = await _orderService.FilterOrders(areaId);
+            var filteredOrders = await _orderService.FilterOrders(regionName);
 
             return Ok(filteredOrders);
         }
 
-        [HttpGet("get-all-orders")]
+        [HttpGet("Orders/GetAll")]
         public async Task<IActionResult> GetAllOrders()
         {
             var orders = await _orderService.GetAllOrders();

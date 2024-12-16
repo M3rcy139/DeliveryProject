@@ -5,9 +5,9 @@ namespace DeliveryProject.Core.Models
     {
         public Guid Id { get; set; } 
         public double Weight { get; set; } 
-        public int AreaId { get; set; } 
+        public int RegionId { get; set; } 
         public DateTime DeliveryTime { get; set; } 
 
-        public Area Area { get; set; } 
+        public Region Region { get; set; } 
     }
 }

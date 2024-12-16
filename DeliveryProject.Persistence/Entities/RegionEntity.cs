@@ -1,7 +1,7 @@
 ﻿
-namespace DeliveryProject.Access.Entities
+namespace DeliveryProject.DataAccess.Entities
 {
-    public class AreaEntity
+    public class RegionEntity
     {
         public int Id { get; set; }
         public string Name { get; set; }

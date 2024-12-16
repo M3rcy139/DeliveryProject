@@ -1,14 +1,14 @@
-﻿using DeliveryProject.Access.Entities;
+﻿using DeliveryProject.DataAccess.Entities;
 using DeliveryProject.Core.Models;
 using AutoMapper;
 
-namespace DeliveryProject.Access.Mappings
+namespace DeliveryProject.DataAccess.Mappings
 {
     public class DataBaseMappings : Profile
     {
         public DataBaseMappings() 
         { 
-            CreateMap<AreaEntity, Area>();
+            CreateMap<RegionEntity, Region>();
             CreateMap<FilteredOrderEntity, FilteredOrder>();
             CreateMap<OrderEntity, Order>();
         }

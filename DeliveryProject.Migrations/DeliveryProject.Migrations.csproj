@@ -7,18 +7,19 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="FluentValidation" Version="11.11.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.11">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="NLog" Version="5.3.4" />
-    <PackageReference Include="NLog.Web.AspNetCore" Version="5.3.15" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.11">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.11" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\DeliveryProject.Bussiness.Contract\DeliveryProject.Bussiness.Contract.csproj" />
-    <ProjectReference Include="..\DeliveryProject.Core\DeliveryProject.Core.csproj" />
+    <ProjectReference Include="..\DeliveryProject.Persistence\DeliveryProject.DataAccess.csproj" />
   </ItemGroup>
 
 </Project>

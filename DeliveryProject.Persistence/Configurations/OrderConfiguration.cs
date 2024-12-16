@@ -1,8 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using DeliveryProject.Access.Entities;
+using DeliveryProject.DataAccess.Entities;
 
-namespace DeliveryProject.Access.Configurations
+namespace DeliveryProject.DataAccess.Configurations
 {
     public class OrderConfiguration : IEntityTypeConfiguration<OrderEntity>
     {
@@ -16,9 +16,9 @@ namespace DeliveryProject.Access.Configurations
             builder.Property(o => o.DeliveryTime)
                 .IsRequired();
 
-            builder.HasOne(o => o.Area)
+            builder.HasOne(o => o.Region)
                 .WithMany(a => a.Orders)
-                .HasForeignKey(o => o.AreaId);
+                .HasForeignKey(o => o.RegionId);
         }
     }
 }

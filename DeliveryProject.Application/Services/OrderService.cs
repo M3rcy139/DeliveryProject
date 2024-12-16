@@ -1,10 +1,11 @@
-﻿using DeliveryProject.Core.Interfaces.Services;
-using DeliveryProject.Core.Interfaces.Repositories;
+﻿using DeliveryProject.Bussiness.Contract.Interfaces.Services;
+using DeliveryProject.DataAccess.Interfaces.Repositories;
 using DeliveryProject.Core.Models;
 using FluentValidation;
 using Microsoft.Extensions.Logging;
+using DeliveryProject.Bussiness.Extensions;
 
-namespace DeliveryProject.Application.Services
+namespace DeliveryProject.Bussiness.Services
 {
     public class OrderService : IOrderService
     {
@@ -20,42 +21,38 @@ namespace DeliveryProject.Application.Services
             _addOrderValidator = addOrderValidator;
         }
 
-        public async Task AddOrder(Order order)
+        public async Task<int> AddOrder(Order order)
         {
-            var validationResult = await _addOrderValidator.ValidateAsync(order);
-            if (!validationResult.IsValid)
+            var (isValid, errors) = await _addOrderValidator.TryValidateAsync(order);
+
+            if (!isValid)
             {
-                foreach (var error in validationResult.Errors)
-                {
-                    _logger.LogError($"Ошибка валидации: {error.ErrorMessage}");
-                }
-
-                var errorMessages = validationResult.Errors
-                    .Select(e => e.ErrorMessage)
-                    .ToList();
-
-                throw new ValidationException("Ошибка валидации", validationResult.Errors);
+                var errorMessages = errors.Select(e => e.ErrorMessage).ToList();
+                throw new ValidationException("Ошибка валидации", errors);
             }
 
-            await _orderRepository.AddOrder(order);
+            var result = await _orderRepository.AddOrder(order);
+
             _logger.LogInformation($"Добавлен заказ с ID: {order.Id}");
+
+            return result;
         }
 
-        public async Task<List<Order>> FilterOrders(int areaId)
+        public async Task<List<Order>> FilterOrders(string regionName)
         {
-            if (areaId <= 0)
-            {
-                throw new ArgumentException($"Некорректный идентификатор района: {areaId}");
-            }
+            var region = await _orderRepository.GetRegionByName(regionName);
 
-            var firstOrderTime = await _orderRepository.GetFirstOrderTime(areaId);
+            var regionId = region.Id;
+
+
+            var firstOrderTime = await _orderRepository.GetFirstOrderTime(regionId);
 
             var timeRangeEnd = firstOrderTime.AddMinutes(30);
 
-            var filteredOrders = await _orderRepository.GetOrdersWithinTimeRange(areaId, firstOrderTime, timeRangeEnd);
+            var filteredOrders = await _orderRepository.GetOrdersWithinTimeRange(regionId, firstOrderTime, timeRangeEnd);
 
             _logger.LogInformation(
-                $"Найдено {filteredOrders.Count} заказов для района {areaId} в диапазоне от {firstOrderTime} до {timeRangeEnd}");
+                $"Найдено {filteredOrders.Count} заказов для района {regionId} в диапазоне от {firstOrderTime} до {timeRangeEnd}");
 
             return filteredOrders;
         }
