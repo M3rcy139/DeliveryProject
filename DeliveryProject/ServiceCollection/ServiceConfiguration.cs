@@ -1,8 +1,8 @@
-﻿using DeliveryProject.DataAccess.Repositories;
+﻿using DeliveryProject.Repositories;
 using DeliveryProject.Bussiness.Contract.Interfaces.Services;
 using DeliveryProject.Bussiness.Services;
 using DeliveryProject.Core.Models;
-using DeliveryProject.DataAccess.Interfaces.Repositories;
+using DeliveryProject.Repositories.Interfaces;
 using DeliveryProject.DataAccess;
 using DeliveryProject.DataAccess.Mappings;
 using FluentValidation;

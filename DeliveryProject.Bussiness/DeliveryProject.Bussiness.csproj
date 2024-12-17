@@ -17,6 +17,7 @@
   <ItemGroup>
     <ProjectReference Include="..\DeliveryProject.Bussiness.Contract\DeliveryProject.Bussiness.Contract.csproj" />
     <ProjectReference Include="..\DeliveryProject.Core\DeliveryProject.Core.csproj" />
+    <ProjectReference Include="..\DeliveryProject.Repositories\DeliveryProject.Repositories.csproj" />
   </ItemGroup>
 
 </Project>

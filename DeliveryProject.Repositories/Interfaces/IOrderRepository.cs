@@ -1,6 +1,6 @@
 ﻿using DeliveryProject.Core.Models;
 
-namespace DeliveryProject.DataAccess.Interfaces.Repositories
+namespace DeliveryProject.Repositories.Interfaces
 {
     public interface IOrderRepository
     {

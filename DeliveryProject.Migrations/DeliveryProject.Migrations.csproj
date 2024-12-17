@@ -19,6 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\DeliveryProject.DataAccess\DeliveryProject.DataAccess.csproj" />
     <ProjectReference Include="..\DeliveryProject.Persistence\DeliveryProject.DataAccess.csproj" />
   </ItemGroup>
 

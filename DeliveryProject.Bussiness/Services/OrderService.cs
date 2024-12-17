@@ -1,5 +1,5 @@
 ﻿using DeliveryProject.Bussiness.Contract.Interfaces.Services;
-using DeliveryProject.DataAccess.Interfaces.Repositories;
+using DeliveryProject.Repositories.Interfaces;
 using DeliveryProject.Core.Models;
 using FluentValidation;
 using Microsoft.Extensions.Logging;

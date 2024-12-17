@@ -9,6 +9,7 @@ using FluentValidation;
 using System.Net;
 using System.Net.Http.Json;
 using Microsoft.Extensions.DependencyInjection;
+using DeliveryProject.Core.Exceptions;
 
 public class OrderControllerTests : IClassFixture<WebApplicationFactory<Program>>
 {
@@ -75,7 +76,7 @@ public class OrderControllerTests : IClassFixture<WebApplicationFactory<Program>
         var regionName = "";
 
         _orderServiceMock.Setup(service => service.FilterOrders(regionName))
-            .ThrowsAsync(new ArgumentException("Заказы не найдены"));
+            .ThrowsAsync(new BussinessArgumentException("Заказы не найдены"));
 
         // Act
         var response = await _client.GetAsync($"/api/order/Orders/Filter?regionName={regionName}");
@@ -103,7 +104,7 @@ public class OrderControllerTests : IClassFixture<WebApplicationFactory<Program>
         // Arrange
         _orderServiceMock
             .Setup(service => service.GetAllOrders())
-            .ThrowsAsync(new ArgumentException("Заказы не найдены"));
+            .ThrowsAsync(new BussinessArgumentException("Заказы не найдены"));
 
         // Act
         var response = await _client.GetAsync($"/api/order/Orders/GetAll");

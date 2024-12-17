@@ -1,11 +1,12 @@
 ﻿using AutoMapper;
 using DeliveryProject.Core.Exceptions;
 using DeliveryProject.Core.Models;
+using DeliveryProject.DataAccess;
 using DeliveryProject.DataAccess.Entities;
-using DeliveryProject.DataAccess.Interfaces.Repositories;
+using DeliveryProject.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
-namespace DeliveryProject.DataAccess.Repositories
+namespace DeliveryProject.Repositories
 {
     public class OrderRepository : IOrderRepository
     {
