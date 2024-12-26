@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System.Net;
-using System.Text;
+using DeliveryProject.API.Extensions;
 
 namespace DeliveryProject.API.Middleware
 {
@@ -71,27 +71,6 @@ namespace DeliveryProject.API.Middleware
             context.Response.StatusCode = (int)code;
 
             await context.Response.WriteAsJsonAsync(resultObject);
-        }
-    }
-
-    public static class ExceptionExtensions
-    {
-        public static string FullMessage(this Exception exception, bool needStackTrace = true)
-        {
-            var message = new StringBuilder();
-
-            if (needStackTrace)
-                message.AppendLine(exception.StackTrace);
-
-            message.AppendLine(exception.Message);
-
-            while (exception.InnerException != null)
-            {
-                exception = exception.InnerException;
-                message.AppendLine(exception.Message);
-            }
-
-            return message.ToString();
         }
     }
 }

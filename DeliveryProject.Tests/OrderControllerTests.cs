@@ -1,7 +1,7 @@
 using Xunit;
 using Moq;
 using Microsoft.AspNetCore.Mvc.Testing;
-using DeliveryProject.Bussiness.Contract.Interfaces.Services;
+using DeliveryProject.Bussiness.Interfaces.Services;
 using DeliveryProject.Core.Models;
 using DeliveryProject.API.Dto;
 using FluentAssertions;
@@ -35,7 +35,7 @@ public class OrderControllerTests : IClassFixture<WebApplicationFactory<Program>
         // Arrange
         var request = new AddOrderRequest
         {
-            regionId = 0,
+            RegionId = 0,
             Weight = -5.5,
             DeliveryTime = DateTime.Now
         };

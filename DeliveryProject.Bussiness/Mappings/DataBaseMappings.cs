@@ -2,7 +2,7 @@
 using DeliveryProject.Core.Models;
 using AutoMapper;
 
-namespace DeliveryProject.DataAccess.Mappings
+namespace DeliveryProject.Bussiness.Mappings
 {
     public class DataBaseMappings : Profile
     {

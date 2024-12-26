@@ -36,7 +36,6 @@
     <ProjectReference Include="..\DeliveryProject.DataAccess\DeliveryProject.DataAccess.csproj" />
     <ProjectReference Include="..\DeliveryProject.Migrations\DeliveryProject.Migrations.csproj" />
     <ProjectReference Include="..\DeliveryProject.Persistence\DeliveryProject.DataAccess.csproj" />
-    <ProjectReference Include="..\DeliveryProject.Repositories\DeliveryProject.Repositories.csproj" />
   </ItemGroup>
 
 </Project>

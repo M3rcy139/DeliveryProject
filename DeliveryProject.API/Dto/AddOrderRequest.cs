@@ -2,7 +2,7 @@
 {
     public class AddOrderRequest
     {
-        public int regionId { get; set; }
+        public int RegionId { get; set; }
         public double Weight { get; set; }
         public DateTime DeliveryTime { get; set; }
     }

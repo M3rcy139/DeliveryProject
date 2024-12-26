@@ -1,8 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using DeliveryProject.Core.Models;
 using DeliveryProject.API.Dto;
-using FluentValidation;
-using DeliveryProject.Bussiness.Contract.Interfaces.Services;
+using DeliveryProject.Bussiness.Interfaces.Services;
 using DeliveryProject.API.Attributes;
 
 namespace DeliveryProject.Controllers
@@ -24,7 +23,7 @@ namespace DeliveryProject.Controllers
             var order = new Order()
             {
                 Id = Guid.NewGuid(),
-                RegionId = request.regionId,
+                RegionId = request.RegionId,
                 Weight = request.Weight,
                 DeliveryTime = request.DeliveryTime
             };

@@ -1,6 +1,6 @@
 ﻿using DeliveryProject.API.Middleware;
 
-namespace DeliveryProject
+namespace DeliveryProject.ServiceCollection
 {
     public static class MiddlewareConfiguration
     {
@@ -23,7 +23,7 @@ namespace DeliveryProject
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapControllers(); 
+                endpoints.MapControllers();
             });
 
             app.UseHttpsRedirection();

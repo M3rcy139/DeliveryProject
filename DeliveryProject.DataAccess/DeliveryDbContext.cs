@@ -3,8 +3,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DeliveryProject.DataAccess
 { 
-    public class DeliveryDbContext(DbContextOptions<DeliveryDbContext> options) : DbContext(options)
+    public class DeliveryDbContext : DbContext
     {
+        public DeliveryDbContext(DbContextOptions<DeliveryDbContext> options) : base(options)
+        {
+        }
         public DbSet<RegionEntity> Regions { get; set; }
         public DbSet<FilteredOrderEntity> FilteredOrders { get; set; }
         public DbSet<OrderEntity> Orders { get; set; }

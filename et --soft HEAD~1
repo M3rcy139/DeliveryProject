@@ -1,0 +1,59 @@
+[33mcommit 3830f167a9c9f9af3e28c3ddfbdced456a922a09[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mdevelopment[m[33m, [m[1;31morigin/development[m[33m)[m
+Author: M3rcy <m3rcy139@gmail.com>
+Date:   Tue Dec 17 22:41:04 2024 +0300
+
+    minor fixes
+
+[33mcommit feef6c0b02afdfa90f926c0c6ae0ad72e14a2512[m
+Author: M3rcy <m3rcy139@gmail.com>
+Date:   Mon Dec 16 23:49:53 2024 +0300
+
+    Исправления архитектуры, валидации, обработи исключений, тестов, сервисов
+
+[33mcommit 18e8ca84c82a805d9bf2ca0fe5f380ab3330cdde[m
+Author: M3rcy <m3rcy139@gmail.com>
+Date:   Thu Dec 12 22:44:16 2024 +0300
+
+    Подкорректировал тесты
+
+[33mcommit d789e7445af7b7e82a93c927e068d50c00efe2cf[m
+Author: M3rcy <m3rcy139@gmail.com>
+Date:   Thu Dec 12 16:26:08 2024 +0300
+
+    Переделал структуру проекта, изменил обработку ошибок
+
+[33mcommit bb7a3f2af5b1568b0b0ce6b8636987f83e349629[m[33m ([m[1;31morigin/master[m[33m, [m[1;32mmaster[m[33m)[m
+Author: M3rcy <m3rcy139@gmail.com>
+Date:   Sat Oct 26 22:31:04 2024 +0300
+
+    Мелкие исправления
+
+[33mcommit 9d2d608ea55e2e723b91b94943c287e46bd4baa6[m
+Author: M3rcy <m3rcy139@gmail.com>
+Date:   Fri Oct 25 14:47:43 2024 +0300
+
+    Добавил логирование и тесты
+
+[33mcommit 2b5fba523c340387f81acb20d5551f41cd4cbb61[m
+Author: Максим Ткаченко <maximmt505@gmail.com>
+Date:   Tue Oct 22 13:42:27 2024 +0300
+
+    Добавил обработку ошибок и dto
+
+[33mcommit 0bbf5194ad4f6eeb6f6d8e6b54a73f670d9e1c44[m
+Author: M3rcy <m3rcy139@gmail.com>
+Date:   Tue Oct 22 01:04:14 2024 +0300
+
+    Изменил FilteredOrders в контроллере
+
+[33mcommit 3f2612b098df81011b6d52b35a2ce28c3c9450f8[m
+Author: M3rcy <m3rcy139@gmail.com>
+Date:   Tue Oct 22 00:45:18 2024 +0300
+
+    Добавьте файлы проекта.
+
+[33mcommit e8c42f01c85fa68399b59c36b4faa3e47c5722b3[m
+Author: M3rcy <m3rcy139@gmail.com>
+Date:   Tue Oct 22 00:44:58 2024 +0300
+
+    Добавить .gitattributes и .gitignore.
