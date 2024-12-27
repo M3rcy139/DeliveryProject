@@ -1,11 +1,6 @@
 using NLog;
-using NLog.Web;
 using DeliveryProject.ServiceCollection;
-using DeliveryProject.Bussiness.Interfaces.Services;
 using DeliveryProject.Bussiness.Mappings;
-using DeliveryProject.Bussiness.Services;
-using DeliveryProject.DataAccess.Interfaces;
-using DeliveryProject.DataAccess.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 var services = builder.Services;
