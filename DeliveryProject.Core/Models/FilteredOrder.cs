@@ -5,11 +5,11 @@ namespace DeliveryProject.Core.Models
     {
         public Guid Id { get; set; } 
         public Guid OrderId { get; set; } 
-        public int AreaId { get; set; } 
+        public int RegionId { get; set; } 
         public DateTime DeliveryTime { get; set; } 
 
         public Order Order { get; set; }
-        public Area Area { get; set; } 
+        public Region Region { get; set; } 
     }
 
 }

@@ -1,46 +1,35 @@
-using DeliveryProject.Persistence;
-using DeliveryProject.Persistence.Mappings;
-using DeliveryProject.Application;
 using NLog;
-using NLog.Web;
+using DeliveryProject.ServiceCollection;
+using DeliveryProject.Bussiness.Mappings;
 
 var builder = WebApplication.CreateBuilder(args);
 var services = builder.Services;
 var configuration = builder.Configuration;
 
-LogManager.Setup().LoadConfigurationFromAppSettings();
 var logger = LogManager.GetCurrentClassLogger();
-logger.Info("Инициализация приложения");
 
 try
 {
-    builder.Logging.ClearProviders();
-    builder.Host.UseNLog();
+    builder.Host.ConfigureLogging(configuration);
 
-    builder.Services.AddControllers();
-    builder.Services.AddEndpointsApiExplorer();
-    builder.Services.AddSwaggerGen();
+    logger.Info("Инициализация приложения");
 
-    builder.Services.AddApplication(builder.Configuration);
-    builder.Services.AddPersistence(builder.Configuration);
-    builder.Services.AddAutoMapper(typeof(DataBaseMappings));
+    services.AddDbServices(configuration);
+    
+    services.AddFluentValidationServices();
+
+    services.AddRouting();
+    services.AddControllers();
+    services.AddEndpointsApiExplorer();
+    services.AddSwaggerGen();
+
+    services.AddDependencyInjection();
+
+    services.AddAutoMapper(typeof(DataBaseMappings));
 
     var app = builder.Build();
 
-    if (app.Environment.IsDevelopment())
-    {
-        app.UseDeveloperExceptionPage();
-        app.UseSwagger();
-        app.UseSwaggerUI();
-    }
-    else
-    {
-        app.UseExceptionHandler("/error");
-        app.UseHsts();
-    }
-
-    app.UseHttpsRedirection();
-    app.MapControllers();
+    app.ConfigureMiddleware(builder.Environment);
 
     app.Run();
 }
@@ -53,3 +42,5 @@ finally
 {
     NLog.LogManager.Shutdown();
 }
+
+public partial class Program { }
