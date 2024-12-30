@@ -66,9 +66,16 @@ namespace DeliveryProject.DataAccess.Repositories
             return filteredOrders;
         }
 
-        public async Task<List<OrderEntity>> GetAllOrders()
+        public async Task<List<OrderEntity>> GetAllOrdersImmediate()
         {
             var orders = await _context.Orders.ToListAsync();
+
+            return orders;
+        }
+
+        public IQueryable<OrderEntity> GetAllOrdersDeferred()
+        {
+            var orders = _context.Orders;
 
             return orders;
         }

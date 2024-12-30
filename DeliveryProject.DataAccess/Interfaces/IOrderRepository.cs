@@ -9,6 +9,7 @@ namespace DeliveryProject.DataAccess.Interfaces
         Task<bool> HasOrders(int regionId);
         Task<DateTime> GetFirstOrderTime(int regionId);
         Task<List<OrderEntity>> GetOrdersWithinTimeRange(int regionId, DateTime fromTime, DateTime toTime);
-        Task<List<OrderEntity>> GetAllOrders();
+        Task<List<OrderEntity>> GetAllOrdersImmediate();
+        IQueryable<OrderEntity> GetAllOrdersDeferred();
     }
 }

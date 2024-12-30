@@ -18,6 +18,7 @@ namespace DeliveryProject.ServiceCollection
                 app.UseHsts();
             }
 
+            app.UseMiddleware<ValidationMiddleware>();
             app.UseMiddleware<ExceptionHandlingMiddleware>();
             app.UseRouting();
 

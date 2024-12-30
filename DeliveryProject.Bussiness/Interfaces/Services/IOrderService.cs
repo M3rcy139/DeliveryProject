@@ -1,4 +1,6 @@
-﻿ using DeliveryProject.Core.Models;
+﻿using DeliveryProject.Bussiness.Enums;
+using DeliveryProject.Core.Models;
+using DeliveryProject.DataAccess.Entities;
 
 namespace DeliveryProject.Bussiness.Interfaces.Services
 {
@@ -6,6 +8,6 @@ namespace DeliveryProject.Bussiness.Interfaces.Services
     {
         Task<int> AddOrder(Order order);
         Task<List<Order>> FilterOrders(string regionName);
-        Task<List<Order>> GetAllOrders();
+        Task<List<Order>> GetAllOrders(SortField? sortBy, bool descending);
     }
 }
