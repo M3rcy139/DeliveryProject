@@ -2,7 +2,6 @@
 using FluentValidation;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System.Net;
@@ -32,33 +31,38 @@ namespace DeliveryProject.API.Middleware
             }
             catch (ValidationException ex)
             {
-                _logger.LogError("Ошибка валидации: {Errors}", ex.Errors);
+                _logger.LogError("Validation error: {Errors}", ex.Errors);
 
                 await HandleExceptionAsync(context, ex, HttpStatusCode.BadRequest);
             }
             catch (BussinessArgumentException ex)
             {
-                _logger.LogError($"Бизнес-логическое исключение: {ex.Message}");
+                _logger.LogError($"Business logical exception: {ex.Message}");
 
                 await HandleExceptionAsync(context, ex, HttpStatusCode.BadRequest);
             }
             catch (ArgumentException ex)
             {
-                _logger.LogError($"Аргументное исключение: {ex.Message}");
+                _logger.LogError($"An argumentative exception {ex.Message}");
 
                 await HandleExceptionAsync(context, ex, HttpStatusCode.BadRequest);
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Непредвиденная ошибка: {ex.Message}");
+                _logger.LogError($"Unexpected error: {ex.Message}");
 
                 await HandleExceptionAsync(context, ex, HttpStatusCode.InternalServerError);
+            }
+            finally
+            {
+                _logger.LogInformation("Completion of request processing. Path: {Path}, Method: {Method}, StatusCode: {StatusCode}",
+                    context.Request.Path, context.Request.Method, context.Response.StatusCode);
             }
         }
 
         private async Task HandleExceptionAsync(HttpContext context, Exception exp, HttpStatusCode code)
         {
-            var resultObject = new ProblemDetails
+            var problemDetails = new CustomProblemDetails
             {
                 Status = (int)code,
                 Title = exp.Message,
@@ -67,10 +71,15 @@ namespace DeliveryProject.API.Middleware
                 Detail = !_environment.IsProduction() ? exp.FullMessage() : null
             };
 
+            if (exp is BussinessArgumentException businessException && !string.IsNullOrEmpty(businessException.ErrorCode))
+            {
+                problemDetails.ErrorCode = businessException.ErrorCode;
+            }
+
             context.Response.ContentType = "application/json";
             context.Response.StatusCode = (int)code;
 
-            await context.Response.WriteAsJsonAsync(resultObject);
+            await context.Response.WriteAsJsonAsync(problemDetails);
         }
     }
 }

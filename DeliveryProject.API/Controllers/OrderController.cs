@@ -2,7 +2,7 @@
 using DeliveryProject.Core.Models;
 using DeliveryProject.API.Dto;
 using DeliveryProject.Bussiness.Interfaces.Services;
-using DeliveryProject.API.Attributes;
+using DeliveryProject.Bussiness.Enums;
 
 namespace DeliveryProject.Controllers
 {
@@ -28,18 +28,17 @@ namespace DeliveryProject.Controllers
                 DeliveryTime = request.DeliveryTime
             };
 
-            var affectedRows = await _orderService.AddOrder(order);
+            var result = await _orderService.AddOrder(order, request.SupplierId);
 
             return Ok(new
             {
-                order,
-                affectedRows,
-                message = "Заказ успешно добавлен"
+                result,
+                message = "The order was successfully added."
             });
         }
 
         [HttpGet("Orders/Filter")]
-        public async Task<IActionResult> FilterOrders(string regionName)
+        public async Task<IActionResult> FilterOrders(string? regionName)
         {
             var filteredOrders = await _orderService.FilterOrders(regionName);
 
@@ -47,9 +46,10 @@ namespace DeliveryProject.Controllers
         }
 
         [HttpGet("Orders/GetAll")]
-        public async Task<IActionResult> GetAllOrders()
+        public async Task<IActionResult> GetAllOrders([FromQuery] SortField? sortBy = null,
+            [FromQuery] bool descending = false)
         {
-            var orders = await _orderService.GetAllOrders();
+            var orders = await _orderService.GetAllOrders(sortBy, descending);
 
             return Ok(orders);
         }

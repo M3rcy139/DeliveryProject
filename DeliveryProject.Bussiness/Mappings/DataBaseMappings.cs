@@ -11,6 +11,9 @@ namespace DeliveryProject.Bussiness.Mappings
             CreateMap<RegionEntity, Region>();
             CreateMap<FilteredOrderEntity, FilteredOrder>();
             CreateMap<OrderEntity, Order>();
+            CreateMap<DeliveryPersonEntity, DeliveryPerson>();
+            CreateMap<SupplierEntity, Supplier>();
+            CreateMap<ParticipantEntity, Participant>();
         }
     }
 }

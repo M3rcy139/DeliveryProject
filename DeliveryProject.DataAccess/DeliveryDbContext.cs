@@ -11,9 +11,13 @@ namespace DeliveryProject.DataAccess
         public DbSet<RegionEntity> Regions { get; set; }
         public DbSet<FilteredOrderEntity> FilteredOrders { get; set; }
         public DbSet<OrderEntity> Orders { get; set; }
+        public DbSet<SupplierEntity> Suppliers { get; set; }
+        public DbSet<DeliveryPersonEntity> DeliveryPersons { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Ignore<ParticipantEntity>();
+
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(DeliveryDbContext).Assembly);
         }
     }

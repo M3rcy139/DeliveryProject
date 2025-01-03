@@ -1,6 +1,7 @@
 using NLog;
 using DeliveryProject.ServiceCollection;
 using DeliveryProject.Bussiness.Mappings;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 var services = builder.Services;
@@ -12,11 +13,17 @@ try
 {
     builder.Host.ConfigureLogging(configuration);
 
-    logger.Info("Инициализация приложения");
+    logger.Info("Initializing the application.");
 
     services.AddDbServices(configuration);
     
     services.AddFluentValidationServices();
+
+    services.AddControllers()
+        .AddJsonOptions(options =>
+        {
+            options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve;
+        });
 
     services.AddRouting();
     services.AddControllers();
@@ -35,7 +42,7 @@ try
 }
 catch (Exception ex)
 {
-    logger.Error(ex, "Приложение остановлено из-за исключения.");
+    logger.Error(ex, "The application is stopped due to an exception.");
     throw;
 }
 finally
