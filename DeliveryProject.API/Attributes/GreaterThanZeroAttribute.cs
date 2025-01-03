@@ -11,7 +11,7 @@ namespace DeliveryProject.API.Attributes
                 return ValidationResult.Success;
             }
 
-            return new ValidationResult("Введенное значение должно быть больше нуля.");
+            return new ValidationResult("The entered value must be greater than zero.");
         }
     }
 }

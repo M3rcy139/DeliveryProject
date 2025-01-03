@@ -13,11 +13,10 @@ namespace DeliveryProject.DataAccess.Repositories
             _context = context;
         }
 
-        public async Task<int> AddOrder(OrderEntity orderEntity)
+        public async Task AddOrder(OrderEntity orderEntity)
         {
             await _context.Orders.AddAsync(orderEntity);
-            
-            return await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync();
         }
 
         public async Task<RegionEntity> GetRegionByName(string regionName)
@@ -57,7 +56,9 @@ namespace DeliveryProject.DataAccess.Repositories
                 RegionId = o.RegionId,   
                 DeliveryTime = o.DeliveryTime, 
                 Order = o,           
-                Region = o.Region        
+                Region = o.Region,    
+                DeliveryPersonId = o.DeliveryPersonId,
+                SupplierId = o.SupplierId,
             }).ToList();
 
             await _context.FilteredOrders.AddRangeAsync(filteredOrderEntities);

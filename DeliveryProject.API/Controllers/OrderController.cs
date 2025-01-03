@@ -28,18 +28,17 @@ namespace DeliveryProject.Controllers
                 DeliveryTime = request.DeliveryTime
             };
 
-            var affectedRows = await _orderService.AddOrder(order);
+            var result = await _orderService.AddOrder(order, request.SupplierId);
 
             return Ok(new
             {
-                order,
-                affectedRows,
-                message = "Заказ успешно добавлен"
+                result,
+                message = "The order was successfully added."
             });
         }
 
         [HttpGet("Orders/Filter")]
-        public async Task<IActionResult> FilterOrders(string regionName)
+        public async Task<IActionResult> FilterOrders(string? regionName)
         {
             var filteredOrders = await _orderService.FilterOrders(regionName);
 
