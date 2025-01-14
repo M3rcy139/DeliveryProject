@@ -1,6 +1,6 @@
 ﻿namespace DeliveryProject.DataAccess.Entities
 {
-    public abstract class ParticipantEntity
+    public abstract class BaseUnitEntity
     {
         public int Id { get; set; }
         public string Name { get; set; }

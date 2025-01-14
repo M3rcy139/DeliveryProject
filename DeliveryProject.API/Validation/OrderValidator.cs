@@ -1,5 +1,6 @@
 ﻿using FluentValidation;
 using DeliveryProject.Core.Models;
+using DeliveryProject.Core.Constants;
 
 namespace DeliveryProject.API.Validation
 {
@@ -8,13 +9,14 @@ namespace DeliveryProject.API.Validation
         public OrderValidator()
         {
             RuleFor(x => x.RegionId)
-                .GreaterThan(0).WithMessage("The RegionId must be greater than zero.");
+                .GreaterThan(0).WithMessage(ErrorMessages.Validation.InvalidRegionId);
 
             RuleFor(x => x.Weight)
-                .GreaterThan(0).WithMessage("The weight of the order must be positive.");
+                .GreaterThan(0).WithMessage(ErrorMessages.Validation.InvalidWeight);
 
             RuleFor(x => x.DeliveryTime)
-                .GreaterThanOrEqualTo(DateTime.Now).WithMessage("The delivery time cannot be in the past.");
+                .GreaterThanOrEqualTo(DateTime.Now).WithMessage(ErrorMessages.Validation.PastDeliveryTime);
         }
+
     }
 }

@@ -1,7 +1,6 @@
 using NLog;
 using DeliveryProject.ServiceCollection;
 using DeliveryProject.Bussiness.Mappings;
-using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 var services = builder.Services;
@@ -15,27 +14,21 @@ try
 
     logger.Info("Initializing the application.");
 
+
     services.AddDbServices(configuration);
     
     services.AddFluentValidationServices();
 
-    services.AddControllers()
-        .AddJsonOptions(options =>
-        {
-            options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve;
-        });
+    services.AddControllersAndSwagger();
 
-    services.AddRouting();
-    services.AddControllers();
-    services.AddEndpointsApiExplorer();
-    services.AddSwaggerGen();
-
-    services.AddDependencyInjection();
+    services.AddServices();
+    services.AddRepositories();
 
     services.AddAutoMapper(typeof(DataBaseMappings));
 
-    var app = builder.Build();
 
+    var app = builder.Build();
+    
     app.ConfigureMiddleware(builder.Environment);
 
     app.Run();

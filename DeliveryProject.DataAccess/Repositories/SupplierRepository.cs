@@ -8,15 +8,10 @@ namespace DeliveryProject.DataAccess.Repositories
     {
         private readonly DeliveryDbContext _context;
 
-        public SupplierRepository(DeliveryDbContext context)
-        {
-            _context = context;
-        }
+        public SupplierRepository(DeliveryDbContext context) => _context = context;
 
-        public async Task<SupplierEntity?> GetByIdAsync(int id)
-        {
-            return await _context.Suppliers.FirstOrDefaultAsync(s => s.Id == id);
-        }
+        public async Task<SupplierEntity?> GetByIdAsync(int id) => 
+            await _context.Suppliers.FirstOrDefaultAsync(s => s.Id == id);
     }
 }
 

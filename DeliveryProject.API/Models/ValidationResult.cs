@@ -1,6 +1,6 @@
 ﻿using FluentValidation.Results;
 
-namespace DeliveryProject.API.Extensions
+namespace DeliveryProject.API.Models
 {
     public class ValidationResult<T>
     {
@@ -25,5 +25,4 @@ namespace DeliveryProject.API.Extensions
             return new ValidationResult<T>(default, errors, false);
         }
     }
-
 }

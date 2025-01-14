@@ -6,22 +6,15 @@ using System.Text.Json;
 using DeliveryProject.API.Extensions;
 using System.Net;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Hosting;
+using DeliveryProject.Core.Constants;
 
 namespace DeliveryProject.API.Middleware
 {
-    public class ValidationMiddleware
+    public class ValidationMiddleware : ExceptionHandlingBaseMiddleware
     {
-        private readonly RequestDelegate _next;
-        private readonly ILogger<ValidationMiddleware> _logger;
-        private readonly IWebHostEnvironment _environment;
-
         public ValidationMiddleware(RequestDelegate next, ILogger<ValidationMiddleware> logger,
-            IWebHostEnvironment environment)
+            IWebHostEnvironment environment) : base (next, logger, environment)
         {
-            _next = next;
-            _logger = logger;
-            _environment = environment; 
         }
 
         public async Task InvokeAsync(HttpContext context, IValidator<Order> orderValidator)
@@ -32,8 +25,13 @@ namespace DeliveryProject.API.Middleware
                 try
                 {
                     context.Request.EnableBuffering();
-                    var body = await new StreamReader(context.Request.Body).ReadToEndAsync();
-                    context.Request.Body.Position = 0;
+
+                    string body;
+                    using (var reader = new StreamReader(context.Request.Body, leaveOpen: true)) 
+                    {
+                        body = await reader.ReadToEndAsync();
+                        context.Request.Body.Position = 0; 
+                    }
 
                     var order = JsonSerializer.Deserialize<Order>(body, new JsonSerializerOptions
                     {
@@ -42,34 +40,22 @@ namespace DeliveryProject.API.Middleware
 
                     if (order == null)
                     {
-                        throw new ValidationException("An empty Order object.");
+                        throw new ValidationException(ErrorMessages.Validation.EmptyOrderObject);
                     }
 
-                    var validationResult = await orderValidator.TryValidateAsync(order);
+                    var isValid = await orderValidator.TryValidateAsync(order);
 
-                    if (!validationResult.IsValid)
+                    if (isValid)
                     {
-                        throw new ValidationException("Validation error.", validationResult.Errors);
+                        _logger.LogInformation(InfoMessages.Validation.ValidationSucceeded);
                     }
                 }
                 catch (ValidationException ex)
                 {
-                    _logger.LogError("Validation error: {Errors}", ex.Errors);
+                    _logger.LogError(ErrorMessages.Validation.ValidationFailed, ex.Errors);
 
-                    var problemDetails = new CustomProblemDetails
-                    {
-                        Status = StatusCodes.Status400BadRequest,
-                        Title = ex.Message,
-                        Instance = context.Request.Path,
-                        Type = HttpStatusCode.BadRequest.ToString(),
-                        Detail = !_environment.IsProduction() ? ex.FullMessage() : null, 
-                        Errors = ex.Errors.Select(e => new { e.PropertyName, e.ErrorMessage })
-                    };
+                    await HandleExceptionResponseAsync(context, ex, HttpStatusCode.BadRequest, errors: ex.Errors);
 
-                    context.Response.ContentType = "application/json";
-                    context.Response.StatusCode = StatusCodes.Status400BadRequest;
-
-                    await context.Response.WriteAsJsonAsync(problemDetails);
                     return;
                 }
             }
@@ -77,5 +63,4 @@ namespace DeliveryProject.API.Middleware
             await _next(context);
         }
     }
-
 }

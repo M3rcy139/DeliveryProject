@@ -7,6 +7,6 @@ namespace DeliveryProject.Bussiness.Interfaces.Services
     {
         Task<Order> AddOrder(Order order, int supplierId);
         Task<List<Order>> FilterOrders(string? regionName);
-        Task<List<Order>> GetAllOrders(SortField? sortBy, bool descending);
+        Task<List<Order>> GetAllOrders(OrderSortField? sortBy, bool descending);
     }
 }

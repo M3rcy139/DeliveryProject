@@ -9,10 +9,7 @@ namespace DeliveryProject.DataAccess.Repositories
     {
         private readonly DeliveryDbContext _context;
 
-        public DeliveryPersonRepository(DeliveryDbContext context)
-        {
-            _context = context;
-        }
+        public DeliveryPersonRepository(DeliveryDbContext context) => _context = context;
         public async Task<DeliveryPersonEntity?> GetAvailableDeliveryPersonAsync(DateTime deliveryTime)
         {
             return _context.DeliveryPersons

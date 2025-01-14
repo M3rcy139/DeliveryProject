@@ -16,7 +16,7 @@ namespace DeliveryProject.DataAccess
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Ignore<ParticipantEntity>();
+            modelBuilder.Ignore<BaseUnitEntity>();
 
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(DeliveryDbContext).Assembly);
         }

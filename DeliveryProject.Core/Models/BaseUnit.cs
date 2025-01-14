@@ -1,6 +1,6 @@
 ﻿namespace DeliveryProject.Core.Models
 {
-    public abstract class Participant
+    public abstract class BaseUnit
     {
         public int Id { get; set; } 
         public string Name { get; set; } 

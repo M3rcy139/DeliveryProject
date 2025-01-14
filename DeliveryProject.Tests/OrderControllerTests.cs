@@ -12,7 +12,6 @@ using Microsoft.Extensions.DependencyInjection;
 using DeliveryProject.Core.Exceptions;
 using DeliveryProject.Bussiness.Enums;
 using DeliveryProject.Bussiness.Services;
-using DeliveryProject.API.Extensions;
 using DeliveryProject.API.Middleware;
 
 public class OrderControllerTests : IClassFixture<WebApplicationFactory<Program>>
@@ -125,7 +124,7 @@ public class OrderControllerTests : IClassFixture<WebApplicationFactory<Program>
     {
         // Arrange
         _orderServiceMock
-            .Setup(service => service.GetAllOrders(SortField.Weight, false))
+            .Setup(service => service.GetAllOrders(OrderSortField.Weight, false))
             .ReturnsAsync(new List<Order>
             {
             new Order { Weight = 1 },
@@ -168,7 +167,7 @@ public class OrderControllerTests : IClassFixture<WebApplicationFactory<Program>
 
         _orderServiceMock
             .Setup(service => service.AddOrder(It.IsAny<Order>(), request.SupplierId))
-            .ThrowsAsync(new ValidationException("Validation error."));
+            .ThrowsAsync(new ValidationException("Validation error:"));
 
         // Act
         var response = await _client.PostAsync($"/api/order/Order/Add", jsonContent);
@@ -179,7 +178,7 @@ public class OrderControllerTests : IClassFixture<WebApplicationFactory<Program>
         var responseContent = await response.Content.ReadFromJsonAsync<CustomProblemDetails>();
 
         responseContent.Detail.Should().NotBeNullOrEmpty();
-        responseContent.Detail.Should().Contain("Validation error.");
+        responseContent.Detail.Should().Contain("Validation error:");
         responseContent.Detail.Should().Contain(nameof(ValidationMiddleware));
     }
 
@@ -229,5 +228,4 @@ public class OrderControllerTests : IClassFixture<WebApplicationFactory<Program>
         responseContent.Detail.Should().Contain("No orders found.");
         responseContent.Detail.Should().Contain(nameof(OrderService.GetAllOrders));
     }
-
 }

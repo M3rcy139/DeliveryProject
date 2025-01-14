@@ -2,25 +2,17 @@
 using FluentValidation;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System.Net;
-using DeliveryProject.API.Extensions;
+using DeliveryProject.Core.Constants;
 
 namespace DeliveryProject.API.Middleware
 {
-    public class ExceptionHandlingMiddleware
+    public class ExceptionHandlingMiddleware : ExceptionHandlingBaseMiddleware
     {
-        private readonly RequestDelegate _next;
-        private readonly ILogger<ExceptionHandlingMiddleware> _logger;
-        private readonly IWebHostEnvironment _environment;
-
         public ExceptionHandlingMiddleware(RequestDelegate next, ILogger<ExceptionHandlingMiddleware> logger,
-            IWebHostEnvironment environment)
+            IWebHostEnvironment environment) : base (next, logger, environment)
         {
-            _next = next;
-            _logger = logger;
-            _environment = environment;
         }
 
         public async Task InvokeAsync(HttpContext context)
@@ -31,55 +23,33 @@ namespace DeliveryProject.API.Middleware
             }
             catch (ValidationException ex)
             {
-                _logger.LogError("Validation error: {Errors}", ex.Errors);
+                _logger.LogError(ErrorMessages.Validation.ValidationFailed, ex.Errors);
 
-                await HandleExceptionAsync(context, ex, HttpStatusCode.BadRequest);
+                await HandleExceptionResponseAsync(context, ex, HttpStatusCode.BadRequest);
             }
             catch (BussinessArgumentException ex)
             {
-                _logger.LogError($"Business logical exception: {ex.Message}");
+                _logger.LogError(ErrorMessages.BussinessLogic.BusinessLogicalException, ex.Message);
 
-                await HandleExceptionAsync(context, ex, HttpStatusCode.BadRequest);
+                await HandleExceptionResponseAsync(context, ex, HttpStatusCode.BadRequest);
             }
             catch (ArgumentException ex)
             {
-                _logger.LogError($"An argumentative exception {ex.Message}");
+                _logger.LogError(ErrorMessages.BussinessLogic.ArgumentativeException, ex.Message);
 
-                await HandleExceptionAsync(context, ex, HttpStatusCode.BadRequest);
+                await HandleExceptionResponseAsync(context, ex, HttpStatusCode.BadRequest);
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Unexpected error: {ex.Message}");
+                _logger.LogError(ErrorMessages.General.UnexpectedError, ex.Message);
 
-                await HandleExceptionAsync(context, ex, HttpStatusCode.InternalServerError);
+                await HandleExceptionResponseAsync(context, ex, HttpStatusCode.InternalServerError);
             }
             finally
             {
-                _logger.LogInformation("Completion of request processing. Path: {Path}, Method: {Method}, StatusCode: {StatusCode}",
+                _logger.LogInformation(InfoMessages.General.RequestProcessingComplete,
                     context.Request.Path, context.Request.Method, context.Response.StatusCode);
             }
-        }
-
-        private async Task HandleExceptionAsync(HttpContext context, Exception exp, HttpStatusCode code)
-        {
-            var problemDetails = new CustomProblemDetails
-            {
-                Status = (int)code,
-                Title = exp.Message,
-                Instance = context.Request.Path,
-                Type = code.ToString(),
-                Detail = !_environment.IsProduction() ? exp.FullMessage() : null
-            };
-
-            if (exp is BussinessArgumentException businessException && !string.IsNullOrEmpty(businessException.ErrorCode))
-            {
-                problemDetails.ErrorCode = businessException.ErrorCode;
-            }
-
-            context.Response.ContentType = "application/json";
-            context.Response.StatusCode = (int)code;
-
-            await context.Response.WriteAsJsonAsync(problemDetails);
         }
     }
 }

@@ -13,7 +13,7 @@ namespace DeliveryProject.Bussiness.Mappings
             CreateMap<OrderEntity, Order>();
             CreateMap<DeliveryPersonEntity, DeliveryPerson>();
             CreateMap<SupplierEntity, Supplier>();
-            CreateMap<ParticipantEntity, Participant>();
+            CreateMap<BaseUnitEntity, BaseUnit>();
         }
     }
 }

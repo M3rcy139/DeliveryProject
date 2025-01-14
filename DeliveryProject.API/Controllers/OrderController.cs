@@ -3,6 +3,7 @@ using DeliveryProject.Core.Models;
 using DeliveryProject.API.Dto;
 using DeliveryProject.Bussiness.Interfaces.Services;
 using DeliveryProject.Bussiness.Enums;
+using DeliveryProject.Core.Constants;
 
 namespace DeliveryProject.Controllers
 {
@@ -33,7 +34,7 @@ namespace DeliveryProject.Controllers
             return Ok(new
             {
                 result,
-                message = "The order was successfully added."
+                message = string.Format(InfoMessages.Order.Added, order.Id)
             });
         }
 
@@ -46,7 +47,7 @@ namespace DeliveryProject.Controllers
         }
 
         [HttpGet("Orders/GetAll")]
-        public async Task<IActionResult> GetAllOrders([FromQuery] SortField? sortBy = null,
+        public async Task<IActionResult> GetAllOrders([FromQuery] OrderSortField? sortBy = null,
             [FromQuery] bool descending = false)
         {
             var orders = await _orderService.GetAllOrders(sortBy, descending);
