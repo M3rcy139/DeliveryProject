@@ -1,13 +1,9 @@
-﻿using DeliveryProject.API.Dto;
-using DeliveryProject.API.Extensions;
+﻿using DeliveryProject.Core.Dto;
+using DeliveryProject.Core.Extensions;
 using DeliveryProject.Core.Exceptions;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using System.Net;
 
-namespace DeliveryProject.API.Middleware
+namespace DeliveryProject.Middleware
 {
     public abstract class ExceptionHandlingBaseMiddleware
     {

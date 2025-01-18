@@ -1,4 +1,4 @@
-﻿using DeliveryProject.Bussiness.Facades;
+﻿using DeliveryProject.Bussiness.Mediators;
 using DeliveryProject.Bussiness.Interfaces.Services;
 using DeliveryProject.Bussiness.Services;
 
@@ -10,7 +10,7 @@ namespace DeliveryProject.ServiceCollection
         {
             services.AddScoped<IOrderService, OrderService>();
 
-            services.AddScoped<OrderRepositoryFacade>();
+            services.AddScoped<RepositoryMediator>();
         }
     }
 }

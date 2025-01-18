@@ -1,6 +1,6 @@
 ﻿using FluentValidation.Results;
 
-namespace DeliveryProject.API.Models
+namespace DeliveryProject.Core.Models
 {
     public class ValidationResult<T>
     {

@@ -1,12 +1,10 @@
 ﻿using DeliveryProject.Core.Exceptions;
 using FluentValidation;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
 using System.Net;
 using DeliveryProject.Core.Constants;
+using DeliveryProject.Core.Constants.ErrorMessages;
 
-namespace DeliveryProject.API.Middleware
+namespace DeliveryProject.Middleware
 {
     public class ExceptionHandlingMiddleware : ExceptionHandlingBaseMiddleware
     {
@@ -23,31 +21,31 @@ namespace DeliveryProject.API.Middleware
             }
             catch (ValidationException ex)
             {
-                _logger.LogError(ErrorMessages.Validation.ValidationFailed, ex.Errors);
+                _logger.LogError(ValidationErrorMessages.ValidationFailed, ex.Errors);
 
                 await HandleExceptionResponseAsync(context, ex, HttpStatusCode.BadRequest);
             }
             catch (BussinessArgumentException ex)
             {
-                _logger.LogError(ErrorMessages.BussinessLogic.BusinessLogicalException, ex.Message);
+                _logger.LogError(ErrorMessages.BusinessLogicalException, ex.Message);
 
                 await HandleExceptionResponseAsync(context, ex, HttpStatusCode.BadRequest);
             }
             catch (ArgumentException ex)
             {
-                _logger.LogError(ErrorMessages.BussinessLogic.ArgumentativeException, ex.Message);
+                _logger.LogError(ErrorMessages.ArgumentativeException, ex.Message);
 
                 await HandleExceptionResponseAsync(context, ex, HttpStatusCode.BadRequest);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ErrorMessages.General.UnexpectedError, ex.Message);
+                _logger.LogError(ErrorMessages.UnexpectedError, ex.Message);
 
                 await HandleExceptionResponseAsync(context, ex, HttpStatusCode.InternalServerError);
             }
             finally
             {
-                _logger.LogInformation(InfoMessages.General.RequestProcessingComplete,
+                _logger.LogInformation(InfoMessages.RequestProcessingComplete,
                     context.Request.Path, context.Request.Method, context.Response.StatusCode);
             }
         }

@@ -1,4 +1,4 @@
-﻿namespace DeliveryProject.API.Dto
+﻿namespace DeliveryProject.Core.Dto
 {
     public class AddOrderRequest
     {

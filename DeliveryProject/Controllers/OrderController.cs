@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using DeliveryProject.Core.Models;
-using DeliveryProject.API.Dto;
+using DeliveryProject.Core.Dto;
 using DeliveryProject.Bussiness.Interfaces.Services;
 using DeliveryProject.Bussiness.Enums;
 using DeliveryProject.Core.Constants;
@@ -34,7 +34,7 @@ namespace DeliveryProject.Controllers
             return Ok(new
             {
                 result,
-                message = string.Format(InfoMessages.Order.Added, order.Id)
+                message = string.Format(InfoMessages.AddedOrder, order.Id)
             });
         }
 

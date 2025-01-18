@@ -1,7 +1,6 @@
 ﻿using DeliveryProject.DataAccess.Entities;
 using DeliveryProject.DataAccess.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using System.Linq;
 
 namespace DeliveryProject.DataAccess.Repositories
 {
@@ -12,9 +11,11 @@ namespace DeliveryProject.DataAccess.Repositories
         public DeliveryPersonRepository(DeliveryDbContext context) => _context = context;
         public async Task<DeliveryPersonEntity?> GetAvailableDeliveryPersonAsync(DateTime deliveryTime)
         {
-            return _context.DeliveryPersons
+            var deliveryPersons = await _context.DeliveryPersons
                 .AsNoTracking()
-                .AsEnumerable()  
+                .ToListAsync(); 
+
+            return deliveryPersons
                 .FirstOrDefault(d => !d.DeliverySlots.Contains(deliveryTime));
         }
 

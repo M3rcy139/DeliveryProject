@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-namespace DeliveryProject.API.Extensions
+namespace DeliveryProject.Core.Extensions
 {
     public static class ExceptionExtensions
     {

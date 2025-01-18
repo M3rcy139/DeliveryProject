@@ -1,14 +1,11 @@
 ﻿using DeliveryProject.Core.Models;
 using FluentValidation;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
-using System.Text.Json;
-using DeliveryProject.API.Extensions;
+using DeliveryProject.Core.Extensions;
 using System.Net;
-using Microsoft.AspNetCore.Hosting;
 using DeliveryProject.Core.Constants;
+using DeliveryProject.Core.Constants.ErrorMessages;
 
-namespace DeliveryProject.API.Middleware
+namespace DeliveryProject.Middleware
 {
     public class ValidationMiddleware : ExceptionHandlingBaseMiddleware
     {
@@ -33,26 +30,23 @@ namespace DeliveryProject.API.Middleware
                         context.Request.Body.Position = 0; 
                     }
 
-                    var order = JsonSerializer.Deserialize<Order>(body, new JsonSerializerOptions
-                    {
-                        PropertyNameCaseInsensitive = true
-                    });
-
-                    if (order == null)
-                    {
-                        throw new ValidationException(ErrorMessages.Validation.EmptyOrderObject);
-                    }
+                    var order = body.DeserializeValue<Order>();
 
                     var isValid = await orderValidator.TryValidateAsync(order);
 
+                    if (!isValid)
+                    {
+                        throw new ValidationException(ValidationErrorMessages.EmptyOrderObject);
+                    }
+
                     if (isValid)
                     {
-                        _logger.LogInformation(InfoMessages.Validation.ValidationSucceeded);
+                        _logger.LogInformation(InfoMessages.ValidationSucceeded);
                     }
                 }
                 catch (ValidationException ex)
                 {
-                    _logger.LogError(ErrorMessages.Validation.ValidationFailed, ex.Errors);
+                    _logger.LogError(ValidationErrorMessages.ValidationFailed, ex.Errors);
 
                     await HandleExceptionResponseAsync(context, ex, HttpStatusCode.BadRequest, errors: ex.Errors);
 

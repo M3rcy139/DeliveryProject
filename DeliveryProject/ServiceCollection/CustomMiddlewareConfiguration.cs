@@ -1,4 +1,4 @@
-﻿using DeliveryProject.API.Middleware;
+﻿using DeliveryProject.Middleware;
 
 namespace DeliveryProject.ServiceCollection
 {

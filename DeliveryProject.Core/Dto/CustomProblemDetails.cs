@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
-namespace DeliveryProject.API.Dto
+namespace DeliveryProject.Core.Dto
 {
     public class CustomProblemDetails : ProblemDetails
     {
