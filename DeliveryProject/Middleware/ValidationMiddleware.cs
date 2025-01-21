@@ -36,19 +36,16 @@ namespace DeliveryProject.Middleware
 
                     if (!isValid)
                     {
-                        throw new ValidationException(ValidationErrorMessages.EmptyOrderObject);
+                        throw new ValidationException(ValidationErrorMessages.GenericValidationFailed);
                     }
 
-                    if (isValid)
-                    {
-                        _logger.LogInformation(InfoMessages.ValidationSucceeded);
-                    }
+                    _logger.LogInformation(InfoMessages.ValidationSucceeded);
                 }
                 catch (ValidationException ex)
                 {
-                    _logger.LogError(ValidationErrorMessages.ValidationFailed, ex.Errors);
+                    _logger.LogError(ValidationErrorMessages.GenericValidationFailed);
 
-                    await HandleExceptionResponseAsync(context, ex, HttpStatusCode.BadRequest, errors: ex.Errors);
+                    await HandleExceptionResponseAsync(context, ex, HttpStatusCode.BadRequest);
 
                     return;
                 }

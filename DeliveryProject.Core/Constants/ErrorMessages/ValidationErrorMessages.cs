@@ -2,6 +2,7 @@
 {
     public static class ValidationErrorMessages
     {
+        public const string GenericValidationFailed = "Validation failed.";
         public const string ValidationFailed = "Validation error: {0}";
         public const string EmptyOrderObject = "An empty Order object.";
 

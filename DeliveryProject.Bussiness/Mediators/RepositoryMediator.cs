@@ -59,7 +59,7 @@ namespace DeliveryProject.Bussiness.Mediators
         public async Task<List<OrderEntity>> GetOrdersWithinTimeRangeAsync(int regionId, DateTime fromTime, DateTime toTime)
         {
             var filteredOrders = await _orderRepository.GetOrdersWithinTimeRange(regionId, fromTime, toTime);
-            OrderServiceHelper.ValidateOrders(filteredOrders);
+            OrderServiceHelper.ValidateOrders(ref filteredOrders);
 
             return filteredOrders;
         }
@@ -67,7 +67,7 @@ namespace DeliveryProject.Bussiness.Mediators
         public async Task<List<OrderEntity>> GetAllOrdersImmediate()
         {
             var orders = await _orderRepository.GetAllOrdersImmediate();
-            OrderServiceHelper.ValidateOrders(orders);
+            OrderServiceHelper.ValidateOrders(ref orders);
 
             return orders;
         }

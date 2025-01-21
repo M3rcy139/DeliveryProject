@@ -16,26 +16,32 @@ using DeliveryProject.Middleware;
 using DeliveryProject.Tests.Assertions;
 using DeliveryProject.Tests.Mocks;
 using Newtonsoft.Json;
+using DeliveryProject.DataAccess.Interfaces;
 
 public class OrderControllerTests : BaseControllerTests, IClassFixture<WebApplicationFactory<Program>>
 {
     public OrderControllerTests(WebApplicationFactory<Program> factory)
         : base(
-            InitializeClient(factory, out var orderServiceMock),
-            orderServiceMock) 
+            InitializeClient(factory, out var orderServiceMock, out var orderRepositoryMock),
+            orderServiceMock,
+            orderRepositoryMock) 
     {
     }
 
-    private static HttpClient InitializeClient(WebApplicationFactory<Program> factory, out Mock<IOrderService> orderServiceMock)
+    private static HttpClient InitializeClient(WebApplicationFactory<Program> factory, out Mock<IOrderService> orderServiceMock
+        , out Mock<IOrderRepository> orderRepositoryMock)
     {
         var localOrderServiceMock = OrderServiceMock.Create();
+        var localOrderRepositoryMock = OrderRepositoryMock.Create();
         orderServiceMock = localOrderServiceMock;
+        orderRepositoryMock = localOrderRepositoryMock;
 
         var client = factory.WithWebHostBuilder(builder =>
         {
             builder.ConfigureServices(services =>
             {
                 services.AddScoped<IOrderService>(_ => localOrderServiceMock.Object);
+                services.AddScoped<IOrderRepository>(_ => localOrderRepositoryMock.Object);
             });
         }).CreateClient();
 
@@ -86,7 +92,7 @@ public class OrderControllerTests : BaseControllerTests, IClassFixture<WebApplic
     public async Task GetAllOrders_ShouldReturnOk_WhenNoOrdersExist()
     {
         // Arrange
-        OrderServiceMock.SetupGetAllOrders(_orderServiceMock, new List<Order>());
+        OrderServiceMock.SetupGetAllOrdersWithNull(_orderRepositoryMock);
 
         // Act
         var response = await GetAsync("/Orders/GetAll");
@@ -141,7 +147,7 @@ public class OrderControllerTests : BaseControllerTests, IClassFixture<WebApplic
 
         var jsonContent = JsonContent.Create(request);
 
-        OrderServiceMock.SetupValidationException(_orderServiceMock, "Validation error:");
+        OrderServiceMock.SetupValidationException(_orderServiceMock, "Validation failed.");
 
         // Act
         var response = await _client.PostAsync("/api/order/Order/Add", jsonContent);
@@ -151,7 +157,7 @@ public class OrderControllerTests : BaseControllerTests, IClassFixture<WebApplic
 
         var responseContent = await response.Content.ReadFromJsonAsync<CustomProblemDetails>();
 
-        AssertResponseDetails(responseContent, "Validation error:", nameof(ValidationMiddleware));
+        AssertResponseDetails(responseContent, "Validation failed.", nameof(ValidationMiddleware));
     }
 
 

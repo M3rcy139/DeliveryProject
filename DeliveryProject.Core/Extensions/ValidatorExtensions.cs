@@ -17,8 +17,7 @@ namespace DeliveryProject.Core.Extensions
 
             if (!validationResult.IsValid)
             {
-                throw new ValidationException(string.Format(ValidationErrorMessages.ValidationFailed, 
-                    validationResult.Errors), validationResult.Errors);
+                return false;
             }
 
             return true;

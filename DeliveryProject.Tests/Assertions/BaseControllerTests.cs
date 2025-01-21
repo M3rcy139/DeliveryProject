@@ -1,6 +1,6 @@
 ﻿using DeliveryProject.Bussiness.Interfaces.Services;
 using DeliveryProject.Core.Dto;
-using DeliveryProject.Tests.Mocks;
+using DeliveryProject.DataAccess.Interfaces;
 using FluentAssertions;
 using Moq;
 
@@ -10,12 +10,16 @@ namespace DeliveryProject.Tests.Assertions
     {
         protected readonly HttpClient _client;
         protected readonly Mock<IOrderService> _orderServiceMock;
+        protected readonly Mock<IOrderRepository> _orderRepositoryMock;
 
-        protected BaseControllerTests(HttpClient client, Mock<IOrderService> orderServiceMock)
+        protected BaseControllerTests(HttpClient client, Mock<IOrderService> orderServiceMock, 
+            Mock<IOrderRepository> orderRepositoryMock)
         {
             _client = client;
             _orderServiceMock = orderServiceMock;
+            _orderRepositoryMock = orderRepositoryMock;
         }
+
         protected async Task<HttpResponseMessage> GetAsync(string relativeUrl)
         {
             var baseUrl = "/api/order";

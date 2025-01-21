@@ -2,6 +2,8 @@
 using DeliveryProject.Bussiness.Interfaces.Services;
 using DeliveryProject.Core.Exceptions;
 using DeliveryProject.Core.Models;
+using DeliveryProject.DataAccess.Entities;
+using DeliveryProject.DataAccess.Interfaces;
 using FluentValidation;
 using Moq;
 
@@ -33,6 +35,12 @@ namespace DeliveryProject.Tests.Mocks
         {
             mock.Setup(service => service.GetAllOrders(It.IsAny<OrderSortField?>(), It.IsAny<bool>()))
                 .ReturnsAsync(list); 
+        }
+
+        public static void SetupGetAllOrdersWithNull(Mock<IOrderRepository> mock)
+        {
+            mock.Setup(service => service.GetAllOrdersImmediate())
+                .ReturnsAsync((List<OrderEntity>)null);
         }
 
         public static void SetupBussinessArgumentException(Mock<IOrderService> mock, string message)

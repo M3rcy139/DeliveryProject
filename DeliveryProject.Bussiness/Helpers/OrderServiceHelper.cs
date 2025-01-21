@@ -9,9 +9,12 @@ namespace DeliveryProject.Bussiness.Helpers
 {
     public static class OrderServiceHelper
     {
-        public static void ValidateOrders(List<OrderEntity> orders)
+        public static void ValidateOrders(ref List<OrderEntity> orders)
         {
-            orders.IsNullOrEmpty().ToList();
+            if (orders.IsNullOrEmpty())
+            {
+                orders = new List<OrderEntity>();
+            }
         }
 
         public static void ValidateOrdersInRegion(bool hasOrders, int regionId)

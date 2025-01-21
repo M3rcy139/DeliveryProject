@@ -2,9 +2,9 @@
 {
     public static class CollectionExtensions
     {
-        public static ICollection<T> IsNullOrEmpty<T>(this ICollection<T> source)
+        public static bool IsNullOrEmpty<T>(this IEnumerable<T> source)
         {
-            return source == null || source.Count == 0 ? new List<T>() : source;
+            return source == null || !source.Any(); 
         }
     }
 }

@@ -17,5 +17,7 @@
         public const string ArgumentativeException = "An argumentative exception: {0}";
 
         public const string UnexpectedError = "Unexpected error: {0}";
+
+        public const string JsonEmpty = "A JSON string cannot be empty or null.";
     }
 }
