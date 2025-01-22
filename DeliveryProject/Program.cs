@@ -12,30 +12,30 @@ try
 {
     builder.Host.ConfigureLogging(configuration);
 
-    logger.Info("Инициализация приложения");
+    logger.Info("Initializing the application.");
+
 
     services.AddDbServices(configuration);
     
     services.AddFluentValidationServices();
 
-    services.AddRouting();
-    services.AddControllers();
-    services.AddEndpointsApiExplorer();
-    services.AddSwaggerGen();
+    services.AddControllersAndSwagger();
 
-    services.AddDependencyInjection();
+    services.AddServices();
+    services.AddRepositories();
 
     services.AddAutoMapper(typeof(DataBaseMappings));
 
-    var app = builder.Build();
 
+    var app = builder.Build();
+    
     app.ConfigureMiddleware(builder.Environment);
 
     app.Run();
 }
 catch (Exception ex)
 {
-    logger.Error(ex, "Приложение остановлено из-за исключения.");
+    logger.Error(ex, "The application is stopped due to an exception.");
     throw;
 }
 finally

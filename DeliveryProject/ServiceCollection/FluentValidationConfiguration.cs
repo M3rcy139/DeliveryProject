@@ -1,7 +1,7 @@
-﻿using DeliveryProject.API.Middleware;
-using DeliveryProject.Core.Models;
+﻿using DeliveryProject.Core.Models;
 using FluentValidation.AspNetCore;
 using FluentValidation;
+using DeliveryProject.API.Services;
 
 namespace DeliveryProject.ServiceCollection
 {

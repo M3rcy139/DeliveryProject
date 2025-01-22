@@ -26,8 +26,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\DeliveryProject.API\DeliveryProject.API.csproj" />
-    <ProjectReference Include="..\DeliveryProject.Application\DeliveryProject.Bussiness.csproj" />
     <ProjectReference Include="..\DeliveryProject.Bussiness\DeliveryProject.Bussiness.csproj" />
     <ProjectReference Include="..\DeliveryProject.Core\DeliveryProject.Core.csproj" />
     <ProjectReference Include="..\DeliveryProject\DeliveryProject.csproj" />

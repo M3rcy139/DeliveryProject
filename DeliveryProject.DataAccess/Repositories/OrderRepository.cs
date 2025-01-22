@@ -8,16 +8,12 @@ namespace DeliveryProject.DataAccess.Repositories
     {
         private readonly DeliveryDbContext _context;
 
-        public OrderRepository(DeliveryDbContext context) 
-        {
-            _context = context;
-        }
+        public OrderRepository(DeliveryDbContext context) => _context = context;
 
-        public async Task<int> AddOrder(OrderEntity orderEntity)
+        public async Task AddOrder(OrderEntity orderEntity)
         {
             await _context.Orders.AddAsync(orderEntity);
-            
-            return await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync();
         }
 
         public async Task<RegionEntity> GetRegionByName(string regionName)
@@ -30,19 +26,11 @@ namespace DeliveryProject.DataAccess.Repositories
 
             return region;
         }
-        public async Task<bool> HasOrders(int regionId)
-        {
-            return await _context.Orders
-                .Where(o => o.RegionId == regionId)
-                .AnyAsync();
-        }
+        public async Task<bool> HasOrders(int regionId) =>
+            await _context.Orders.AnyAsync(o => o.RegionId == regionId);
 
-        public async Task<DateTime> GetFirstOrderTime(int regionId)
-        {
-            return  await _context.Orders
-                .Where(o => o.RegionId == regionId)
-                .MinAsync(o => o.DeliveryTime);
-        }
+        public async Task<DateTime> GetFirstOrderTime(int regionId) =>
+            await _context.Orders.Where(o => o.RegionId == regionId).MinAsync(o => o.DeliveryTime);
 
         public async Task<List<OrderEntity>> GetOrdersWithinTimeRange(int regionId, DateTime fromTime, DateTime toTime)
         {
@@ -57,7 +45,9 @@ namespace DeliveryProject.DataAccess.Repositories
                 RegionId = o.RegionId,   
                 DeliveryTime = o.DeliveryTime, 
                 Order = o,           
-                Region = o.Region        
+                Region = o.Region,    
+                DeliveryPersonId = o.DeliveryPersonId,
+                SupplierId = o.SupplierId,
             }).ToList();
 
             await _context.FilteredOrders.AddRangeAsync(filteredOrderEntities);
@@ -66,11 +56,7 @@ namespace DeliveryProject.DataAccess.Repositories
             return filteredOrders;
         }
 
-        public async Task<List<OrderEntity>> GetAllOrders()
-        {
-            var orders = await _context.Orders.ToListAsync();
-
-            return orders;
-        }
+        public async Task<List<OrderEntity>> GetAllOrdersImmediate() =>
+            await _context.Orders.ToListAsync();
     }
 }

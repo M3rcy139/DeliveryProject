@@ -19,6 +19,18 @@ namespace DeliveryProject.DataAccess.Configurations
             builder.HasOne(o => o.Region)
                 .WithMany(a => a.Orders)
                 .HasForeignKey(o => o.RegionId);
+
+            builder
+                .HasOne(o => o.DeliveryPerson)
+                .WithMany(dp => dp.OrdersDelivered)
+                .HasForeignKey(o => o.DeliveryPersonId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder
+                .HasOne(o => o.Supplier)
+                .WithMany(s => s.OrdersSupplied)
+                .HasForeignKey(o => o.SupplierId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }
