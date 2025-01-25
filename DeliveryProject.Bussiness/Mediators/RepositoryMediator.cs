@@ -1,4 +1,5 @@
 ﻿using DeliveryProject.Bussiness.Helpers;
+using DeliveryProject.Core.Models;
 using DeliveryProject.DataAccess.Entities;
 using DeliveryProject.DataAccess.Interfaces;
 
@@ -37,6 +38,35 @@ namespace DeliveryProject.Bussiness.Mediators
             return orderEntity;
         }
 
+        public async Task<OrderEntity?> GetOrderByIdAsync(Guid orderId)
+        {
+            var order = await _orderRepository.GetOrderById(orderId);
+            OrderServiceHelper.ValidateOrder(order);
+
+            return order;
+        }
+
+        public async Task UpdateOrderAsync(OrderEntity orderEntity)
+        {
+            var order = await _orderRepository.GetOrderById(orderEntity.Id);
+            OrderServiceHelper.ValidateOrder(order);
+
+            var supplier = await _supplierRepository.GetByIdAsync(orderEntity.SupplierId);
+            OrderServiceHelper.ValidateSupplier(supplier);
+
+            orderEntity.DeliveryPersonId = order.DeliveryPersonId;
+
+            await _orderRepository.UpdateOrder(orderEntity); 
+        }
+
+        public async Task DeleteOrderAsync(Guid orderId)
+        {
+            var order = await _orderRepository.GetOrderById(orderId);
+            OrderServiceHelper.ValidateOrder(order);
+
+            await _orderRepository.DeleteOrder(orderId); 
+        }
+
         public async Task<RegionEntity> GetRegionByNameAsync(string regionName)
         {
             OrderServiceHelper.ValidateRegionName(regionName);
@@ -47,14 +77,14 @@ namespace DeliveryProject.Bussiness.Mediators
             return region;
         }
 
-        public async Task HasOrdersAsync(int regionId)
+        public async Task<DateTime> GetFirstOrderTimeAsync(int regionId)
         {
             var hasOrders = await _orderRepository.HasOrders(regionId);
             OrderServiceHelper.ValidateOrdersInRegion(hasOrders, regionId);
-        }
 
-        public async Task<DateTime> GetFirstOrderTimeAsync(int regionId) =>
-             await _orderRepository.GetFirstOrderTime(regionId);
+            return await _orderRepository.GetFirstOrderTime(regionId);
+
+        }
 
         public async Task<List<OrderEntity>> GetOrdersWithinTimeRangeAsync(int regionId, DateTime fromTime, DateTime toTime)
         {

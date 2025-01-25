@@ -17,6 +17,10 @@ using DeliveryProject.Tests.Assertions;
 using DeliveryProject.Tests.Mocks;
 using Newtonsoft.Json;
 using DeliveryProject.DataAccess.Interfaces;
+using DeliveryProject.DataAccess.Entities;
+using DeliveryProject.DataAccess.Repositories;
+using DeliveryProject.DataAccess;
+using Microsoft.EntityFrameworkCore;
 
 public class OrderControllerTests : BaseControllerTests, IClassFixture<WebApplicationFactory<Program>>
 {
@@ -176,5 +180,64 @@ public class OrderControllerTests : BaseControllerTests, IClassFixture<WebApplic
         var responseContent = await response.Content.ReadFromJsonAsync<CustomProblemDetails>();
 
         AssertResponseDetails(responseContent, "The RegionName field must not be empty.", nameof(OrderService.FilterOrders));
+    }
+
+    [Theory]
+    [InlineData(100)]
+    public async Task UpdateOrder_ParallelRequests_ShouldHandleCacheLocking(int parallelRequests)
+    {
+        // Arrange
+        var options = new DbContextOptionsBuilder<DeliveryDbContext>()
+            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+            .Options;
+
+        await using var context = new DeliveryDbContext(options);
+        var repository = new OrderRepository(context);
+
+        var order = new OrderEntity
+        {
+            Id = Guid.NewGuid(),
+            Weight = 10,
+            RegionId = 2,
+            SupplierId = 1,
+            DeliveryTime = DateTime.UtcNow
+        };
+
+        await repository.AddOrder(order);
+
+        var tasks = new List<Task>();
+
+        // Act
+        for (int i = 0; i < parallelRequests; i++)
+        {
+            var task = Task.Run(async () =>
+            {
+                var updatedWeight = 10 + i;
+
+                var updatedOrder = new OrderEntity
+                {
+                    Id = order.Id,
+                    Weight = updatedWeight,
+                    RegionId = order.RegionId,
+                    SupplierId = order.SupplierId,
+                    DeliveryTime = order.DeliveryTime
+                };
+
+                await repository.UpdateOrder(updatedOrder);
+
+                var fetchedOrder = await repository.GetOrderById(order.Id);
+                fetchedOrder.Should().NotBeNull();
+                fetchedOrder.Weight.Should().Be(updatedWeight);
+            });
+
+            tasks.Add(task);
+        }
+
+        await Task.WhenAll(tasks);
+
+        // Assert
+        var finalUpdatedOrder = await repository.GetOrderById(order.Id);
+        finalUpdatedOrder.Should().NotBeNull();
+        finalUpdatedOrder.Weight.Should().Be(10 + (parallelRequests));
     }
 }

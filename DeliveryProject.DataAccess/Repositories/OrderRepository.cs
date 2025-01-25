@@ -7,6 +7,8 @@ namespace DeliveryProject.DataAccess.Repositories
     public class OrderRepository : IOrderRepository
     {
         private readonly DeliveryDbContext _context;
+        private readonly Dictionary<Guid, OrderEntity> _orderCache = new();
+        private readonly SemaphoreSlim _dbContextLock = new SemaphoreSlim(1, 1);
 
         public OrderRepository(DeliveryDbContext context) => _context = context;
 
@@ -14,6 +16,60 @@ namespace DeliveryProject.DataAccess.Repositories
         {
             await _context.Orders.AddAsync(orderEntity);
             await _context.SaveChangesAsync();
+
+            _orderCache[orderEntity.Id] = orderEntity;
+        }
+
+        public async Task<OrderEntity?> GetOrderById(Guid id)
+        {
+            if (_orderCache.TryGetValue(id, out var cachedOrder))
+            {
+                return cachedOrder;
+            }
+
+            var order = await _context.Orders
+               .AsNoTracking()
+               .FirstOrDefaultAsync(o => o.Id == id);
+            if (order != null)
+            {
+                _orderCache[id] = order;
+            }
+
+            return order;
+        }
+
+        public async Task UpdateOrder(OrderEntity orderEntity)
+        {
+            await _dbContextLock.WaitAsync();
+            try
+            {
+                var existingEntity = await _context.Orders.FindAsync(orderEntity.Id);
+
+                if (existingEntity != null)
+                {
+                    _context.Entry(existingEntity).CurrentValues.SetValues(orderEntity);
+                }
+
+                await _context.SaveChangesAsync();
+            }
+            finally
+            {
+                _dbContextLock.Release();
+            }
+
+            _orderCache[orderEntity.Id] = orderEntity;
+        }
+
+        public async Task DeleteOrder(Guid id)
+        {
+            var order = await _context.Orders.FindAsync(id);
+            if (order != null)
+            {
+                _context.Orders.Remove(order);
+                await _context.SaveChangesAsync();
+
+                _orderCache.Remove(id, out _);
+            }
         }
 
         public async Task<RegionEntity> GetRegionByName(string regionName)

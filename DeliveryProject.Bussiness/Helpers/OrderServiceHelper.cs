@@ -17,6 +17,14 @@ namespace DeliveryProject.Bussiness.Helpers
             }
         }
 
+        public static void ValidateOrder(OrderEntity order)
+        {
+            if (order == null)
+            {
+                throw new BussinessArgumentException(ErrorMessages.OrderNotFound, ErrorCodes.NoOrdersFound);
+            }
+        }
+
         public static void ValidateOrdersInRegion(bool hasOrders, int regionId)
         {
             if (!hasOrders)

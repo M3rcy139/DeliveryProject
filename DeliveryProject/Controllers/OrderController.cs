@@ -26,16 +26,50 @@ namespace DeliveryProject.Controllers
                 Id = Guid.NewGuid(),
                 RegionId = request.RegionId,
                 Weight = request.Weight,
-                DeliveryTime = request.DeliveryTime
+                DeliveryTime = request.DeliveryTime,
+                SupplierId = request.SupplierId
             };
 
-            var result = await _orderService.AddOrder(order, request.SupplierId);
+            var result = await _orderService.AddOrder(order);
 
             return Ok(new
             {
                 result,
                 message = string.Format(InfoMessages.AddedOrder, order.Id)
             });
+        }
+
+        [HttpGet("Order/{orderId}")]
+        public async Task<IActionResult> GetOrderById(Guid orderId)
+        {
+            var order = await _orderService.GetOrderById(orderId);
+
+            return Ok(order);
+        }
+
+        [HttpPut("Order/Update")]
+        public async Task<IActionResult> UpdateOrder([FromBody] UpdateOrderRequest request)
+        {
+            var order = new Order()
+            {
+                Id = request.OrderId,
+                RegionId = request.RegionId,
+                Weight = request.Weight,
+                DeliveryTime = request.DeliveryTime,
+                SupplierId = request.SupplierId
+            };
+
+            await _orderService.UpdateOrder(order);
+
+            return Ok(new { message = string.Format(InfoMessages.UpdatedOrder, order.Id) });
+        }
+
+        [HttpDelete("Order/Delete/{orderId}")]
+        public async Task<IActionResult> DeleteOrder(Guid orderId)
+        {
+            await _orderService.DeleteOrder(orderId);
+
+            return Ok(new { message = string.Format(InfoMessages.DeletedOrder, orderId) });
         }
 
         [HttpGet("Orders/Filter")]

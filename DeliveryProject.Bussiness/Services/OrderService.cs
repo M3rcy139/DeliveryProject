@@ -23,7 +23,7 @@ namespace DeliveryProject.Bussiness.Services
             _mapper = mapper;
         }
 
-        public async Task<Order> AddOrder(Order order, int supplierId)
+        public async Task<Order> AddOrder(Order order)
         {
             var orderEntity = new OrderEntity()
             {
@@ -31,7 +31,7 @@ namespace DeliveryProject.Bussiness.Services
                 Weight = order.Weight,
                 RegionId = order.RegionId,
                 DeliveryTime = order.DeliveryTime,
-                SupplierId = supplierId,
+                SupplierId = order.SupplierId,
             };
 
             var createdOrderEntity = await _repositoryMediator.AddOrderAsync(orderEntity);
@@ -41,11 +41,36 @@ namespace DeliveryProject.Bussiness.Services
             return _mapper.Map<Order>(createdOrderEntity);
         }
 
+        public async Task<Order> GetOrderById(Guid orderId)
+        {
+            var orderEntity = await _repositoryMediator.GetOrderByIdAsync(orderId);
+            return _mapper.Map<Order>(orderEntity);
+        }
+
+        public async Task UpdateOrder(Order order)
+        {
+            var orderEntity = new OrderEntity()
+            {
+                Id = order.Id,
+                Weight = order.Weight,
+                RegionId = order.RegionId,
+                DeliveryTime = order.DeliveryTime,
+                SupplierId = order.SupplierId
+            };
+
+            await _repositoryMediator.UpdateOrderAsync(orderEntity);
+
+            _logger.LogInformation(InfoMessages.UpdatedOrder, order.Id);
+        }
+
+        public async Task DeleteOrder(Guid orderId)
+        {
+            await _repositoryMediator.DeleteOrderAsync(orderId);
+            _logger.LogInformation(InfoMessages.DeletedOrder, orderId);
+        }
         public async Task<List<Order>> FilterOrders(string? regionName)
         {
             var region = await _repositoryMediator.GetRegionByNameAsync(regionName);
-
-            await _repositoryMediator.HasOrdersAsync(region.Id);
 
             var firstOrderTime = await _repositoryMediator.GetFirstOrderTimeAsync(region.Id);
             var timeRangeEnd = firstOrderTime.AddMinutes(30);

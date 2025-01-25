@@ -27,7 +27,7 @@ namespace DeliveryProject.Tests.Mocks
 
         public static void SetupValidationException(Mock<IOrderService> mock, string message)
         {
-            mock.Setup(service => service.AddOrder(It.IsAny<Order>(), It.IsAny<int>()))
+            mock.Setup(service => service.AddOrder(It.IsAny<Order>()))
                 .ThrowsAsync(new ValidationException(message));
         }
 
