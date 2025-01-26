@@ -10,7 +10,7 @@ using DeliveryProject.Bussiness.Mediators;
 
 namespace DeliveryProject.Bussiness.Services
 {
-    public class OrderService : IOrderService
+    public class OrderService : BaseService, IOrderService
     {
         private readonly RepositoryMediator _repositoryMediator;
         private readonly ILogger<OrderService> _logger;
@@ -83,20 +83,24 @@ namespace DeliveryProject.Bussiness.Services
             return _mapper.Map<List<Order>>(filteredOrders);
         }
 
-        public async Task<List<Order>> GetAllOrders(OrderSortField? sortBy, bool descending)
+        public Task<List<Order>> GetAllOrders(OrderSortField? sortBy, bool descending)
         {
-            var orders = await _repositoryMediator.GetAllOrdersImmediate();
-
-            if (sortBy != null)
+            return Task.Factory.StartNew(async () =>
             {
-                var sortedOrders = OrderServiceHelper.GetSortDelegate(sortBy, descending);
+                var orders = await _repositoryMediator.GetAllOrdersImmediate();
 
-                orders = sortedOrders?.Invoke(orders) ?? orders;
-            }
+                if (sortBy != null)
+                {
+                    var sortedOrders = GetSortDelegate(sortBy, descending);
+                    orders = sortedOrders?.Invoke(orders) ?? orders;
 
-            _logger.LogInformation(InfoMessages.AllOrdersReceived, orders.Count);
+                    GC.Collect();
+                }
 
-            return _mapper.Map<List<Order>>(orders);
+                _logger.LogInformation(InfoMessages.AllOrdersReceived, orders.Count);
+
+                return _mapper.Map<List<Order>>(orders);
+            }, TaskCreationOptions.LongRunning).Unwrap();
         }
     }
 }

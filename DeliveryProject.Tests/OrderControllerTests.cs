@@ -21,6 +21,7 @@ using DeliveryProject.DataAccess.Entities;
 using DeliveryProject.DataAccess.Repositories;
 using DeliveryProject.DataAccess;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Concurrent;
 
 public class OrderControllerTests : BaseControllerTests, IClassFixture<WebApplicationFactory<Program>>
 {
@@ -82,9 +83,6 @@ public class OrderControllerTests : BaseControllerTests, IClassFixture<WebApplic
     [Fact]
     public async Task GetAllOrders_ShouldReturnOk_WhenOrdersExist()
     {
-        // Arrange
-        OrderServiceMock.SetupGetAllOrders(_orderServiceMock, new List<Order>());
-
         // Act
         var response = await GetAsync("/Orders/GetAll");
 
@@ -239,5 +237,59 @@ public class OrderControllerTests : BaseControllerTests, IClassFixture<WebApplic
         var finalUpdatedOrder = await repository.GetOrderById(order.Id);
         finalUpdatedOrder.Should().NotBeNull();
         finalUpdatedOrder.Weight.Should().Be(10 + (parallelRequests));
+    }
+
+    [Theory]
+    [InlineData(100)]
+    public async Task GetAllOrdersImmediate_ParallelAccess_ShouldBeThreadSafe(int parallelRequests)
+    {
+        // Arrange
+        var options = new DbContextOptionsBuilder<DeliveryDbContext>()
+            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+            .Options;
+
+        using (var context = new DeliveryDbContext(options))
+        {
+            var initialOrders = new List<OrderEntity>();
+            for (int i = 0; i < 50; i++)
+            {
+                initialOrders.Add(new OrderEntity
+                {
+                    Id = Guid.NewGuid(),
+                    Weight = i,
+                    RegionId = 1,
+                    SupplierId = 1,
+                    DeliveryTime = DateTime.UtcNow
+                });
+            }
+            await context.Orders.AddRangeAsync(initialOrders);
+            await context.SaveChangesAsync();
+        }
+
+        var tasks = new List<Task>();
+        var results = new ConcurrentBag<int>();
+
+        // Act
+        for (int i = 0; i < parallelRequests; i++)
+        {
+            var task = Task.Run(async () =>
+            {
+                using var scopedContext = new DeliveryDbContext(options);
+                var scopedRepository = new OrderRepository(scopedContext);
+                var orders = await scopedRepository.GetAllOrdersImmediate();
+                results.Add(orders.Count);
+            });
+
+            tasks.Add(task);
+        }
+
+        await Task.WhenAll(tasks);
+
+        // Assert
+        results.Should().HaveCount(parallelRequests);
+        foreach (var count in results)
+        {
+            count.Should().Be(50);
+        }
     }
 }

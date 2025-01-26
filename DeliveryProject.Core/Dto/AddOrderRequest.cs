@@ -1,6 +1,6 @@
 ﻿namespace DeliveryProject.Core.Dto
 {
-    public class AddOrderRequest
+    public struct AddOrderRequest
     {
         public int RegionId { get; set; }
         public double Weight { get; set; }

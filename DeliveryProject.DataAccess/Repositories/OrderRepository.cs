@@ -1,6 +1,7 @@
 ﻿using DeliveryProject.DataAccess.Entities;
 using DeliveryProject.DataAccess.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Concurrent;
 
 namespace DeliveryProject.DataAccess.Repositories
 {
@@ -14,28 +15,43 @@ namespace DeliveryProject.DataAccess.Repositories
 
         public async Task AddOrder(OrderEntity orderEntity)
         {
-            await _context.Orders.AddAsync(orderEntity);
-            await _context.SaveChangesAsync();
+            await _dbContextLock.WaitAsync();
+            try
+            {
+                await _context.Orders.AddAsync(orderEntity);
+                await _context.SaveChangesAsync();
 
-            _orderCache[orderEntity.Id] = orderEntity;
+                _orderCache[orderEntity.Id] = orderEntity;
+            }
+            finally
+            {
+                _dbContextLock.Release();
+            }
         }
 
         public async Task<OrderEntity?> GetOrderById(Guid id)
         {
-            if (_orderCache.TryGetValue(id, out var cachedOrder))
+            await _dbContextLock.WaitAsync();
+            try
             {
-                return cachedOrder;
-            }
+                if (_orderCache.TryGetValue(id, out var cachedOrder))
+                {
+                    return cachedOrder;
+                }
 
-            var order = await _context.Orders
-               .AsNoTracking()
-               .FirstOrDefaultAsync(o => o.Id == id);
-            if (order != null)
+                var order = await _context.Orders
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(o => o.Id == id);
+                if (order != null)
+                {
+                    _orderCache[id] = order; 
+                }
+                return order;
+            }
+            finally
             {
-                _orderCache[id] = order;
+                _dbContextLock.Release();
             }
-
-            return order;
         }
 
         public async Task UpdateOrder(OrderEntity orderEntity)
@@ -62,13 +78,21 @@ namespace DeliveryProject.DataAccess.Repositories
 
         public async Task DeleteOrder(Guid id)
         {
-            var order = await _context.Orders.FindAsync(id);
-            if (order != null)
+            await _dbContextLock.WaitAsync();
+            try
             {
-                _context.Orders.Remove(order);
-                await _context.SaveChangesAsync();
+                var order = await _context.Orders.FindAsync(id);
+                if (order != null)
+                {
+                    _context.Orders.Remove(order);
+                    await _context.SaveChangesAsync();
 
-                _orderCache.Remove(id, out _);
+                    _orderCache.Remove(id, out _); 
+                }
+            }
+            finally
+            {
+                _dbContextLock.Release();
             }
         }
 
@@ -112,7 +136,10 @@ namespace DeliveryProject.DataAccess.Repositories
             return filteredOrders;
         }
 
-        public async Task<List<OrderEntity>> GetAllOrdersImmediate() =>
-            await _context.Orders.ToListAsync();
+        public async Task<ConcurrentBag<OrderEntity>> GetAllOrdersImmediate()
+        {
+            var orders = await _context.Orders.AsNoTracking().ToListAsync();
+            return new ConcurrentBag<OrderEntity>(orders);
+        }
     }
 }

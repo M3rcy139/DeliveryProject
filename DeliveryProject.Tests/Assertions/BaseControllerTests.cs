@@ -28,9 +28,9 @@ namespace DeliveryProject.Tests.Assertions
 
         public void AssertResponseDetails(CustomProblemDetails responseContent, string expectedMessage, string expectedMethodName)
         {
-            responseContent.Detail.Should().NotBeNullOrEmpty("Ошибка должна содержать подробности.");
-            responseContent.Detail.Should().Contain(expectedMessage, $"Ошибка должна содержать сообщение: {expectedMessage}");
-            responseContent.Detail.Should().Contain(expectedMethodName, $"Ошибка должна содержать метод: {expectedMethodName}");
+            responseContent.Detail.Should().NotBeNullOrEmpty("The error must contain details.");
+            responseContent.Detail.Should().Contain(expectedMessage, $"The error should contain the message: {expectedMessage}");
+            responseContent.Detail.Should().Contain(expectedMethodName, $"The error must contain the method: {expectedMethodName}");
         }
     }
 }

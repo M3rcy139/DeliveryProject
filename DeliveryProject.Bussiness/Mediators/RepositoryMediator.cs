@@ -1,5 +1,5 @@
 ﻿using DeliveryProject.Bussiness.Helpers;
-using DeliveryProject.Core.Models;
+using System.Collections.Concurrent;
 using DeliveryProject.DataAccess.Entities;
 using DeliveryProject.DataAccess.Interfaces;
 
@@ -96,7 +96,8 @@ namespace DeliveryProject.Bussiness.Mediators
 
         public async Task<List<OrderEntity>> GetAllOrdersImmediate()
         {
-            var orders = await _orderRepository.GetAllOrdersImmediate();
+            var concurrentOrders = await _orderRepository.GetAllOrdersImmediate();
+            var orders = concurrentOrders.ToList();
             OrderServiceHelper.ValidateOrders(ref orders);
 
             return orders;

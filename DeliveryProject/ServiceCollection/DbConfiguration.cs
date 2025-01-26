@@ -12,7 +12,7 @@ namespace DeliveryProject.ServiceCollection
                 options.UseNpgsql(
                     configuration.GetConnectionString(nameof(DeliveryDbContext)),
                     b => b.MigrationsAssembly("DeliveryProject.Migrations"));
-            });
+            }, ServiceLifetime.Scoped);
         }
     }
 }

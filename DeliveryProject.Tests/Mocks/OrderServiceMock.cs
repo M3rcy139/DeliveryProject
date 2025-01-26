@@ -6,6 +6,7 @@ using DeliveryProject.DataAccess.Entities;
 using DeliveryProject.DataAccess.Interfaces;
 using FluentValidation;
 using Moq;
+using System.Collections.Concurrent;
 
 
 namespace DeliveryProject.Tests.Mocks
@@ -40,7 +41,7 @@ namespace DeliveryProject.Tests.Mocks
         public static void SetupGetAllOrdersWithNull(Mock<IOrderRepository> mock)
         {
             mock.Setup(service => service.GetAllOrdersImmediate())
-                .ReturnsAsync((List<OrderEntity>)null);
+                .ReturnsAsync((ConcurrentBag<OrderEntity>)null);
         }
 
         public static void SetupBussinessArgumentException(Mock<IOrderService> mock, string message)

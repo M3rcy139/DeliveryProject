@@ -15,7 +15,7 @@ namespace DeliveryProject.Tests.Assertions
                     It.Is<It.IsAnyType>((v, t) => v.ToString().Contains(expectedMessage) && v.ToString().Contains($"StatusCode: {statusCode}")),
                     null,
                     It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
-                Times.Once, $"Ожидалось, что в лог будет записано сообщение уровня {expectedLogLevel} со статус-кодом {statusCode}");
+                Times.Once, $"It was expected that a {expectedLogLevel} level message with a status code would be recorded in the log. {statusCode}");
         }
     }
 }
