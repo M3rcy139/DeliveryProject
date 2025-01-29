@@ -1,4 +1,5 @@
 ﻿using DeliveryProject.DataAccess;
+using DeliveryProject.DataAccess.Factories;
 using Microsoft.EntityFrameworkCore;
 
 namespace DeliveryProject.ServiceCollection
@@ -7,6 +8,8 @@ namespace DeliveryProject.ServiceCollection
     {
         public static void AddDbServices(this IServiceCollection services, IConfiguration configuration)
         {
+            services.AddSingleton<IDbContextFactory<DeliveryDbContext>, DbContextFactory>();
+
             services.AddDbContext<DeliveryDbContext>(options =>
             {
                 options.UseNpgsql(

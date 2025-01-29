@@ -14,9 +14,9 @@ class Program
             await using var connection = new NpgsqlConnection(ConnectionString);
             await connection.OpenAsync();
 
-            //await ExecuteQuery(connection, GenerateRegions());
+            await ExecuteQuery(connection, GenerateRegions());
             await ExecuteQuery(connection, GenerateDeliveryPersons());
-            //await ExecuteQuery(connection, GenerateSuppliers());
+            await ExecuteQuery(connection, GenerateSuppliers());
             await ExecuteQuery(connection, GenerateOrders());
 
             Console.WriteLine("Data generation completed and applied to the database.");

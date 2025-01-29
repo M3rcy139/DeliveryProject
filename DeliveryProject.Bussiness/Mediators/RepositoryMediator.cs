@@ -5,11 +5,12 @@ using DeliveryProject.DataAccess.Interfaces;
 
 namespace DeliveryProject.Bussiness.Mediators
 {
-    public class RepositoryMediator
+    public class RepositoryMediator : IDisposable
     {
         private readonly IOrderRepository _orderRepository;
         private readonly ISupplierRepository _supplierRepository;
         private readonly IDeliveryPersonRepository _deliveryPersonRepository;
+        private bool _disposed = false;
 
         public RepositoryMediator(
             IOrderRepository orderRepository,
@@ -101,6 +102,33 @@ namespace DeliveryProject.Bussiness.Mediators
             OrderServiceHelper.ValidateOrders(ref orders);
 
             return orders;
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!_disposed)
+            {
+                if (disposing)
+                {
+                    if (_orderRepository is IDisposable orderRepositoryDisposable)
+                    {
+                        orderRepositoryDisposable.Dispose();
+                    }
+                }
+
+                _disposed = true;
+            }
+        }
+
+        ~RepositoryMediator()
+        {
+            Dispose(false);
         }
     }
 }

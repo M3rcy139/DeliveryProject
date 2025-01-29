@@ -22,6 +22,7 @@ using DeliveryProject.DataAccess.Repositories;
 using DeliveryProject.DataAccess;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Concurrent;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 
 public class OrderControllerTests : BaseControllerTests, IClassFixture<WebApplicationFactory<Program>>
 {
@@ -45,8 +46,8 @@ public class OrderControllerTests : BaseControllerTests, IClassFixture<WebApplic
         {
             builder.ConfigureServices(services =>
             {
-                services.AddScoped<IOrderService>(_ => localOrderServiceMock.Object);
-                services.AddScoped<IOrderRepository>(_ => localOrderRepositoryMock.Object);
+                services.AddSingleton<IOrderService>(_ => localOrderServiceMock.Object);
+                services.AddSingleton<IOrderRepository>(_ => localOrderRepositoryMock.Object);
             });
         }).CreateClient();
 
@@ -189,8 +190,10 @@ public class OrderControllerTests : BaseControllerTests, IClassFixture<WebApplic
             .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
             .Options;
 
-        await using var context = new DeliveryDbContext(options);
-        var repository = new OrderRepository(context);
+        var factory = new PooledDbContextFactory<DeliveryDbContext>(options);
+        var repository = new OrderRepository(factory);
+
+        using var dbContext = factory.CreateDbContext();
 
         var order = new OrderEntity
         {
@@ -248,7 +251,9 @@ public class OrderControllerTests : BaseControllerTests, IClassFixture<WebApplic
             .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
             .Options;
 
-        using (var context = new DeliveryDbContext(options))
+        var factory = new PooledDbContextFactory<DeliveryDbContext>(options);
+
+        using (var dbContext = factory.CreateDbContext())
         {
             var initialOrders = new List<OrderEntity>();
             for (int i = 0; i < 50; i++)
@@ -262,22 +267,23 @@ public class OrderControllerTests : BaseControllerTests, IClassFixture<WebApplic
                     DeliveryTime = DateTime.UtcNow
                 });
             }
-            await context.Orders.AddRangeAsync(initialOrders);
-            await context.SaveChangesAsync();
+            await dbContext.Orders.AddRangeAsync(initialOrders);
+            await dbContext.SaveChangesAsync();
         }
 
+        var sharedOrders = new List<OrderEntity>();
+
         var tasks = new List<Task>();
-        var results = new ConcurrentBag<int>();
 
         // Act
         for (int i = 0; i < parallelRequests; i++)
         {
             var task = Task.Run(async () =>
             {
-                using var scopedContext = new DeliveryDbContext(options);
-                var scopedRepository = new OrderRepository(scopedContext);
+                var scopedRepository = new OrderRepository(factory);
                 var orders = await scopedRepository.GetAllOrdersImmediate();
-                results.Add(orders.Count);
+
+                sharedOrders.AddRange(orders);
             });
 
             tasks.Add(task);
@@ -286,10 +292,16 @@ public class OrderControllerTests : BaseControllerTests, IClassFixture<WebApplic
         await Task.WhenAll(tasks);
 
         // Assert
-        results.Should().HaveCount(parallelRequests);
-        foreach (var count in results)
+        var uniqueOrders = sharedOrders.Select(o => o.Id).Distinct().ToList();
+        uniqueOrders.Should().HaveCount(50);
+
+        foreach (var order in sharedOrders)
         {
-            count.Should().Be(50);
+            order.Should().NotBeNull();
+            order.Id.Should().NotBe(Guid.Empty);
+            order.Weight.Should().BeInRange(0, 49);
+            order.RegionId.Should().Be(1);
+            order.SupplierId.Should().Be(1);
         }
     }
 }

@@ -1,37 +1,40 @@
-﻿using DeliveryProject.DataAccess.Entities;
+﻿using DeliveryProject.Core.Threading;
+using DeliveryProject.DataAccess.Entities;
 using DeliveryProject.DataAccess.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Concurrent;
 
 namespace DeliveryProject.DataAccess.Repositories
 {
-    public class OrderRepository : IOrderRepository
+    public class OrderRepository : IOrderRepository, IDisposable 
     {
-        private readonly DeliveryDbContext _context;
+        private readonly IDbContextFactory<DeliveryDbContext> _contextFactory;
         private readonly Dictionary<Guid, OrderEntity> _orderCache = new();
-        private readonly SemaphoreSlim _dbContextLock = new SemaphoreSlim(1, 1);
+        private readonly CustomSpinLock _spinLock = new CustomSpinLock();
+        private bool _disposed = false;
 
-        public OrderRepository(DeliveryDbContext context) => _context = context;
+        public OrderRepository(IDbContextFactory<DeliveryDbContext> contextFactory) => _contextFactory = contextFactory;
 
         public async Task AddOrder(OrderEntity orderEntity)
         {
-            await _dbContextLock.WaitAsync();
+            _spinLock.Enter();
             try
             {
-                await _context.Orders.AddAsync(orderEntity);
-                await _context.SaveChangesAsync();
+                using var dbContext = _contextFactory.CreateDbContext();
+                await dbContext.Orders.AddAsync(orderEntity);
+                await dbContext.SaveChangesAsync();
 
                 _orderCache[orderEntity.Id] = orderEntity;
             }
             finally
             {
-                _dbContextLock.Release();
+                _spinLock.Exit();
             }
         }
 
         public async Task<OrderEntity?> GetOrderById(Guid id)
         {
-            await _dbContextLock.WaitAsync();
+            _spinLock.Enter();
             try
             {
                 if (_orderCache.TryGetValue(id, out var cachedOrder))
@@ -39,38 +42,40 @@ namespace DeliveryProject.DataAccess.Repositories
                     return cachedOrder;
                 }
 
-                var order = await _context.Orders
+                using var dbContext = _contextFactory.CreateDbContext();
+                var order = await dbContext.Orders
                     .AsNoTracking()
                     .FirstOrDefaultAsync(o => o.Id == id);
                 if (order != null)
                 {
-                    _orderCache[id] = order; 
+                    _orderCache[id] = order;
                 }
                 return order;
             }
             finally
             {
-                _dbContextLock.Release();
+                _spinLock.Exit();
             }
         }
 
         public async Task UpdateOrder(OrderEntity orderEntity)
         {
-            await _dbContextLock.WaitAsync();
+            _spinLock.Enter();
             try
             {
-                var existingEntity = await _context.Orders.FindAsync(orderEntity.Id);
+                using var dbContext = _contextFactory.CreateDbContext();
+                var existingEntity = await dbContext.Orders.FindAsync(orderEntity.Id);
 
                 if (existingEntity != null)
                 {
-                    _context.Entry(existingEntity).CurrentValues.SetValues(orderEntity);
+                    dbContext.Entry(existingEntity).CurrentValues.SetValues(orderEntity);
                 }
 
-                await _context.SaveChangesAsync();
+                await dbContext.SaveChangesAsync();
             }
             finally
             {
-                _dbContextLock.Release();
+                _spinLock.Exit();
             }
 
             _orderCache[orderEntity.Id] = orderEntity;
@@ -78,27 +83,29 @@ namespace DeliveryProject.DataAccess.Repositories
 
         public async Task DeleteOrder(Guid id)
         {
-            await _dbContextLock.WaitAsync();
+            _spinLock.Enter();
             try
             {
-                var order = await _context.Orders.FindAsync(id);
+                using var dbContext = _contextFactory.CreateDbContext();
+                var order = await dbContext.Orders.FindAsync(id);
                 if (order != null)
                 {
-                    _context.Orders.Remove(order);
-                    await _context.SaveChangesAsync();
+                    dbContext.Orders.Remove(order);
+                    await dbContext.SaveChangesAsync();
 
-                    _orderCache.Remove(id, out _); 
+                    _orderCache.Remove(id, out _);
                 }
             }
             finally
             {
-                _dbContextLock.Release();
+                _spinLock.Exit();
             }
         }
 
         public async Task<RegionEntity> GetRegionByName(string regionName)
         {
-            var region = await _context.Regions
+            using var dbContext = _contextFactory.CreateDbContext();
+            var region = await dbContext.Regions
                 .AsNoTracking() 
                 .Include(r => r.Orders)
                 .Where(r => r.Name.ToLower() == regionName.ToLower())
@@ -106,15 +113,22 @@ namespace DeliveryProject.DataAccess.Repositories
 
             return region;
         }
-        public async Task<bool> HasOrders(int regionId) =>
-            await _context.Orders.AnyAsync(o => o.RegionId == regionId);
+        public async Task<bool> HasOrders(int regionId)
+        {
+            using var dbContext = _contextFactory.CreateDbContext();
+            return await dbContext.Orders.AnyAsync(o => o.RegionId == regionId);
+        }  
 
-        public async Task<DateTime> GetFirstOrderTime(int regionId) =>
-            await _context.Orders.Where(o => o.RegionId == regionId).MinAsync(o => o.DeliveryTime);
+        public async Task<DateTime> GetFirstOrderTime(int regionId)
+        {
+            using var dbContext = _contextFactory.CreateDbContext();
+            return await dbContext.Orders.Where(o => o.RegionId == regionId).MinAsync(o => o.DeliveryTime);
+        } 
 
         public async Task<List<OrderEntity>> GetOrdersWithinTimeRange(int regionId, DateTime fromTime, DateTime toTime)
         {
-            var filteredOrders = await _context.Orders
+            using var dbContext = _contextFactory.CreateDbContext();
+            var filteredOrders = await dbContext.Orders
                 .Where(o => o.RegionId == regionId && o.DeliveryTime >= fromTime && o.DeliveryTime <= toTime)
                 .ToListAsync();
 
@@ -130,16 +144,41 @@ namespace DeliveryProject.DataAccess.Repositories
                 SupplierId = o.SupplierId,
             }).ToList();
 
-            await _context.FilteredOrders.AddRangeAsync(filteredOrderEntities);
-            await _context.SaveChangesAsync();
+            await dbContext.FilteredOrders.AddRangeAsync(filteredOrderEntities);
+            await dbContext.SaveChangesAsync();
 
             return filteredOrders;
         }
 
         public async Task<ConcurrentBag<OrderEntity>> GetAllOrdersImmediate()
         {
-            var orders = await _context.Orders.AsNoTracking().ToListAsync();
+            using var dbContext = _contextFactory.CreateDbContext();
+            var orders = await dbContext.Orders.AsNoTracking().ToListAsync();
             return new ConcurrentBag<OrderEntity>(orders);
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!_disposed)
+            {
+                if (disposing)
+                {
+                    _spinLock.Dispose();
+                }
+
+                _disposed = true;
+            }
+        }
+
+        ~OrderRepository()
+        {
+            Dispose(false);
         }
     }
 }

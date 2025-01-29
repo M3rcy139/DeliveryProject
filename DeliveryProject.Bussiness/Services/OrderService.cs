@@ -10,11 +10,12 @@ using DeliveryProject.Bussiness.Mediators;
 
 namespace DeliveryProject.Bussiness.Services
 {
-    public class OrderService : BaseService, IOrderService
+    public class OrderService : BaseService, IOrderService, IDisposable
     {
         private readonly RepositoryMediator _repositoryMediator;
         private readonly ILogger<OrderService> _logger;
         private readonly IMapper _mapper;
+        private bool _disposed = false;
 
         public OrderService(RepositoryMediator repositoryMediator, ILogger<OrderService> logger, IMapper mapper)
         {
@@ -101,6 +102,30 @@ namespace DeliveryProject.Bussiness.Services
 
                 return _mapper.Map<List<Order>>(orders);
             }, TaskCreationOptions.LongRunning).Unwrap();
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!_disposed)
+            {
+                if (disposing)
+                {
+                    _repositoryMediator?.Dispose();
+                }
+
+                _disposed = true;
+            }
+        }
+
+        ~OrderService()
+        {
+            Dispose(false);
         }
     }
 }

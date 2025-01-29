@@ -6,12 +6,15 @@ namespace DeliveryProject.DataAccess.Repositories
 {
     public class SupplierRepository : ISupplierRepository
     {
-        private readonly DeliveryDbContext _context;
+        private readonly IDbContextFactory<DeliveryDbContext> _contextFactory;
 
-        public SupplierRepository(DeliveryDbContext context) => _context = context;
+        public SupplierRepository(IDbContextFactory<DeliveryDbContext> contextFactory) => _contextFactory = contextFactory;
 
-        public async Task<SupplierEntity?> GetByIdAsync(int id) => 
-            await _context.Suppliers.FirstOrDefaultAsync(s => s.Id == id);
+        public async Task<SupplierEntity?> GetByIdAsync(int id)
+        {
+            using var dbContext = _contextFactory.CreateDbContext();
+            return await dbContext.Suppliers.FirstOrDefaultAsync(s => s.Id == id);
+        }  
     }
 }
 
