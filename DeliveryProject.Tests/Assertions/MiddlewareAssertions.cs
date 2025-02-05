@@ -1,12 +1,12 @@
-﻿using Moq;
+﻿using DeliveryProject.Middleware;
 using Microsoft.Extensions.Logging;
-using DeliveryProject.Middleware;
+using Moq;
 
 namespace DeliveryProject.Tests.Assertions
 {
-    public abstract class BaseMiddlewareTestAssertions
+    public static class MiddlewareAssertions
     {
-        public void AssertLogContains(Mock<ILogger<ExceptionHandlingMiddleware>> loggerMock, LogLevel expectedLogLevel, string expectedMessage, int statusCode)
+        public static void AssertLogContains(Mock<ILogger<ExceptionHandlingMiddleware>> loggerMock, LogLevel expectedLogLevel, string expectedMessage, int statusCode)
         {
             loggerMock.Verify(
                 log => log.Log(

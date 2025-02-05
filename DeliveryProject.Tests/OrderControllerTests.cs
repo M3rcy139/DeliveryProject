@@ -5,15 +5,12 @@ using DeliveryProject.Bussiness.Interfaces.Services;
 using DeliveryProject.Core.Models;
 using DeliveryProject.Core.Dto;
 using FluentAssertions;
-using FluentValidation;
 using System.Net;
 using System.Net.Http.Json;
 using Microsoft.Extensions.DependencyInjection;
-using DeliveryProject.Core.Exceptions;
 using DeliveryProject.Bussiness.Enums;
 using DeliveryProject.Bussiness.Services;
 using DeliveryProject.Middleware;
-using DeliveryProject.Tests.Assertions;
 using DeliveryProject.Tests.Mocks;
 using Newtonsoft.Json;
 using DeliveryProject.DataAccess.Interfaces;
@@ -21,8 +18,9 @@ using DeliveryProject.DataAccess.Entities;
 using DeliveryProject.DataAccess.Repositories;
 using DeliveryProject.DataAccess;
 using Microsoft.EntityFrameworkCore;
-using System.Collections.Concurrent;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using DeliveryProject.Tests.Base;
+using DeliveryProject.Tests.Assertions;
 
 public class OrderControllerTests : BaseControllerTests, IClassFixture<WebApplicationFactory<Program>>
 {
@@ -160,7 +158,7 @@ public class OrderControllerTests : BaseControllerTests, IClassFixture<WebApplic
 
         var responseContent = await response.Content.ReadFromJsonAsync<CustomProblemDetails>();
 
-        AssertResponseDetails(responseContent, "Validation failed.", nameof(ValidationMiddleware));
+        ControllerAssertions.AssertResponseDetails(responseContent, "Validation failed.", nameof(ValidationMiddleware));
     }
 
 
@@ -178,7 +176,7 @@ public class OrderControllerTests : BaseControllerTests, IClassFixture<WebApplic
 
         var responseContent = await response.Content.ReadFromJsonAsync<CustomProblemDetails>();
 
-        AssertResponseDetails(responseContent, "The RegionName field must not be empty.", nameof(OrderService.FilterOrders));
+        ControllerAssertions.AssertResponseDetails(responseContent, "The RegionName field must not be empty.", nameof(OrderService.FilterOrders));
     }
 
     [Theory]

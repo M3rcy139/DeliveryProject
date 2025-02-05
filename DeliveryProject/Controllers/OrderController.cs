@@ -4,6 +4,7 @@ using DeliveryProject.Core.Dto;
 using DeliveryProject.Bussiness.Interfaces.Services;
 using DeliveryProject.Bussiness.Enums;
 using DeliveryProject.Core.Constants;
+using System.Diagnostics;
 
 namespace DeliveryProject.Controllers
 {
@@ -21,6 +22,8 @@ namespace DeliveryProject.Controllers
         [HttpPost("Order/Add")]
         public async Task<IActionResult> AddOrder([FromBody] AddOrderRequest request)
         {
+            var stopwatch = Stopwatch.StartNew();
+
             var order = new Order()
             {
                 Id = Guid.NewGuid(),
@@ -32,10 +35,13 @@ namespace DeliveryProject.Controllers
 
             var result = await _orderService.AddOrder(order);
 
+            stopwatch.Stop();
+
             return Ok(new
             {
                 result,
-                message = string.Format(InfoMessages.AddedOrder, order.Id)
+                message = string.Format(InfoMessages.AddedOrder, order.Id),
+                elapsedTime = stopwatch.ElapsedMilliseconds
             });
         }
 

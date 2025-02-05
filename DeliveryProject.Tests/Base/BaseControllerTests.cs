@@ -4,7 +4,7 @@ using DeliveryProject.DataAccess.Interfaces;
 using FluentAssertions;
 using Moq;
 
-namespace DeliveryProject.Tests.Assertions
+namespace DeliveryProject.Tests.Base
 {
     public abstract class BaseControllerTests
     {
@@ -12,7 +12,7 @@ namespace DeliveryProject.Tests.Assertions
         protected readonly Mock<IOrderService> _orderServiceMock;
         protected readonly Mock<IOrderRepository> _orderRepositoryMock;
 
-        protected BaseControllerTests(HttpClient client, Mock<IOrderService> orderServiceMock, 
+        protected BaseControllerTests(HttpClient client, Mock<IOrderService> orderServiceMock,
             Mock<IOrderRepository> orderRepositoryMock)
         {
             _client = client;
@@ -24,13 +24,6 @@ namespace DeliveryProject.Tests.Assertions
         {
             var baseUrl = "/api/order";
             return await _client.GetAsync($"{baseUrl}/{relativeUrl.TrimStart('/')}");
-        }
-
-        public void AssertResponseDetails(CustomProblemDetails responseContent, string expectedMessage, string expectedMethodName)
-        {
-            responseContent.Detail.Should().NotBeNullOrEmpty("The error must contain details.");
-            responseContent.Detail.Should().Contain(expectedMessage, $"The error should contain the message: {expectedMessage}");
-            responseContent.Detail.Should().Contain(expectedMethodName, $"The error must contain the method: {expectedMethodName}");
         }
     }
 }
