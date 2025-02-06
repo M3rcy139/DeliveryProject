@@ -1,33 +1,19 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Design;
-using Microsoft.Extensions.Configuration;
 
 namespace DeliveryProject.DataAccess.Factories
 {
-    public class DbContextFactory : IDesignTimeDbContextFactory<DeliveryDbContext>, IDbContextFactory<DeliveryDbContext>
+    public class DbContextFactory : IDbContextFactory<DeliveryDbContext>
     {
-        private readonly IConfiguration _configuration;
-        public DbContextFactory()
-        {
-            _configuration = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-                .Build();
-        }
+        private readonly DbContextOptions<DeliveryDbContext> _options;
 
-        public DeliveryDbContext CreateDbContext(string[] args)
+        public DbContextFactory(DbContextOptions<DeliveryDbContext> options)
         {
-            return CreateDbContext();
+            _options = options;
         }
 
         public DeliveryDbContext CreateDbContext()
         {
-            var optionsBuilder = new DbContextOptionsBuilder<DeliveryDbContext>();
-            var connectionString = _configuration.GetConnectionString(nameof(DeliveryDbContext));
-
-            optionsBuilder.UseNpgsql(connectionString, b => b.MigrationsAssembly("DeliveryProject.Migrations"));
-
-            return new DeliveryDbContext(optionsBuilder.Options);
+            return new DeliveryDbContext(_options);
         }
     }
 }

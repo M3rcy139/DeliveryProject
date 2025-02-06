@@ -1,15 +1,17 @@
 ﻿using DeliveryProject.DataAccess.Entities;
 using DeliveryProject.DataAccess;
 
-namespace DeliveryProject.DataGenerator.Generators
+namespace DeliveryProject.Tets.Helpers
 {
-    internal class OrderDataGenerator
+    internal class OrderTestHelper
     {
         private readonly DeliveryDbContext _context;
+        private readonly int _orders;
 
-        public OrderDataGenerator(DeliveryDbContext context)
+        public OrderTestHelper(DeliveryDbContext context, int orders)
         {
             _context = context;
+            _orders = orders;
         }
 
         public async Task GenerateAndSaveOrdersAsync()
@@ -17,7 +19,7 @@ namespace DeliveryProject.DataGenerator.Generators
             var orders = new List<OrderEntity>();
             var random = new Random();
 
-            for (int i = 1; i <= 100; i++)
+            for (int i = 1; i <= _orders; i++)
             {
                 double weight = Math.Round(random.NextDouble() * 10, 1);
                 int regionId = random.Next(1, 80);
@@ -38,7 +40,7 @@ namespace DeliveryProject.DataGenerator.Generators
 
             await _context.Orders.AddRangeAsync(orders);
             await _context.SaveChangesAsync();
-            Console.WriteLine("Orders generated and saved.");
+            Console.WriteLine($"{_orders} delivery persons generated and saved.");
         }
     }
 }

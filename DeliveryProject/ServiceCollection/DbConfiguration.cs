@@ -8,14 +8,26 @@ namespace DeliveryProject.ServiceCollection
     {
         public static void AddDbServices(this IServiceCollection services, IConfiguration configuration)
         {
+            var connectionString = configuration.GetConnectionString(nameof(DeliveryDbContext));
+
+            services.AddDbContextOptions<DeliveryDbContext>(options =>
+                options.UseNpgsql(connectionString, b => b.MigrationsAssembly("DeliveryProject.Migrations"))
+            );
+
             services.AddSingleton<IDbContextFactory<DeliveryDbContext>, DbContextFactory>();
 
-            services.AddDbContext<DeliveryDbContext>(options =>
+            services.AddDbContext<DeliveryDbContext>();
+        }
+
+        private static void AddDbContextOptions<TContext>(this IServiceCollection services, Action<DbContextOptionsBuilder> optionsAction)
+            where TContext : DbContext
+        {
+            services.AddSingleton(provider =>
             {
-                options.UseNpgsql(
-                    configuration.GetConnectionString(nameof(DeliveryDbContext)),
-                    b => b.MigrationsAssembly("DeliveryProject.Migrations"));
-            }, ServiceLifetime.Scoped);
+                var optionsBuilder = new DbContextOptionsBuilder<TContext>();
+                optionsAction(optionsBuilder);
+                return optionsBuilder.Options;
+            });
         }
     }
 }

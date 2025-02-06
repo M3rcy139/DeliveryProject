@@ -1,15 +1,17 @@
 ﻿using DeliveryProject.DataAccess.Entities;
 using DeliveryProject.DataAccess;
 
-namespace DeliveryProject.DataGenerator.Generators
+namespace DeliveryProject.Tets.Helpers
 {
-    internal class SupplierDataGenerator
+    internal class SupplierTestHelper
     {
         private readonly DeliveryDbContext _context;
+        private readonly int _suppliersCount;
 
-        public SupplierDataGenerator(DeliveryDbContext context)
+        public SupplierTestHelper(DeliveryDbContext context, int suppliersCount)
         {
             _context = context;
+            _suppliersCount = suppliersCount; 
         }
 
         public async Task GenerateAndSaveSuppliersAsync()
@@ -17,9 +19,9 @@ namespace DeliveryProject.DataGenerator.Generators
             var suppliers = new List<SupplierEntity>();
             var random = new Random();
 
-            for (int i = 1; i <= 50; i++)
+            for (int i = 1; i <= _suppliersCount; i++)
             {
-                string phone = $"{(i % 10)}123-456-789{i}";
+                string phone = $"{random.Next(100, 999)}-{random.Next(100, 999)}-{random.Next(100, 999)}";
                 double rating = Math.Round(4.0 + (i % 5) * 0.2, 1);
                 string email = $"supplier{i}@example.com";
 
@@ -35,7 +37,7 @@ namespace DeliveryProject.DataGenerator.Generators
 
             await _context.Suppliers.AddRangeAsync(suppliers);
             await _context.SaveChangesAsync();
-            Console.WriteLine("Suppliers generated and saved.");
+            Console.WriteLine($"{_suppliersCount} suppliers generated and saved.");
         }
     }
 }

@@ -5,6 +5,8 @@ namespace DeliveryProject.DataAccess
 { 
     public class DeliveryDbContext : DbContext
     {
+        public DeliveryDbContext() { }
+
         public DeliveryDbContext(DbContextOptions<DeliveryDbContext> options) : base(options)
         {
         }
