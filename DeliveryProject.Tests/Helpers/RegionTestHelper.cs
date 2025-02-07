@@ -1,34 +1,17 @@
-﻿using DeliveryProject.DataAccess.Entities;
-using DeliveryProject.DataAccess;
+﻿using DeliveryProject.DataAccess;
+using DeliveryProject.DataAccess.Entities;
 
-namespace DeliveryProject.Tets.Helpers
+namespace DeliveryProject.Tests.Helpers
 {
-    internal class RegionTestHelper
+    public static class RegionTestHelper
     {
-        private readonly DeliveryDbContext _context;
-        private readonly int _regionsCount;
-
-        public RegionTestHelper(DeliveryDbContext context, int regionsCount)
+        public static async Task GenerateRegions(this DeliveryDbContext context, int count)
         {
-            _context = context;
-            _regionsCount = regionsCount;
-        }
+            var regions = Enumerable.Range(1, count)
+                .Select(i => new RegionEntity { Id = i, Name = $"Region {i}" })
+                .ToList();
 
-        public async Task GenerateAndSaveRegionsAsync()
-        {
-            var regions = new List<RegionEntity>();
-            for (int i = 1; i <= _regionsCount; i++)
-            {
-                regions.Add(new RegionEntity
-                {
-                    Id = i,
-                    Name = $"District {i}"
-                });
-            }
-
-            await _context.Regions.AddRangeAsync(regions);
-            await _context.SaveChangesAsync();
-            Console.WriteLine($"{_regionsCount} regions generated and saved.");
+            await context.Regions.AddRangeAsync(regions);
         }
     }
 }

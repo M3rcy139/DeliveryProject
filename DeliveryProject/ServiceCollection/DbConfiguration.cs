@@ -15,8 +15,6 @@ namespace DeliveryProject.ServiceCollection
             );
 
             services.AddSingleton<IDbContextFactory<DeliveryDbContext>, DbContextFactory>();
-
-            services.AddDbContext<DeliveryDbContext>();
         }
 
         private static void AddDbContextOptions<TContext>(this IServiceCollection services, Action<DbContextOptionsBuilder> optionsAction)

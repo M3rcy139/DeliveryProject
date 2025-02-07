@@ -1,25 +1,16 @@
 ﻿using DeliveryProject.DataAccess.Entities;
 using DeliveryProject.DataAccess;
 
-namespace DeliveryProject.Tets.Helpers
+namespace DeliveryProject.Tests.Helpers
 {
-    internal class SupplierTestHelper
+    public static class SupplierTestHelper
     {
-        private readonly DeliveryDbContext _context;
-        private readonly int _suppliersCount;
-
-        public SupplierTestHelper(DeliveryDbContext context, int suppliersCount)
-        {
-            _context = context;
-            _suppliersCount = suppliersCount; 
-        }
-
-        public async Task GenerateAndSaveSuppliersAsync()
+        public static async Task GenerateSuppliers(this DeliveryDbContext context, int count)
         {
             var suppliers = new List<SupplierEntity>();
             var random = new Random();
 
-            for (int i = 1; i <= _suppliersCount; i++)
+            for (int i = 1; i <= count; i++)
             {
                 string phone = $"{random.Next(100, 999)}-{random.Next(100, 999)}-{random.Next(100, 999)}";
                 double rating = Math.Round(4.0 + (i % 5) * 0.2, 1);
@@ -35,9 +26,7 @@ namespace DeliveryProject.Tets.Helpers
                 });
             }
 
-            await _context.Suppliers.AddRangeAsync(suppliers);
-            await _context.SaveChangesAsync();
-            Console.WriteLine($"{_suppliersCount} suppliers generated and saved.");
+            await context.Suppliers.AddRangeAsync(suppliers);
         }
     }
 }
