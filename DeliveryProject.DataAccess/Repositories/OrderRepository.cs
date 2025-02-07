@@ -1,104 +1,68 @@
-﻿using DeliveryProject.Core.Threading;
-using DeliveryProject.DataAccess.Entities;
+﻿using DeliveryProject.DataAccess.Entities;
 using DeliveryProject.DataAccess.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using System.Collections.Concurrent;
 
 namespace DeliveryProject.DataAccess.Repositories
 {
-    public class OrderRepository : IOrderRepository, IDisposable 
+    public class OrderRepository : IOrderRepository
     {
         private readonly IDbContextFactory<DeliveryDbContext> _contextFactory;
         private readonly Dictionary<Guid, OrderEntity> _orderCache = new();
-        private readonly CustomSpinLock _spinLock = new CustomSpinLock();
-        private bool _disposed = false;
 
         public OrderRepository(IDbContextFactory<DeliveryDbContext> contextFactory) => _contextFactory = contextFactory;
 
         public async Task AddOrder(OrderEntity orderEntity)
         {
-            _spinLock.Enter();
-            try
-            {
-                using var dbContext = _contextFactory.CreateDbContext();
-                await dbContext.Orders.AddAsync(orderEntity);
-                await dbContext.SaveChangesAsync();
+            using var dbContext = _contextFactory.CreateDbContext();
+            await dbContext.Orders.AddAsync(orderEntity);
+            await dbContext.SaveChangesAsync();
 
-                _orderCache[orderEntity.Id] = orderEntity;
-            }
-            finally
-            {
-                _spinLock.Exit();
-            }
+            _orderCache[orderEntity.Id] = orderEntity;
         }
 
         public async Task<OrderEntity?> GetOrderById(Guid id)
         {
-            _spinLock.Enter();
-            try
+            if (_orderCache.TryGetValue(id, out var cachedOrder))
             {
-                if (_orderCache.TryGetValue(id, out var cachedOrder))
-                {
-                    return cachedOrder;
-                }
+                return cachedOrder;
+            }
 
-                using var dbContext = _contextFactory.CreateDbContext();
-                var order = await dbContext.Orders
-                    .AsNoTracking()
-                    .FirstOrDefaultAsync(o => o.Id == id);
-                if (order != null)
-                {
-                    _orderCache[id] = order;
-                }
-                return order;
-            }
-            finally
+            using var dbContext = _contextFactory.CreateDbContext();
+            var order = await dbContext.Orders
+                .AsNoTracking()
+                .FirstOrDefaultAsync(o => o.Id == id);
+            if (order != null)
             {
-                _spinLock.Exit();
+                _orderCache[id] = order;
             }
+            return order;
         }
 
         public async Task UpdateOrder(OrderEntity orderEntity)
         {
-            _spinLock.Enter();
-            try
-            {
-                using var dbContext = _contextFactory.CreateDbContext();
-                var existingEntity = await dbContext.Orders.FindAsync(orderEntity.Id);
+            using var dbContext = _contextFactory.CreateDbContext();
+            var existingEntity = await dbContext.Orders.FindAsync(orderEntity.Id);
 
-                if (existingEntity != null)
-                {
-                    dbContext.Entry(existingEntity).CurrentValues.SetValues(orderEntity);
-                }
-
-                await dbContext.SaveChangesAsync();
-            }
-            finally
+            if (existingEntity != null)
             {
-                _spinLock.Exit();
+                dbContext.Entry(existingEntity).CurrentValues.SetValues(orderEntity);
             }
+
+            await dbContext.SaveChangesAsync();
 
             _orderCache[orderEntity.Id] = orderEntity;
         }
 
         public async Task DeleteOrder(Guid id)
         {
-            _spinLock.Enter();
-            try
+            using var dbContext = _contextFactory.CreateDbContext();
+            var order = await dbContext.Orders.FindAsync(id);
+            if (order != null)
             {
-                using var dbContext = _contextFactory.CreateDbContext();
-                var order = await dbContext.Orders.FindAsync(id);
-                if (order != null)
-                {
-                    dbContext.Orders.Remove(order);
-                    await dbContext.SaveChangesAsync();
+                dbContext.Orders.Remove(order);
+                await dbContext.SaveChangesAsync();
 
-                    _orderCache.Remove(id, out _);
-                }
-            }
-            finally
-            {
-                _spinLock.Exit();
+                _orderCache.Remove(id, out _);
             }
         }
 
@@ -150,35 +114,12 @@ namespace DeliveryProject.DataAccess.Repositories
             return filteredOrders;
         }
 
-        public async Task<ConcurrentBag<OrderEntity>> GetAllOrdersImmediate()
+        public async Task<List<OrderEntity>> GetAllOrdersImmediate()
         {
             using var dbContext = _contextFactory.CreateDbContext();
             var orders = await dbContext.Orders.AsNoTracking().ToListAsync();
-            return new ConcurrentBag<OrderEntity>(orders);
-        }
 
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!_disposed)
-            {
-                if (disposing)
-                {
-                    _spinLock.Dispose();
-                }
-
-                _disposed = true;
-            }
-        }
-
-        ~OrderRepository()
-        {
-            Dispose(false);
+            return new List<OrderEntity>(orders);
         }
     }
 }

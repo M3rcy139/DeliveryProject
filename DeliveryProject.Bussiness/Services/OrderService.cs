@@ -5,12 +5,11 @@ using AutoMapper;
 using DeliveryProject.DataAccess.Entities;
 using DeliveryProject.Bussiness.Enums;
 using DeliveryProject.Core.Constants;
-using DeliveryProject.Bussiness.Helpers;
 using DeliveryProject.Bussiness.Mediators;
 
 namespace DeliveryProject.Bussiness.Services
 {
-    public class OrderService : BaseService, IOrderService, IDisposable
+    public class OrderService : BaseService, IOrderService
     {
         private readonly RepositoryMediator _repositoryMediator;
         private readonly ILogger<OrderService> _logger;
@@ -94,38 +93,12 @@ namespace DeliveryProject.Bussiness.Services
                 {
                     var sortedOrders = GetSortDelegate(sortBy, descending);
                     orders = sortedOrders?.Invoke(orders) ?? orders;
-
-                    GC.Collect();
                 }
 
                 _logger.LogInformation(InfoMessages.AllOrdersReceived, orders.Count);
 
                 return _mapper.Map<List<Order>>(orders);
             }, TaskCreationOptions.LongRunning).Unwrap();
-        }
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!_disposed)
-            {
-                if (disposing)
-                {
-                    _repositoryMediator?.Dispose();
-                }
-
-                _disposed = true;
-            }
-        }
-
-        ~OrderService()
-        {
-            Dispose(false);
         }
     }
 }

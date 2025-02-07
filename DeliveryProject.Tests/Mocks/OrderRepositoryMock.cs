@@ -17,7 +17,7 @@ namespace DeliveryProject.Tests.Mocks
         public static void SetupGetAllOrdersWithNull(Mock<IOrderRepository> mock)
         {
             mock.Setup(rep => rep.GetAllOrdersImmediate())
-                .ReturnsAsync((ConcurrentBag<OrderEntity>)null);
+                .ReturnsAsync((List<OrderEntity>)null);
         }
     }
 }

@@ -1,5 +1,4 @@
 ﻿using DeliveryProject.Bussiness.Helpers;
-using System.Collections.Concurrent;
 using DeliveryProject.DataAccess.Entities;
 using DeliveryProject.DataAccess.Interfaces;
 using DeliveryProject.Core.Constants.ErrorMessages;
@@ -8,7 +7,7 @@ using DeliveryProject.Core.Extensions;
 
 namespace DeliveryProject.Bussiness.Mediators
 {
-    public class RepositoryMediator : IDisposable
+    public class RepositoryMediator
     {
         private readonly IOrderRepository _orderRepository;
         private readonly ISupplierRepository _supplierRepository;
@@ -104,33 +103,6 @@ namespace DeliveryProject.Bussiness.Mediators
             var orders = concurrentOrders.ToList();
 
             return orders.IsNullOrEmpty() ? new List<OrderEntity>() : orders;
-        }
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!_disposed)
-            {
-                if (disposing)
-                {
-                    if (_orderRepository is IDisposable orderRepositoryDisposable)
-                    {
-                        orderRepositoryDisposable.Dispose();
-                    }
-                }
-
-                _disposed = true;
-            }
-        }
-
-        ~RepositoryMediator()
-        {
-            Dispose(false);
         }
     }
 }
