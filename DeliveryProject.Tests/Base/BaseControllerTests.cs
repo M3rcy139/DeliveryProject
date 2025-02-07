@@ -1,7 +1,5 @@
 ﻿using DeliveryProject.Bussiness.Interfaces.Services;
-using DeliveryProject.Core.Dto;
 using DeliveryProject.DataAccess.Interfaces;
-using FluentAssertions;
 using Moq;
 
 namespace DeliveryProject.Tests.Base

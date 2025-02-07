@@ -20,28 +20,23 @@ namespace DeliveryProject.Controllers
         }
 
         [HttpPost("Order/Add")]
-        public async Task<IActionResult> AddOrder([FromBody] AddOrderRequest request)
+        public async Task<IActionResult> AddOrder([FromBody] OrderViewModel model)
         {
-            var stopwatch = Stopwatch.StartNew();
-
             var order = new Order()
             {
                 Id = Guid.NewGuid(),
-                RegionId = request.RegionId,
-                Weight = request.Weight,
-                DeliveryTime = request.DeliveryTime,
-                SupplierId = request.SupplierId
+                RegionId = model.RegionId,
+                Weight = model.Weight,
+                DeliveryTime = model.DeliveryTime,
+                SupplierId = model.SupplierId
             };
 
             var result = await _orderService.AddOrder(order);
-
-            stopwatch.Stop();
 
             return Ok(new
             {
                 result,
                 message = string.Format(InfoMessages.AddedOrder, order.Id),
-                elapsedTime = stopwatch.ElapsedMilliseconds
             });
         }
 
@@ -54,15 +49,15 @@ namespace DeliveryProject.Controllers
         }
 
         [HttpPut("Order/Update")]
-        public async Task<IActionResult> UpdateOrder([FromBody] UpdateOrderRequest request)
+        public async Task<IActionResult> UpdateOrder([FromBody] OrderViewModel model)
         {
             var order = new Order()
             {
-                Id = request.OrderId,
-                RegionId = request.RegionId,
-                Weight = request.Weight,
-                DeliveryTime = request.DeliveryTime,
-                SupplierId = request.SupplierId
+                Id = model.OrderId.Value,
+                RegionId = model.RegionId,
+                Weight = model.Weight,
+                DeliveryTime = model.DeliveryTime,
+                SupplierId = model.SupplierId
             };
 
             await _orderService.UpdateOrder(order);

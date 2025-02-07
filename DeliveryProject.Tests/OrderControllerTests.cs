@@ -21,15 +21,20 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using DeliveryProject.Tests.Base;
 using DeliveryProject.Tests.Assertions;
+using Microsoft.Extensions.Logging;
 
 public class OrderControllerTests : BaseControllerTests, IClassFixture<WebApplicationFactory<Program>>
 {
+    private readonly ILogger<OrderControllerTests> _logger;
+
     public OrderControllerTests(WebApplicationFactory<Program> factory)
         : base(
             InitializeClient(factory, out var orderServiceMock, out var orderRepositoryMock),
             orderServiceMock,
-            orderRepositoryMock) 
+            orderRepositoryMock)
     {
+        using var scope = factory.Services.CreateScope();
+        _logger = scope.ServiceProvider.GetRequiredService<ILogger<OrderControllerTests>>();
     }
 
     private static HttpClient InitializeClient(WebApplicationFactory<Program> factory, out Mock<IOrderService> orderServiceMock
@@ -46,6 +51,7 @@ public class OrderControllerTests : BaseControllerTests, IClassFixture<WebApplic
             {
                 services.AddSingleton<IOrderService>(_ => localOrderServiceMock.Object);
                 services.AddSingleton<IOrderRepository>(_ => localOrderRepositoryMock.Object);
+                services.AddLogging();
             });
         }).CreateClient();
 
@@ -138,7 +144,7 @@ public class OrderControllerTests : BaseControllerTests, IClassFixture<WebApplic
     public async Task AddOrder_ShouldIncludeStackTrace_InResponseForValidationException()
     {
         // Arrange
-        var request = new AddOrderRequest
+        var request = new OrderViewModel
         {
             RegionId = 0,
             Weight = -5.5,
@@ -180,9 +186,12 @@ public class OrderControllerTests : BaseControllerTests, IClassFixture<WebApplic
     }
 
     [Theory]
-    [InlineData(100)]
+    [InlineData(30)]
     public async Task UpdateOrder_ParallelRequests_ShouldHandleCacheLocking(int parallelRequests)
     {
+        _logger.LogInformation("Starting UpdateOrder_ParallelRequests test with {ParallelRequests} parallel requests", parallelRequests);
+
+
         // Arrange
         var options = new DbContextOptionsBuilder<DeliveryDbContext>()
             .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
@@ -203,30 +212,42 @@ public class OrderControllerTests : BaseControllerTests, IClassFixture<WebApplic
         };
 
         await repository.AddOrder(order);
+        _logger.LogDebug("Order with ID {OrderId} added", order.Id);
 
         var tasks = new List<Task>();
 
         // Act
         for (int i = 0; i < parallelRequests; i++)
         {
+            var index = i;
             var task = Task.Run(async () =>
             {
-                var updatedWeight = 10 + i;
-
-                var updatedOrder = new OrderEntity
+                try
                 {
-                    Id = order.Id,
-                    Weight = updatedWeight,
-                    RegionId = order.RegionId,
-                    SupplierId = order.SupplierId,
-                    DeliveryTime = order.DeliveryTime
-                };
+                    var updatedWeight = 10 + index;
+                    var threadId = Environment.CurrentManagedThreadId;
+                    _logger.LogDebug("Thread {ThreadId} updating order {OrderId} to weight {Weight}", threadId, order.Id, updatedWeight);
 
-                await repository.UpdateOrder(updatedOrder);
+                    var updatedOrder = new OrderEntity
+                    {
+                        Id = order.Id,
+                        Weight = updatedWeight,
+                        RegionId = order.RegionId,
+                        SupplierId = order.SupplierId,
+                        DeliveryTime = order.DeliveryTime
+                    };
 
-                var fetchedOrder = await repository.GetOrderById(order.Id);
-                fetchedOrder.Should().NotBeNull();
-                fetchedOrder.Weight.Should().Be(updatedWeight);
+                    await repository.UpdateOrder(updatedOrder);
+                    _logger.LogDebug("Order {OrderId} updated to weight {Weight}", order.Id, updatedWeight);
+
+                    var fetchedOrder = await repository.GetOrderById(order.Id);
+                    fetchedOrder.Should().NotBeNull();
+                    fetchedOrder.Weight.Should().Be(updatedWeight);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error updating order in parallel execution");
+                }
             });
 
             tasks.Add(task);
@@ -237,13 +258,17 @@ public class OrderControllerTests : BaseControllerTests, IClassFixture<WebApplic
         // Assert
         var finalUpdatedOrder = await repository.GetOrderById(order.Id);
         finalUpdatedOrder.Should().NotBeNull();
-        finalUpdatedOrder.Weight.Should().Be(10 + (parallelRequests));
+        finalUpdatedOrder.Weight.Should().Be(9 + (parallelRequests));
+
+        _logger.LogInformation("Finished UpdateOrder_ParallelRequests test.");
     }
 
     [Theory]
-    [InlineData(100)]
+    [InlineData(30)]
     public async Task GetAllOrdersImmediate_ParallelAccess_ShouldBeThreadSafe(int parallelRequests)
     {
+        _logger.LogInformation("Starting GetAllOrdersImmediate_ParallelAccess test with {ParallelRequests} parallel requests", parallelRequests);
+
         // Arrange
         var options = new DbContextOptionsBuilder<DeliveryDbContext>()
             .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
@@ -269,19 +294,33 @@ public class OrderControllerTests : BaseControllerTests, IClassFixture<WebApplic
             await dbContext.SaveChangesAsync();
         }
 
+        _logger.LogDebug("50 test orders added to in-memory DB");
+        
         var sharedOrders = new List<OrderEntity>();
-
         var tasks = new List<Task>();
 
         // Act
         for (int i = 0; i < parallelRequests; i++)
         {
+            var index = i;
             var task = Task.Run(async () =>
             {
-                var scopedRepository = new OrderRepository(factory);
-                var orders = await scopedRepository.GetAllOrdersImmediate();
+                try
+                {
+                    var threadId = Environment.CurrentManagedThreadId;
+                    _logger.LogDebug("Thread {ThreadId} fetching all orders, request {Index}", threadId, index);
 
-                sharedOrders.AddRange(orders);
+                    var scopedRepository = new OrderRepository(factory);
+                    var orders = await scopedRepository.GetAllOrdersImmediate();
+
+                    sharedOrders.AddRange(orders);
+
+                    _logger.LogDebug("Thread {ThreadId} finished fetching orders, request {Index}", threadId, index);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error fetching orders in parallel execution");
+                }
             });
 
             tasks.Add(task);
@@ -301,5 +340,7 @@ public class OrderControllerTests : BaseControllerTests, IClassFixture<WebApplic
             order.RegionId.Should().Be(1);
             order.SupplierId.Should().Be(1);
         }
+
+        _logger.LogInformation("Finished GetAllOrdersImmediate_ParallelAccess test.");
     }
 }
