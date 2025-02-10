@@ -7,7 +7,7 @@
         public const string NoOrderInRegion = "No orders were found in this area ({0}).";
 
         public const string RegionMustNotBeEmpty = "The regionName field must not be empty.";
-        public const string RegionNotFound = "The region with the name {0} was not found.";
+        public const string RegionNotFound = "The region was not found.";
 
         public const string SupplierNotFound = "The specified supplier was not found.";
 

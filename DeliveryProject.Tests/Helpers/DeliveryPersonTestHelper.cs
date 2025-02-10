@@ -12,15 +12,12 @@ namespace DeliveryProject.Tests.Helpers
 
             for (int i = 1; i <= count; i++)
             {
-                string phone = $"{random.Next(100, 999)}-{random.Next(100, 999)}-{random.Next(100, 999)}";
-                double rating = Math.Round(3.5 + (i % 5) * 0.3, 1);
-
                 deliveryPersons.Add(new DeliveryPersonEntity
                 {
                     Id = i,
                     Name = $"Delivery Person {i}",
-                    PhoneNumber = phone,
-                    Rating = rating,
+                    PhoneNumber = $"{random.Next(100, 999)}-{random.Next(100, 999)}-{random.Next(100, 999)}",
+                    Rating = Math.Round(3.5 + (i % 5) * 0.3, 1),
                     DeliverySlots = new List<DateTime>()
                 });
             }

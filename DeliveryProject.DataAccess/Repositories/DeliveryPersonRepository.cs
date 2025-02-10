@@ -9,6 +9,7 @@ namespace DeliveryProject.DataAccess.Repositories
         private readonly IDbContextFactory<DeliveryDbContext> _contextFactory;
 
         public DeliveryPersonRepository(IDbContextFactory<DeliveryDbContext> contextFactory) => _contextFactory = contextFactory;
+        
         public async Task<DeliveryPersonEntity?> GetAvailableDeliveryPersonAsync(DateTime deliveryTime)
         {
             using var dbContext = _contextFactory.CreateDbContext();

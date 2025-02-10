@@ -14,7 +14,6 @@ namespace DeliveryProject.Bussiness.Services
         private readonly RepositoryMediator _repositoryMediator;
         private readonly ILogger<OrderService> _logger;
         private readonly IMapper _mapper;
-        private bool _disposed = false;
 
         public OrderService(RepositoryMediator repositoryMediator, ILogger<OrderService> logger, IMapper mapper)
         {

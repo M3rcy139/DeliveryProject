@@ -1,7 +1,6 @@
 using Xunit;
 using Moq;
 using Microsoft.AspNetCore.Mvc.Testing;
-using DeliveryProject.Bussiness.Interfaces.Services;
 using DeliveryProject.Core.Models;
 using DeliveryProject.Core.Dto;
 using FluentAssertions;
@@ -13,16 +12,10 @@ using DeliveryProject.Bussiness.Services;
 using DeliveryProject.Middleware;
 using DeliveryProject.Tests.Mocks;
 using Newtonsoft.Json;
-using DeliveryProject.DataAccess.Interfaces;
-using DeliveryProject.DataAccess.Entities;
-using DeliveryProject.DataAccess.Repositories;
-using DeliveryProject.DataAccess;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using DeliveryProject.Tests.Base;
 using DeliveryProject.Tests.Assertions;
 using Microsoft.Extensions.Logging;
-using System.Collections.Concurrent;
+using DeliveryProject.Tests;
 
 public class OrderControllerTests : BaseControllerTests, IClassFixture<WebApplicationFactory<Program>>
 {
@@ -30,35 +23,13 @@ public class OrderControllerTests : BaseControllerTests, IClassFixture<WebApplic
 
     public OrderControllerTests(WebApplicationFactory<Program> factory)
         : base(
-            InitializeClient(factory, out var orderServiceMock, out var orderRepositoryMock),
+            TestClientFactory.CreateClient(factory, out var orderServiceMock, out var orderRepositoryMock),
             orderServiceMock,
             orderRepositoryMock)
     {
         using var scope = factory.Services.CreateScope();
         _logger = scope.ServiceProvider.GetRequiredService<ILogger<OrderControllerTests>>();
     }
-
-    private static HttpClient InitializeClient(WebApplicationFactory<Program> factory, out Mock<IOrderService> orderServiceMock
-        , out Mock<IOrderRepository> orderRepositoryMock)
-    {
-        var localOrderServiceMock = OrderServiceMock.Create();
-        var localOrderRepositoryMock = OrderRepositoryMock.Create();
-        orderServiceMock = localOrderServiceMock;
-        orderRepositoryMock = localOrderRepositoryMock;
-
-        var client = factory.WithWebHostBuilder(builder =>
-        {
-            builder.ConfigureServices(services =>
-            {
-                services.AddSingleton<IOrderService>(_ => localOrderServiceMock.Object);
-                services.AddSingleton<IOrderRepository>(_ => localOrderRepositoryMock.Object);
-                services.AddLogging();
-            });
-        }).CreateClient();
-
-        return client;
-    }
-
 
     [Fact]
     public async Task FilterOrders_ShouldReturnOk_WhenOrdersExist()

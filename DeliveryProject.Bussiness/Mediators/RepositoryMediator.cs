@@ -12,7 +12,6 @@ namespace DeliveryProject.Bussiness.Mediators
         private readonly IOrderRepository _orderRepository;
         private readonly ISupplierRepository _supplierRepository;
         private readonly IDeliveryPersonRepository _deliveryPersonRepository;
-        private bool _disposed = false;
 
         public RepositoryMediator(
             IOrderRepository orderRepository,
@@ -26,11 +25,10 @@ namespace DeliveryProject.Bussiness.Mediators
 
         public async Task<OrderEntity> AddOrderAsync(OrderEntity orderEntity)
         {
-            var supplier = await _supplierRepository.GetByIdAsync(orderEntity.SupplierId);
-            ValidationHelper.ValidateEntity(supplier, ErrorMessages.SupplierNotFound, ErrorCodes.SupplierNotFound);
+            await GetSupplirByIdAsync(orderEntity.SupplierId);
 
             var availableDeliveryPerson = await _deliveryPersonRepository.GetAvailableDeliveryPersonAsync(orderEntity.DeliveryTime);
-            ValidationHelper.ValidateEntity(availableDeliveryPerson, ErrorMessages.NoAvailableDeliveryPersons,
+            availableDeliveryPerson.ValidateEntity(ErrorMessages.NoAvailableDeliveryPersons,
                     ErrorCodes.NoAvailableDeliveryPersons);
 
             orderEntity.DeliveryPersonId = availableDeliveryPerson.Id;
@@ -45,18 +43,16 @@ namespace DeliveryProject.Bussiness.Mediators
         public async Task<OrderEntity?> GetOrderByIdAsync(Guid orderId)
         {
             var order = await _orderRepository.GetOrderById(orderId);
-            ValidationHelper.ValidateEntity(order, ErrorMessages.OrderNotFound, ErrorCodes.NoOrdersFound);
+            order.ValidateEntity(ErrorMessages.OrderNotFound, ErrorCodes.NoOrdersFound);
 
             return order;
         }
 
         public async Task UpdateOrderAsync(OrderEntity orderEntity)
         {
-            var order = await _orderRepository.GetOrderById(orderEntity.Id);
-            ValidationHelper.ValidateEntity(order, ErrorMessages.OrderNotFound, ErrorCodes.NoOrdersFound);
+            var order = await GetOrderByIdAsync(orderEntity.Id);
 
-            var supplier = await _supplierRepository.GetByIdAsync(orderEntity.SupplierId);
-            ValidationHelper.ValidateEntity(supplier, ErrorMessages.SupplierNotFound, ErrorCodes.SupplierNotFound);
+            await GetSupplirByIdAsync(orderEntity.SupplierId);
 
             orderEntity.DeliveryPersonId = order.DeliveryPersonId;
 
@@ -65,18 +61,17 @@ namespace DeliveryProject.Bussiness.Mediators
 
         public async Task DeleteOrderAsync(Guid orderId)
         {
-            var order = await _orderRepository.GetOrderById(orderId);
-            ValidationHelper.ValidateEntity(order, ErrorMessages.OrderNotFound, ErrorCodes.NoOrdersFound);
+            var order = await GetOrderByIdAsync(orderId);
 
             await _orderRepository.DeleteOrder(orderId); 
         }
 
         public async Task<RegionEntity> GetRegionByNameAsync(string regionName)
         {
-            regionName.ValidateRegionName();
+            regionName.ValidateNotEmpty(ErrorMessages.RegionMustNotBeEmpty, ErrorCodes.MustNotBeEmpty);
 
             var region = await _orderRepository.GetRegionByName(regionName);
-            ValidationHelper.ValidateRegion(region, regionName);
+            region.ValidateEntity(ErrorMessages.RegionNotFound, ErrorCodes.RegionNotFound);
 
             return region;
         }
@@ -103,6 +98,13 @@ namespace DeliveryProject.Bussiness.Mediators
             var orders = concurrentOrders.ToList();
 
             return orders.IsNullOrEmpty() ? new List<OrderEntity>() : orders;
+        }
+
+        private async Task GetSupplirByIdAsync(int supplierId)
+        {
+            await _supplierRepository.GetByIdAsync(supplierId)
+                .ContinueWith(t =>
+                    t.Result.ValidateEntity(ErrorMessages.SupplierNotFound, ErrorCodes.SupplierNotFound));
         }
     }
 }

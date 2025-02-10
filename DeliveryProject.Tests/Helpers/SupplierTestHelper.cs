@@ -12,17 +12,13 @@ namespace DeliveryProject.Tests.Helpers
 
             for (int i = 1; i <= count; i++)
             {
-                string phone = $"{random.Next(100, 999)}-{random.Next(100, 999)}-{random.Next(100, 999)}";
-                double rating = Math.Round(4.0 + (i % 5) * 0.2, 1);
-                string email = $"supplier{i}@example.com";
-
                 suppliers.Add(new SupplierEntity
                 {
                     Id = i,
                     Name = $"Supplier {i}",
-                    PhoneNumber = phone,
-                    Rating = rating,
-                    Email = email
+                    PhoneNumber = $"{random.Next(100, 999)}-{random.Next(100, 999)}-{random.Next(100, 999)}",
+                    Rating = Math.Round(4.0 + (i % 5) * 0.2, 1),
+                    Email = $"supplier{i}@example.com"
                 });
             }
 
