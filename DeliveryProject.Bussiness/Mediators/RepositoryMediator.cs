@@ -25,7 +25,7 @@ namespace DeliveryProject.Bussiness.Mediators
 
         public async Task<OrderEntity> AddOrderAsync(OrderEntity orderEntity)
         {
-            await GetSupplirByIdAsync(orderEntity.SupplierId);
+            await GetAndValidateSupplierById(orderEntity.SupplierId);
 
             var availableDeliveryPerson = await _deliveryPersonRepository.GetAvailableDeliveryPersonAsync(orderEntity.DeliveryTime);
             availableDeliveryPerson.ValidateEntity(ErrorMessages.NoAvailableDeliveryPersons,
@@ -42,17 +42,16 @@ namespace DeliveryProject.Bussiness.Mediators
 
         public async Task<OrderEntity?> GetOrderByIdAsync(Guid orderId)
         {
-            var order = await _orderRepository.GetOrderById(orderId);
-            order.ValidateEntity(ErrorMessages.OrderNotFound, ErrorCodes.NoOrdersFound);
+            var order = await GetAndValidateOrderById(orderId);
 
             return order;
         }
 
         public async Task UpdateOrderAsync(OrderEntity orderEntity)
         {
-            var order = await GetOrderByIdAsync(orderEntity.Id);
+            var order = await GetAndValidateOrderById(orderEntity.Id);
 
-            await GetSupplirByIdAsync(orderEntity.SupplierId);
+            await GetAndValidateSupplierById(orderEntity.SupplierId);
 
             orderEntity.DeliveryPersonId = order.DeliveryPersonId;
 
@@ -100,11 +99,19 @@ namespace DeliveryProject.Bussiness.Mediators
             return orders.IsNullOrEmpty() ? new List<OrderEntity>() : orders;
         }
 
-        private async Task GetSupplirByIdAsync(int supplierId)
+        private async Task GetAndValidateSupplierById(int supplierId)
         {
             await _supplierRepository.GetByIdAsync(supplierId)
                 .ContinueWith(t =>
                     t.Result.ValidateEntity(ErrorMessages.SupplierNotFound, ErrorCodes.SupplierNotFound));
+        }
+
+        private async Task<OrderEntity?> GetAndValidateOrderById(Guid orderId)
+        {
+            var order = await _orderRepository.GetOrderById(orderId);
+            order.ValidateEntity(ErrorMessages.OrderNotFound, ErrorCodes.NoOrdersFound);
+
+            return order;
         }
     }
 }
