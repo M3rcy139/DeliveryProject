@@ -13,7 +13,7 @@ namespace DeliveryProject.DataAccess.Repositories
 
         public async Task AddOrder(OrderEntity orderEntity)
         {
-            using var dbContext = _contextFactory.CreateDbContext();
+            await using var dbContext = _contextFactory.CreateDbContext();
             await dbContext.Orders.AddAsync(orderEntity);
             await dbContext.SaveChangesAsync();
 
@@ -27,7 +27,7 @@ namespace DeliveryProject.DataAccess.Repositories
                 return cachedOrder;
             }
 
-            using var dbContext = _contextFactory.CreateDbContext();
+            await using var dbContext = _contextFactory.CreateDbContext();
             var order = await dbContext.Orders
                 .AsNoTracking()
                 .FirstOrDefaultAsync(o => o.Id == id);
@@ -40,7 +40,7 @@ namespace DeliveryProject.DataAccess.Repositories
 
         public async Task UpdateOrder(OrderEntity orderEntity)
         {
-            using var dbContext = _contextFactory.CreateDbContext();
+            await using var dbContext = _contextFactory.CreateDbContext();
             var existingEntity = await dbContext.Orders.FindAsync(orderEntity.Id);
 
             if (existingEntity != null)
@@ -55,7 +55,7 @@ namespace DeliveryProject.DataAccess.Repositories
 
         public async Task DeleteOrder(Guid id)
         {
-            using var dbContext = _contextFactory.CreateDbContext();
+            await using var dbContext = _contextFactory.CreateDbContext();
             var order = await dbContext.Orders.FindAsync(id);
             if (order != null)
             {
@@ -68,7 +68,7 @@ namespace DeliveryProject.DataAccess.Repositories
 
         public async Task<RegionEntity> GetRegionByName(string regionName)
         {
-            using var dbContext = _contextFactory.CreateDbContext();
+            await using var dbContext = _contextFactory.CreateDbContext();
             var region = await dbContext.Regions
                 .AsNoTracking() 
                 .Include(r => r.Orders)
@@ -79,19 +79,19 @@ namespace DeliveryProject.DataAccess.Repositories
         }
         public async Task<bool> HasOrders(int regionId)
         {
-            using var dbContext = _contextFactory.CreateDbContext();
+            await using var dbContext = _contextFactory.CreateDbContext();
             return await dbContext.Orders.AnyAsync(o => o.RegionId == regionId);
         }  
 
         public async Task<DateTime> GetFirstOrderTime(int regionId)
         {
-            using var dbContext = _contextFactory.CreateDbContext();
+            await using var dbContext = _contextFactory.CreateDbContext();
             return await dbContext.Orders.Where(o => o.RegionId == regionId).MinAsync(o => o.DeliveryTime);
         } 
 
         public async Task<List<OrderEntity>> GetOrdersWithinTimeRange(int regionId, DateTime fromTime, DateTime toTime)
         {
-            using var dbContext = _contextFactory.CreateDbContext();
+            await using var dbContext = _contextFactory.CreateDbContext();
             var filteredOrders = await dbContext.Orders
                 .Where(o => o.RegionId == regionId && o.DeliveryTime >= fromTime && o.DeliveryTime <= toTime)
                 .ToListAsync();
@@ -116,7 +116,7 @@ namespace DeliveryProject.DataAccess.Repositories
 
         public async Task<List<OrderEntity>> GetAllOrdersImmediate()
         {
-            using var dbContext = _contextFactory.CreateDbContext();
+            await using var dbContext = _contextFactory.CreateDbContext();
             var orders = await dbContext.Orders.AsNoTracking().ToListAsync();
 
             return new List<OrderEntity>(orders);

@@ -12,7 +12,7 @@ namespace DeliveryProject.DataAccess.Repositories
 
         public async Task<SupplierEntity?> GetByIdAsync(int id)
         {
-            using var dbContext = _contextFactory.CreateDbContext();
+            await using var dbContext = _contextFactory.CreateDbContext();
             return await dbContext.Suppliers.FirstOrDefaultAsync(s => s.Id == id);
         }  
     }
