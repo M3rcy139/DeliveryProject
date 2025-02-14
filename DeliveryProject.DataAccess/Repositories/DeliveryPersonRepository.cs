@@ -6,12 +6,14 @@ namespace DeliveryProject.DataAccess.Repositories
 {
     public class DeliveryPersonRepository : IDeliveryPersonRepository
     {
-        private readonly DeliveryDbContext _context;
+        private readonly IDbContextFactory<DeliveryDbContext> _contextFactory;
 
-        public DeliveryPersonRepository(DeliveryDbContext context) => _context = context;
+        public DeliveryPersonRepository(IDbContextFactory<DeliveryDbContext> contextFactory) => _contextFactory = contextFactory;
+        
         public async Task<DeliveryPersonEntity?> GetAvailableDeliveryPersonAsync(DateTime deliveryTime)
         {
-            var deliveryPersons = await _context.DeliveryPersons
+            await using var dbContext = await _contextFactory.CreateDbContextAsync();
+            var deliveryPersons = await dbContext.DeliveryPersons
                 .AsNoTracking()
                 .ToListAsync(); 
 
@@ -21,8 +23,9 @@ namespace DeliveryProject.DataAccess.Repositories
 
         public async Task UpdateAsync(DeliveryPersonEntity deliveryPerson)
         {
-            _context.DeliveryPersons.Update(deliveryPerson);
-            await _context.SaveChangesAsync();
+            await using var dbContext = await _contextFactory.CreateDbContextAsync();
+            dbContext.DeliveryPersons.Update(deliveryPerson);
+            await dbContext.SaveChangesAsync();
         }
     }
 }

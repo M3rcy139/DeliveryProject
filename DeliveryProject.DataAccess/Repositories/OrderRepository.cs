@@ -6,19 +6,70 @@ namespace DeliveryProject.DataAccess.Repositories
 {
     public class OrderRepository : IOrderRepository
     {
-        private readonly DeliveryDbContext _context;
+        private readonly IDbContextFactory<DeliveryDbContext> _contextFactory;
+        private readonly Dictionary<Guid, OrderEntity> _orderCache = new();
 
-        public OrderRepository(DeliveryDbContext context) => _context = context;
+        public OrderRepository(IDbContextFactory<DeliveryDbContext> contextFactory) => _contextFactory = contextFactory;
 
         public async Task AddOrder(OrderEntity orderEntity)
         {
-            await _context.Orders.AddAsync(orderEntity);
-            await _context.SaveChangesAsync();
+            await using var dbContext = await _contextFactory.CreateDbContextAsync();
+            await dbContext.Orders.AddAsync(orderEntity);
+            await dbContext.SaveChangesAsync();
+
+            _orderCache[orderEntity.Id] = orderEntity;
+        }
+
+        public async Task<OrderEntity?> GetOrderById(Guid id)
+        {
+            if (_orderCache.TryGetValue(id, out var cachedOrder))
+            {
+                return cachedOrder;
+            }
+
+            await using var dbContext = await _contextFactory.CreateDbContextAsync();
+            var order = await dbContext.Orders
+                .AsNoTracking()
+                .FirstOrDefaultAsync(o => o.Id == id);
+            if (order != null)
+            {
+                _orderCache[id] = order;
+            }
+            return order;
+        }
+
+        public async Task UpdateOrder(OrderEntity orderEntity)
+        {
+            await using var dbContext = await _contextFactory.CreateDbContextAsync();
+            var existingEntity = await dbContext.Orders.FindAsync(orderEntity.Id);
+
+            if (existingEntity != null)
+            {
+                dbContext.Entry(existingEntity).CurrentValues.SetValues(orderEntity);
+            }
+
+            await dbContext.SaveChangesAsync();
+
+            _orderCache[orderEntity.Id] = orderEntity;
+        }
+
+        public async Task DeleteOrder(Guid id)
+        {
+            await using var dbContext = await _contextFactory.CreateDbContextAsync();
+            var order = await dbContext.Orders.FindAsync(id);
+            if (order != null)
+            {
+                dbContext.Orders.Remove(order);
+                await dbContext.SaveChangesAsync();
+
+                _orderCache.Remove(id, out _);
+            }
         }
 
         public async Task<RegionEntity> GetRegionByName(string regionName)
         {
-            var region = await _context.Regions
+            await using var dbContext = await _contextFactory.CreateDbContextAsync();
+            var region = await dbContext.Regions
                 .AsNoTracking() 
                 .Include(r => r.Orders)
                 .Where(r => r.Name.ToLower() == regionName.ToLower())
@@ -26,15 +77,22 @@ namespace DeliveryProject.DataAccess.Repositories
 
             return region;
         }
-        public async Task<bool> HasOrders(int regionId) =>
-            await _context.Orders.AnyAsync(o => o.RegionId == regionId);
+        public async Task<bool> HasOrders(int regionId)
+        {
+            await using var dbContext = await _contextFactory.CreateDbContextAsync();
+            return await dbContext.Orders.AnyAsync(o => o.RegionId == regionId);
+        }  
 
-        public async Task<DateTime> GetFirstOrderTime(int regionId) =>
-            await _context.Orders.Where(o => o.RegionId == regionId).MinAsync(o => o.DeliveryTime);
+        public async Task<DateTime> GetFirstOrderTime(int regionId)
+        {
+            await using var dbContext = await _contextFactory.CreateDbContextAsync();
+            return await dbContext.Orders.Where(o => o.RegionId == regionId).MinAsync(o => o.DeliveryTime);
+        } 
 
         public async Task<List<OrderEntity>> GetOrdersWithinTimeRange(int regionId, DateTime fromTime, DateTime toTime)
         {
-            var filteredOrders = await _context.Orders
+            await using var dbContext = await _contextFactory.CreateDbContextAsync();
+            var filteredOrders = await dbContext.Orders
                 .Where(o => o.RegionId == regionId && o.DeliveryTime >= fromTime && o.DeliveryTime <= toTime)
                 .ToListAsync();
 
@@ -50,13 +108,18 @@ namespace DeliveryProject.DataAccess.Repositories
                 SupplierId = o.SupplierId,
             }).ToList();
 
-            await _context.FilteredOrders.AddRangeAsync(filteredOrderEntities);
-            await _context.SaveChangesAsync();
+            await dbContext.FilteredOrders.AddRangeAsync(filteredOrderEntities);
+            await dbContext.SaveChangesAsync();
 
             return filteredOrders;
         }
 
-        public async Task<List<OrderEntity>> GetAllOrdersImmediate() =>
-            await _context.Orders.ToListAsync();
+        public async Task<List<OrderEntity>> GetAllOrdersImmediate()
+        {
+            await using var dbContext = await _contextFactory.CreateDbContextAsync();
+            var orders = await dbContext.Orders.AsNoTracking().ToListAsync();
+
+            return new List<OrderEntity>(orders);
+        }
     }
 }

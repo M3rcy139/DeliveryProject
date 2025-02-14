@@ -1,5 +1,6 @@
 ﻿using DeliveryProject.Middleware;
 using DeliveryProject.Tests.Assertions;
+using DeliveryProject.Tests.Base;
 using FluentValidation;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -7,16 +8,9 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
 
-public class ExceptionHandlingMiddlewareTests : BaseMiddlewareTestAssertions
+public class ExceptionHandlingMiddlewareTests : BaseMiddlewareTest
 {
-    private readonly Mock<ILogger<ExceptionHandlingMiddleware>> _loggerMock;
-    private readonly Mock<RequestDelegate> _nextMock;
-
-    public ExceptionHandlingMiddlewareTests()
-    {
-        _loggerMock = new Mock<ILogger<ExceptionHandlingMiddleware>>();
-        _nextMock = new Mock<RequestDelegate>();
-    }
+    public ExceptionHandlingMiddlewareTests() : base() { }
 
     [Fact]
     public async Task InvokeAsync_FinallyExecutes_OnSuccessfulRequest()
@@ -30,7 +24,7 @@ public class ExceptionHandlingMiddlewareTests : BaseMiddlewareTestAssertions
         await middleware.InvokeAsync(context);
 
         // Assert
-        AssertLogContains(
+        MiddlewareAssertions.AssertLogContains(
             _loggerMock,
             LogLevel.Information,
             "Completion of request processing. Path: , Method: ,",
@@ -50,7 +44,7 @@ public class ExceptionHandlingMiddlewareTests : BaseMiddlewareTestAssertions
         await middleware.InvokeAsync(context);
 
         // Assert
-        AssertLogContains(
+        MiddlewareAssertions.AssertLogContains(
             _loggerMock,
             LogLevel.Information,
             $"Completion of request processing. Path: {context.Request.Path}, Method: {context.Request.Method},",
@@ -70,7 +64,7 @@ public class ExceptionHandlingMiddlewareTests : BaseMiddlewareTestAssertions
         await middleware.InvokeAsync(context);
 
         // Assert
-        AssertLogContains(
+        MiddlewareAssertions.AssertLogContains(
             _loggerMock,
             LogLevel.Information,
             $"Completion of request processing. Path: {context.Request.Path}, Method: {context.Request.Method},",

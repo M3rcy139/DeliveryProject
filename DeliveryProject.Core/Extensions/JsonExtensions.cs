@@ -5,7 +5,7 @@ namespace DeliveryProject.Core.Extensions
 {
     public static class JsonExtensions
     {
-        public static T DeserializeValue<T>(this string json, JsonSerializerOptions? options = null)
+        public static T? DeserializeValue<T>(this string json, JsonSerializerOptions? options = null)
         {
             if (string.IsNullOrWhiteSpace(json))
             {

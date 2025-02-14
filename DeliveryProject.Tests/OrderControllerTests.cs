@@ -1,53 +1,35 @@
 using Xunit;
 using Moq;
 using Microsoft.AspNetCore.Mvc.Testing;
-using DeliveryProject.Bussiness.Interfaces.Services;
 using DeliveryProject.Core.Models;
 using DeliveryProject.Core.Dto;
 using FluentAssertions;
-using FluentValidation;
 using System.Net;
 using System.Net.Http.Json;
 using Microsoft.Extensions.DependencyInjection;
-using DeliveryProject.Core.Exceptions;
 using DeliveryProject.Bussiness.Enums;
 using DeliveryProject.Bussiness.Services;
 using DeliveryProject.Middleware;
-using DeliveryProject.Tests.Assertions;
 using DeliveryProject.Tests.Mocks;
 using Newtonsoft.Json;
-using DeliveryProject.DataAccess.Interfaces;
+using DeliveryProject.Tests.Base;
+using DeliveryProject.Tests.Assertions;
+using Microsoft.Extensions.Logging;
+using DeliveryProject.Tests;
 
 public class OrderControllerTests : BaseControllerTests, IClassFixture<WebApplicationFactory<Program>>
 {
+    private readonly ILogger<OrderControllerTests> _logger;
+
     public OrderControllerTests(WebApplicationFactory<Program> factory)
         : base(
-            InitializeClient(factory, out var orderServiceMock, out var orderRepositoryMock),
+            TestClientFactory.CreateClient(factory, out var orderServiceMock, out var orderRepositoryMock),
             orderServiceMock,
-            orderRepositoryMock) 
+            orderRepositoryMock)
     {
+        using var scope = factory.Services.CreateScope();
+        _logger = scope.ServiceProvider.GetRequiredService<ILogger<OrderControllerTests>>();
     }
-
-    private static HttpClient InitializeClient(WebApplicationFactory<Program> factory, out Mock<IOrderService> orderServiceMock
-        , out Mock<IOrderRepository> orderRepositoryMock)
-    {
-        var localOrderServiceMock = OrderServiceMock.Create();
-        var localOrderRepositoryMock = OrderRepositoryMock.Create();
-        orderServiceMock = localOrderServiceMock;
-        orderRepositoryMock = localOrderRepositoryMock;
-
-        var client = factory.WithWebHostBuilder(builder =>
-        {
-            builder.ConfigureServices(services =>
-            {
-                services.AddScoped<IOrderService>(_ => localOrderServiceMock.Object);
-                services.AddScoped<IOrderRepository>(_ => localOrderRepositoryMock.Object);
-            });
-        }).CreateClient();
-
-        return client;
-    }
-
 
     [Fact]
     public async Task FilterOrders_ShouldReturnOk_WhenOrdersExist()
@@ -78,9 +60,6 @@ public class OrderControllerTests : BaseControllerTests, IClassFixture<WebApplic
     [Fact]
     public async Task GetAllOrders_ShouldReturnOk_WhenOrdersExist()
     {
-        // Arrange
-        OrderServiceMock.SetupGetAllOrders(_orderServiceMock, new List<Order>());
-
         // Act
         var response = await GetAsync("/Orders/GetAll");
 
@@ -137,7 +116,7 @@ public class OrderControllerTests : BaseControllerTests, IClassFixture<WebApplic
     public async Task AddOrder_ShouldIncludeStackTrace_InResponseForValidationException()
     {
         // Arrange
-        var request = new AddOrderRequest
+        var request = new OrderViewModel
         {
             RegionId = 0,
             Weight = -5.5,
@@ -157,7 +136,7 @@ public class OrderControllerTests : BaseControllerTests, IClassFixture<WebApplic
 
         var responseContent = await response.Content.ReadFromJsonAsync<CustomProblemDetails>();
 
-        AssertResponseDetails(responseContent, "Validation failed.", nameof(ValidationMiddleware));
+        ControllerAssertions.AssertResponseDetails(responseContent, "Validation failed.", nameof(ValidationMiddleware));
     }
 
 
@@ -175,6 +154,168 @@ public class OrderControllerTests : BaseControllerTests, IClassFixture<WebApplic
 
         var responseContent = await response.Content.ReadFromJsonAsync<CustomProblemDetails>();
 
-        AssertResponseDetails(responseContent, "The RegionName field must not be empty.", nameof(OrderService.FilterOrders));
+        ControllerAssertions.AssertResponseDetails(responseContent, "The RegionName field must not be empty.", nameof(OrderService.FilterOrders));
     }
+
+    //[Theory]
+    //[InlineData(100)]
+    //public async Task UpdateOrder_ParallelRequests_ShouldHandleCacheLocking(int parallelRequests)
+    //{
+    //    _logger.LogInformation("Starting UpdateOrder_ParallelRequests test with {ParallelRequests} parallel requests", parallelRequests);
+
+
+    //    // Arrange
+    //    var options = new DbContextOptionsBuilder<DeliveryDbContext>()
+    //        .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+    //        .Options;
+
+    //    var factory = new PooledDbContextFactory<DeliveryDbContext>(options);
+    //    var repository = new OrderRepository(factory);
+
+    //    using var dbContext = factory.CreateDbContext();
+
+    //    var order = new OrderEntity
+    //    {
+    //        Id = Guid.NewGuid(),
+    //        Weight = 10,
+    //        RegionId = 2,
+    //        SupplierId = 1,
+    //        DeliveryTime = DateTime.UtcNow
+    //    };
+
+    //    await repository.AddOrder(order);
+    //    _logger.LogDebug("Order with ID {OrderId} added", order.Id);
+
+    //    var tasks = new List<Task>();
+
+    //    // Act
+    //    for (int i = 0; i < parallelRequests; i++)
+    //    {
+    //        var index = i;
+    //        var task = Task.Run(async () =>
+    //        {
+    //            try
+    //            {
+    //                var updatedWeight = 10 + index;
+    //                var threadId = Environment.CurrentManagedThreadId;
+    //                _logger.LogDebug("Thread {ThreadId} updating order {OrderId} to weight {Weight}", threadId, order.Id, updatedWeight);
+
+    //                var updatedOrder = new OrderEntity
+    //                {
+    //                    Id = order.Id,
+    //                    Weight = updatedWeight,
+    //                    RegionId = order.RegionId,
+    //                    SupplierId = order.SupplierId,
+    //                    DeliveryTime = order.DeliveryTime
+    //                };
+
+    //                await repository.UpdateOrder(updatedOrder);
+    //                _logger.LogDebug("Order {OrderId} updated to weight {Weight}", order.Id, updatedWeight);
+
+    //                var fetchedOrder = await repository.GetOrderById(order.Id);
+    //                fetchedOrder.Should().NotBeNull();
+    //                fetchedOrder.Weight.Should().Be(updatedWeight);
+    //            }
+    //            catch (Exception ex)
+    //            {
+    //                _logger.LogError(ex, "Error updating order in parallel execution");
+    //            }
+    //        });
+
+    //        tasks.Add(task);
+    //    }
+
+    //    await Task.WhenAll(tasks);
+
+    //    // Assert
+    //    var finalUpdatedOrder = await repository.GetOrderById(order.Id);
+    //    finalUpdatedOrder.Should().NotBeNull();
+    //    finalUpdatedOrder.Weight.Should().Be(9 + (parallelRequests));
+
+    //    _logger.LogInformation("Finished UpdateOrder_ParallelRequests test.");
+    //}
+
+    //[Theory]
+    //[InlineData(50)]
+    //public async Task GetAllOrdersImmediate_ParallelAccess_ShouldBeThreadSafe(int parallelRequests)
+    //{
+    //    _logger.LogInformation("Starting GetAllOrdersImmediate_ParallelAccess test with {ParallelRequests} parallel requests", parallelRequests);
+
+    //    // Arrange
+    //    var options = new DbContextOptionsBuilder<DeliveryDbContext>()
+    //        .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+    //        .Options;
+
+    //    var factory = new PooledDbContextFactory<DeliveryDbContext>(options);
+
+    //    using (var dbContext = factory.CreateDbContext())
+    //    {
+    //        var initialOrders = new List<OrderEntity>();
+    //        for (int i = 0; i < 50; i++)
+    //        {
+    //            initialOrders.Add(new OrderEntity
+    //            {
+    //                Id = Guid.NewGuid(),
+    //                Weight = i,
+    //                RegionId = 1,
+    //                SupplierId = 1,
+    //                DeliveryTime = DateTime.UtcNow
+    //            });
+    //        }
+    //        await dbContext.Orders.AddRangeAsync(initialOrders);
+    //        await dbContext.SaveChangesAsync();
+    //    }
+
+    //    _logger.LogDebug("50 test orders added to in-memory DB");
+
+    //    var sharedOrders = new ConcurrentBag<OrderEntity>();
+    //    var tasks = new List<Task>();
+
+    //    // Act
+    //    for (int i = 0; i < parallelRequests; i++)
+    //    {
+    //        var index = i;
+    //        var task = Task.Run(async () =>
+    //        {
+    //            try
+    //            {
+    //                var threadId = Environment.CurrentManagedThreadId;
+    //                _logger.LogDebug("Thread {ThreadId} fetching all orders, request {Index}", threadId, index);
+
+    //                var scopedRepository = new OrderRepository(factory);
+    //                var orders = await scopedRepository.GetAllOrdersImmediate();
+
+    //                foreach (var order in orders)
+    //                {
+    //                    sharedOrders.Add(order);
+    //                }
+
+    //                _logger.LogDebug("Thread {ThreadId} finished fetching orders, request {Index}", threadId, index);
+    //            }
+    //            catch (Exception ex)
+    //            {
+    //                _logger.LogError(ex, "Error fetching orders in parallel execution");
+    //            }
+    //        });
+
+    //        tasks.Add(task);
+    //    }
+
+    //    await Task.WhenAll(tasks);
+
+    //    // Assert
+    //    var uniqueOrders = sharedOrders.Select(o => o.Id).Distinct().ToList();
+    //    uniqueOrders.Should().HaveCount(50);
+
+    //    foreach (var order in sharedOrders)
+    //    {
+    //        order.Should().NotBeNull();
+    //        order.Id.Should().NotBe(Guid.Empty);
+    //        order.Weight.Should().BeInRange(0, 49);
+    //        order.RegionId.Should().Be(1);
+    //        order.SupplierId.Should().Be(1);
+    //    }
+
+    //    _logger.LogInformation("Finished GetAllOrdersImmediate_ParallelAccess test.");
+    //}
 }

@@ -4,6 +4,7 @@ using DeliveryProject.Core.Dto;
 using DeliveryProject.Bussiness.Interfaces.Services;
 using DeliveryProject.Bussiness.Enums;
 using DeliveryProject.Core.Constants;
+using System.Diagnostics;
 
 namespace DeliveryProject.Controllers
 {
@@ -19,23 +20,57 @@ namespace DeliveryProject.Controllers
         }
 
         [HttpPost("Order/Add")]
-        public async Task<IActionResult> AddOrder([FromBody] AddOrderRequest request)
+        public async Task<IActionResult> AddOrder([FromBody] OrderViewModel model)
         {
             var order = new Order()
             {
                 Id = Guid.NewGuid(),
-                RegionId = request.RegionId,
-                Weight = request.Weight,
-                DeliveryTime = request.DeliveryTime
+                RegionId = model.RegionId,
+                Weight = model.Weight,
+                DeliveryTime = model.DeliveryTime,
+                SupplierId = model.SupplierId
             };
 
-            var result = await _orderService.AddOrder(order, request.SupplierId);
+            var result = await _orderService.AddOrder(order);
 
             return Ok(new
             {
                 result,
-                message = string.Format(InfoMessages.AddedOrder, order.Id)
+                message = string.Format(InfoMessages.AddedOrder, order.Id),
             });
+        }
+
+        [HttpGet("Order/{orderId}")]
+        public async Task<IActionResult> GetOrderById(Guid orderId)
+        {
+            var order = await _orderService.GetOrderById(orderId);
+
+            return Ok(order);
+        }
+
+        [HttpPut("Order/Update")]
+        public async Task<IActionResult> UpdateOrder([FromBody] OrderViewModel model)
+        {
+            var order = new Order()
+            {
+                Id = model.OrderId.Value,
+                RegionId = model.RegionId,
+                Weight = model.Weight,
+                DeliveryTime = model.DeliveryTime,
+                SupplierId = model.SupplierId
+            };
+
+            await _orderService.UpdateOrder(order);
+
+            return Ok(new { message = string.Format(InfoMessages.UpdatedOrder, order.Id) });
+        }
+
+        [HttpDelete("Order/Delete/{orderId}")]
+        public async Task<IActionResult> DeleteOrder(Guid orderId)
+        {
+            await _orderService.DeleteOrder(orderId);
+
+            return Ok(new { message = string.Format(InfoMessages.DeletedOrder, orderId) });
         }
 
         [HttpGet("Orders/Filter")]

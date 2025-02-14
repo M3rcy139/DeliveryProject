@@ -6,6 +6,7 @@ using DeliveryProject.DataAccess.Entities;
 using DeliveryProject.DataAccess.Interfaces;
 using FluentValidation;
 using Moq;
+using System.Collections.Concurrent;
 
 
 namespace DeliveryProject.Tests.Mocks
@@ -27,7 +28,7 @@ namespace DeliveryProject.Tests.Mocks
 
         public static void SetupValidationException(Mock<IOrderService> mock, string message)
         {
-            mock.Setup(service => service.AddOrder(It.IsAny<Order>(), It.IsAny<int>()))
+            mock.Setup(service => service.AddOrder(It.IsAny<Order>()))
                 .ThrowsAsync(new ValidationException(message));
         }
 

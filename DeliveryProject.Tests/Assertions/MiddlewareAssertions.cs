@@ -1,12 +1,12 @@
-﻿using Moq;
+﻿using DeliveryProject.Middleware;
 using Microsoft.Extensions.Logging;
-using DeliveryProject.Middleware;
+using Moq;
 
 namespace DeliveryProject.Tests.Assertions
 {
-    public abstract class BaseMiddlewareTestAssertions
+    public static class MiddlewareAssertions
     {
-        public void AssertLogContains(Mock<ILogger<ExceptionHandlingMiddleware>> loggerMock, LogLevel expectedLogLevel, string expectedMessage, int statusCode)
+        public static void AssertLogContains(Mock<ILogger<ExceptionHandlingMiddleware>> loggerMock, LogLevel expectedLogLevel, string expectedMessage, int statusCode)
         {
             loggerMock.Verify(
                 log => log.Log(
@@ -15,7 +15,7 @@ namespace DeliveryProject.Tests.Assertions
                     It.Is<It.IsAnyType>((v, t) => v.ToString().Contains(expectedMessage) && v.ToString().Contains($"StatusCode: {statusCode}")),
                     null,
                     It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
-                Times.Once, $"Ожидалось, что в лог будет записано сообщение уровня {expectedLogLevel} со статус-кодом {statusCode}");
+                Times.Once, $"It was expected that a {expectedLogLevel} level message with a status code would be recorded in the log. {statusCode}");
         }
     }
 }
