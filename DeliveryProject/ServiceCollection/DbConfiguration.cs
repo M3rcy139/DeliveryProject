@@ -1,6 +1,6 @@
 ﻿using DeliveryProject.DataAccess;
-using DeliveryProject.DataAccess.Factories;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace DeliveryProject.ServiceCollection
 {
@@ -14,7 +14,11 @@ namespace DeliveryProject.ServiceCollection
                 options.UseNpgsql(connectionString, b => b.MigrationsAssembly("DeliveryProject.Migrations"))
             );
 
-            services.AddSingleton<IDbContextFactory<DeliveryDbContext>, DbContextFactory>();
+            services.AddSingleton<IDbContextFactory<DeliveryDbContext>>(provider =>
+            {
+                var options = provider.GetRequiredService<DbContextOptions<DeliveryDbContext>>();
+                return new PooledDbContextFactory<DeliveryDbContext>(options);
+            });
         }
 
         private static void AddDbContextOptions<TContext>(this IServiceCollection services, Action<DbContextOptionsBuilder> optionsAction)

@@ -15,5 +15,10 @@ namespace DeliveryProject.DataAccess.Factories
         {
             return new DeliveryDbContext(_options);
         }
+
+        public async Task<DeliveryDbContext> CreateDbContextAsync()
+        {
+            return await Task.FromResult(new DeliveryDbContext(_options));
+        }
     }
 }

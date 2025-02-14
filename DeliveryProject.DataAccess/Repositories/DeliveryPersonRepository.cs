@@ -12,7 +12,7 @@ namespace DeliveryProject.DataAccess.Repositories
         
         public async Task<DeliveryPersonEntity?> GetAvailableDeliveryPersonAsync(DateTime deliveryTime)
         {
-            await using var dbContext = _contextFactory.CreateDbContext();
+            await using var dbContext = await _contextFactory.CreateDbContextAsync();
             var deliveryPersons = await dbContext.DeliveryPersons
                 .AsNoTracking()
                 .ToListAsync(); 
@@ -23,7 +23,7 @@ namespace DeliveryProject.DataAccess.Repositories
 
         public async Task UpdateAsync(DeliveryPersonEntity deliveryPerson)
         {
-            await using var dbContext = _contextFactory.CreateDbContext();
+            await using var dbContext = await _contextFactory.CreateDbContextAsync();
             dbContext.DeliveryPersons.Update(deliveryPerson);
             await dbContext.SaveChangesAsync();
         }

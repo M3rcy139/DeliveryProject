@@ -102,8 +102,8 @@ namespace DeliveryProject.Bussiness.Mediators
         private async Task GetAndValidateSupplierById(int supplierId)
         {
             await _supplierRepository.GetByIdAsync(supplierId)
-                .ContinueWith(t =>
-                    t.Result.ValidateEntity(ErrorMessages.SupplierNotFound, ErrorCodes.SupplierNotFound));
+                .ContinueWith(async t =>
+                   (await t).ValidateEntity(ErrorMessages.SupplierNotFound, ErrorCodes.SupplierNotFound));
         }
 
         private async Task<OrderEntity?> GetAndValidateOrderById(Guid orderId)
