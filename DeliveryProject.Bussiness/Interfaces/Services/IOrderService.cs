@@ -1,4 +1,4 @@
-﻿using DeliveryProject.Bussiness.Enums;
+﻿using DeliveryProject.Core.Enums;
 using DeliveryProject.Core.Models;
 
 namespace DeliveryProject.Bussiness.Interfaces.Services

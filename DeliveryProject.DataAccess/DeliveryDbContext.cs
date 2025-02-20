@@ -1,4 +1,5 @@
-﻿using DeliveryProject.DataAccess.Entities;
+﻿using DeliveryProject.Core.Models;
+using DeliveryProject.DataAccess.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace DeliveryProject.DataAccess
@@ -13,6 +14,9 @@ namespace DeliveryProject.DataAccess
         public DbSet<OrderEntity> Orders { get; set; }
         public DbSet<SupplierEntity> Suppliers { get; set; }
         public DbSet<DeliveryPersonEntity> DeliveryPersons { get; set; }
+        public DbSet<BatchUpload> BatchUploads { get; set; }
+        public DbSet<UploadError> UploadErrors { get; set; }
+        public DbSet<TempDeliveryPerson> TempDeliveryPersons { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

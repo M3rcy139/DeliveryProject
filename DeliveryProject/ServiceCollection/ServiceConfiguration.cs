@@ -8,9 +8,10 @@ namespace DeliveryProject.ServiceCollection
     {
         public static void AddServices(this IServiceCollection services)
         {
-            services.AddSingleton<IOrderService, OrderService>();
-
-            services.AddSingleton<RepositoryMediator>();
+            services.AddScoped<IOrderService, OrderService>();
+            services.AddScoped<RepositoryMediator>();
+            services.AddScoped<IFileUploadService, FileUploadService>();
+            services.AddScoped<IBatchUploadService, BatchUploadService>();
         }
     }
 }
