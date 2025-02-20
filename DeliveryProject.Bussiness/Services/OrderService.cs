@@ -4,8 +4,8 @@ using Microsoft.Extensions.Logging;
 using AutoMapper;
 using DeliveryProject.DataAccess.Entities;
 using DeliveryProject.Core.Enums;
-using DeliveryProject.Core.Constants;
 using DeliveryProject.Bussiness.Mediators;
+using DeliveryProject.Core.Constants.InfoMessages;
 
 namespace DeliveryProject.Bussiness.Services
 {
