@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace DeliveryProject.DataAccess.Configurations
 {
-    internal class TempDeliveryPersonConfiguration : IEntityTypeConfiguration<TempDeliveryPerson>
+    public class TempDeliveryPersonConfiguration : IEntityTypeConfiguration<TempDeliveryPerson>
     {
         public void Configure(EntityTypeBuilder<TempDeliveryPerson> builder)
         {

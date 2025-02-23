@@ -10,7 +10,7 @@ namespace DeliveryProject.ServiceCollection
             services.AddScoped<IOrderRepository, OrderRepository>();
             services.AddScoped<ISupplierRepository, SupplierRepository>();
             services.AddScoped<IDeliveryPersonRepository, DeliveryPersonRepository>();
-            services.AddScoped<IBatchUploadRepository, BatchUploadRepository>();
+            services.AddSingleton<IBatchUploadRepository, BatchUploadRepository>();
         }
     }
 }

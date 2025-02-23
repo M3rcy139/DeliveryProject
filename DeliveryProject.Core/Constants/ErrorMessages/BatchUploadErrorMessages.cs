@@ -1,6 +1,4 @@
-﻿using static System.Runtime.InteropServices.JavaScript.JSType;
-
-namespace DeliveryProject.Core.Constants.ErrorMessages
+﻿namespace DeliveryProject.Core.Constants.ErrorMessages
 {
     public static class BatchUploadErrorMessages
     {

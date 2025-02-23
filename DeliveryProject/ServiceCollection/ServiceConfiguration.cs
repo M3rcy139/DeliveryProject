@@ -10,8 +10,8 @@ namespace DeliveryProject.ServiceCollection
         {
             services.AddScoped<IOrderService, OrderService>();
             services.AddScoped<RepositoryMediator>();
-            services.AddScoped<IFileUploadService, FileUploadService>();
-            services.AddScoped<IBatchUploadService, BatchUploadService>();
+            services.AddSingleton<IFileUploadService, FileUploadService>();
+            services.AddSingleton<IBatchUploadProcessor, BatchUploadProcessor>();
         }
     }
 }

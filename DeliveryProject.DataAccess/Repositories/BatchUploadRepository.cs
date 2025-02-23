@@ -4,6 +4,7 @@ using DeliveryProject.Core.Enums;
 using DeliveryProject.Core.Models;
 using DeliveryProject.DataAccess.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using EFCore.BulkExtensions;
 using Microsoft.Extensions.Logging;
 
 namespace DeliveryProject.DataAccess.Repositories
@@ -53,10 +54,8 @@ namespace DeliveryProject.DataAccess.Repositories
             if (!validRecords.Any()) return;
 
             var entities = validRecords.Select(entityMapper).ToList();
-            var dbSet = dbContext.Set<TEntity>();
 
-            await dbSet.AddRangeAsync(entities);
-            await dbContext.SaveChangesAsync();
+            await dbContext.BulkInsertAsync(entities);
         }
 
         public async Task SaveErrorsAsync(List<UploadError> errorEntities)
@@ -65,8 +64,7 @@ namespace DeliveryProject.DataAccess.Repositories
             
             if (!errorEntities.Any()) return;
 
-            await dbContext.UploadErrors.AddRangeAsync(errorEntities);
-            await dbContext.SaveChangesAsync();
+            await dbContext.BulkInsertAsync(errorEntities);
         }
 
         public async Task<HashSet<string>> GetExistingPhoneNumbersAsync(List<string> phoneNumbers)

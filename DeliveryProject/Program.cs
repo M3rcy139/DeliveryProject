@@ -2,7 +2,6 @@ using NLog;
 using DeliveryProject.ServiceCollection;
 using DeliveryProject.Bussiness.Mappings;
 using DeliveryProject.Bussiness.BackgroundServices;
-using DeliveryProject.DataAccess.Initializers;
 
 var builder = WebApplication.CreateBuilder(args);
 var services = builder.Services;
@@ -26,9 +25,7 @@ try
     services.AddServices();
     services.AddRepositories();
 
-    services.AddDataBaseInitializer();
-
-    services.AddHostedService<BatchUploadProcessor>();
+    services.AddHostedService<BatchUploadService>();
 
     services.AddAutoMapper(typeof(DataBaseMappings));
 
@@ -36,12 +33,6 @@ try
     var app = builder.Build();
     
     app.ConfigureMiddleware(builder.Environment);
-
-    using (var scope = app.Services.CreateScope())
-    {
-        var dbInitializer = scope.ServiceProvider.GetRequiredService<DatabaseInitializer>();
-        await dbInitializer.InitializeDatabaseAsync();
-    }
 
     app.Run();
 }

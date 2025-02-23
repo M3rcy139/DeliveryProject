@@ -8,18 +8,22 @@ using Microsoft.Extensions.Logging;
 using CsvHelper;
 using CsvHelper.Configuration;
 using DeliveryProject.Core.Constants.InfoMessages;
+using Microsoft.Extensions.Configuration;
 
 namespace DeliveryProject.Bussiness.Services
 {
-    public class BatchUploadService : IBatchUploadService
+    public class BatchUploadProcessor : IBatchUploadProcessor
     {
         private readonly IBatchUploadRepository _batchUploadRepository;
-        private readonly ILogger<BatchUploadService> _logger;
+        private readonly ILogger<BatchUploadProcessor> _logger;
+        private readonly int _batchSize;
 
-        public BatchUploadService(IBatchUploadRepository batchUploadRepository, ILogger<BatchUploadService> logger)
+        public BatchUploadProcessor(IBatchUploadRepository batchUploadRepository, ILogger<BatchUploadProcessor> logger,
+            IConfiguration configuration)
         {
             _batchUploadRepository = batchUploadRepository;
             _logger = logger;
+            _batchSize = configuration.GetValue<int>("BatchProcessing:BatchSize");
         }
 
         public async Task ProcessUploadAsync(BatchUpload upload)
@@ -42,8 +46,15 @@ namespace DeliveryProject.Bussiness.Services
 
                 var (validRecords, errorRecords) = ValidateRecords(records, existingPhoneNumbers);
 
-                await SaveValidRecordsAsync(validRecords);
-                await SaveErrorRecordsAsync(errorRecords, upload.Id);
+                foreach (var batch in validRecords.Chunk(_batchSize))
+                {
+                    await SaveValidRecordsAsync(batch.ToList());
+                }
+
+                foreach (var batch in errorRecords.Chunk(_batchSize))
+                {
+                    await SaveErrorRecordsAsync(batch.ToList(), upload.Id);
+                }
 
                 await _batchUploadRepository.ExecuteMergeProcedureAsync(nameof(DeliveryPerson) + 's');
 

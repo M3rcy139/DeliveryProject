@@ -2,7 +2,7 @@
 
 namespace DeliveryProject.Bussiness.Interfaces.Services
 {
-   public interface IBatchUploadService
+   public interface IBatchUploadProcessor
     {
         Task ProcessUploadAsync(BatchUpload upload);
     }
