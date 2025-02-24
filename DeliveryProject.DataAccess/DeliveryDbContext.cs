@@ -1,5 +1,4 @@
-﻿using DeliveryProject.Core.Models;
-using DeliveryProject.DataAccess.Entities;
+﻿using DeliveryProject.DataAccess.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace DeliveryProject.DataAccess

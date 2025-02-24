@@ -1,4 +1,4 @@
-﻿namespace DeliveryProject.Core.Models
+﻿namespace DeliveryProject.DataAccess.Entities
 {
     public class UploadError
     {

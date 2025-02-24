@@ -1,4 +1,4 @@
-﻿namespace DeliveryProject.Core.Enums
+﻿namespace DeliveryProject.DataAccess.Enums
 {
     public enum UploadType
     {

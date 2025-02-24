@@ -1,6 +1,6 @@
-﻿using DeliveryProject.Core.Enums;
+﻿using DeliveryProject.DataAccess.Enums;
 
-namespace DeliveryProject.Core.Models
+namespace DeliveryProject.DataAccess.Entities
 {
     public class BatchUpload
     {

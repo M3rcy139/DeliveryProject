@@ -8,7 +8,7 @@ namespace DeliveryProject.ServiceCollection
         public static void AddProcessors(this IServiceCollection services)
         {
             services.AddSingleton<IBatchUploadProcessor, BatchUploadProcessor>();
+            services.AddSingleton<IFileUploadProcessor, FileUploadProcessor>();
         }
-        
     }
 }

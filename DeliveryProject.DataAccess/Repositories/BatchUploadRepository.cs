@@ -1,7 +1,7 @@
 ﻿using DeliveryProject.Core.Constants.ErrorMessages;
 using DeliveryProject.Core.Constants.InfoMessages;
-using DeliveryProject.Core.Enums;
-using DeliveryProject.Core.Models;
+using DeliveryProject.DataAccess.Enums;
+using DeliveryProject.DataAccess.Entities;
 using DeliveryProject.DataAccess.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using EFCore.BulkExtensions;
@@ -51,8 +51,6 @@ namespace DeliveryProject.DataAccess.Repositories
         {
             await using var dbContext = await _dbContextFactory.CreateDbContextAsync();
 
-            if (!validRecords.Any()) return;
-
             var entities = validRecords.Select(entityMapper).ToList();
 
             await dbContext.BulkInsertAsync(entities);
@@ -61,8 +59,6 @@ namespace DeliveryProject.DataAccess.Repositories
         public async Task SaveErrorsAsync(List<UploadError> errorEntities)
         {
             await using var dbContext = await _dbContextFactory.CreateDbContextAsync();
-            
-            if (!errorEntities.Any()) return;
 
             await dbContext.BulkInsertAsync(errorEntities);
         }

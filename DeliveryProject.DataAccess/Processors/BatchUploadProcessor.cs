@@ -1,8 +1,9 @@
-﻿using DeliveryProject.Core.Enums;
-using DeliveryProject.Core.Models;
+﻿using DeliveryProject.DataAccess.Entities;
 using DeliveryProject.Core.Dto;
 using DeliveryProject.Core.Common;
+using DeliveryProject.Core.Models;
 using DeliveryProject.DataAccess.Interfaces;
+using DeliveryProject.DataAccess.Enums;
 using DeliveryProject.Core.Constants.ErrorMessages;
 using Microsoft.Extensions.Logging;
 using CsvHelper;
@@ -72,6 +73,8 @@ namespace DeliveryProject.DataAccess.Processors
 
         private async Task SaveValidRecordsInBatchesAsync(List<DeliveryPersonDto> validRecords)
         {
+            if (!validRecords.Any()) return;
+
             foreach (var batch in validRecords.Chunk(_batchSize))
             {
                 await SaveValidRecordsAsync(batch.ToList());
@@ -80,6 +83,8 @@ namespace DeliveryProject.DataAccess.Processors
 
         private async Task SaveErrorRecordsInBatchesAsync(List<ValidationRecordsError> errorRecords, Guid batchUploadId)
         {
+            if (!errorRecords.Any()) return;
+
             foreach (var batch in errorRecords.Chunk(_batchSize))
             {
                 await SaveErrorRecordsAsync(batch.ToList(), batchUploadId);

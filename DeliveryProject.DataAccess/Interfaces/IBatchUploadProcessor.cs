@@ -1,4 +1,4 @@
-﻿using DeliveryProject.Core.Models;
+﻿using DeliveryProject.DataAccess.Entities;
 
 namespace DeliveryProject.DataAccess.Interfaces
 {

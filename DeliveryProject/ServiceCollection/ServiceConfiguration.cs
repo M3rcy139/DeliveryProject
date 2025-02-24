@@ -10,7 +10,6 @@ namespace DeliveryProject.ServiceCollection
         {
             services.AddScoped<IOrderService, OrderService>();
             services.AddScoped<RepositoryMediator>();
-            services.AddSingleton<IFileUploadService, FileUploadService>();
         }
     }
 }

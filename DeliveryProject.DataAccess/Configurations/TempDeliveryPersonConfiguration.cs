@@ -1,4 +1,4 @@
-﻿using DeliveryProject.Core.Models;
+﻿using DeliveryProject.DataAccess.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 

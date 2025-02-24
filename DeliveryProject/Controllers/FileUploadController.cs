@@ -1,5 +1,5 @@
-﻿using DeliveryProject.Bussiness.Interfaces.Services;
-using DeliveryProject.Core.Enums;
+﻿using DeliveryProject.DataAccess.Interfaces;
+using DeliveryProject.DataAccess.Enums;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DeliveryProject.Controllers
@@ -8,17 +8,17 @@ namespace DeliveryProject.Controllers
     [Route("api/[controller]")]
     public class FileUploadController : ControllerBase
     {
-        private readonly IFileUploadService _fileUploadService;
+        private readonly IFileUploadProcessor _fileUploadProcessor;
 
-        public FileUploadController(IFileUploadService fileUploadService)
+        public FileUploadController(IFileUploadProcessor fileUploadProcessor)
         {
-            _fileUploadService = fileUploadService;
+            _fileUploadProcessor = fileUploadProcessor;
         }
 
         [HttpPost("Upload")]
         public async Task<IActionResult> UploadFile(IFormFile file, [FromQuery] UploadType uploadType)
         {
-            var batchUpload = await _fileUploadService.UploadFileAsync(file, uploadType);
+            var batchUpload = await _fileUploadProcessor.UploadFileAsync(file, uploadType);
             return Ok(new { batchUpload.Id, batchUpload.Status });
         }
 
