@@ -1,6 +1,6 @@
 ﻿using DeliveryProject.Core.Models;
 
-namespace DeliveryProject.Bussiness.Interfaces.Services
+namespace DeliveryProject.DataAccess.Interfaces
 {
    public interface IBatchUploadProcessor
     {

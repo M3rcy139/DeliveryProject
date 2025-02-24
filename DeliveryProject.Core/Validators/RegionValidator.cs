@@ -1,10 +1,10 @@
 ﻿using DeliveryProject.Core.Constants.ErrorMessages;
-using DeliveryProject.DataAccess.Entities;
+using DeliveryProject.Core.Models;
 using FluentValidation;
 
 namespace DeliveryProject.Bussiness.Validators
 {
-    public class RegionValidator : AbstractValidator<RegionEntity>
+    public class RegionValidator : AbstractValidator<Region>
     {
         public RegionValidator()
         {

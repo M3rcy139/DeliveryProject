@@ -1,8 +1,6 @@
-﻿using DeliveryProject.Bussiness.Interfaces.Services;
-using DeliveryProject.DataAccess.Interfaces;
-using Microsoft.Extensions.Hosting;
+﻿using DeliveryProject.DataAccess.Interfaces;
 
-namespace DeliveryProject.Bussiness.BackgroundServices
+namespace DeliveryProject.BackgroundServices
 {
     public class BatchUploadService : BackgroundService
     {
@@ -21,10 +19,7 @@ namespace DeliveryProject.Bussiness.BackgroundServices
             {
                 var pendingUploads = await _batchUploadRepository.GetPendingUploadsAsync();
 
-                foreach (var upload in pendingUploads)
-                {
-                    await _batchUploadService.ProcessUploadAsync(upload);
-                }
+                await Task.WhenAll(pendingUploads.Select(upload => _batchUploadService.ProcessUploadAsync(upload)));
 
                 await Task.Delay(TimeSpan.FromSeconds(20), stoppingToken);
             }
