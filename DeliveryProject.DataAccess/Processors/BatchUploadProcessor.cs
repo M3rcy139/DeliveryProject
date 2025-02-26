@@ -4,6 +4,7 @@ using DeliveryProject.Core.Common;
 using DeliveryProject.Core.Models;
 using DeliveryProject.DataAccess.Interfaces;
 using DeliveryProject.DataAccess.Enums;
+using DeliveryProject.DataAccess.Validation;
 using DeliveryProject.Core.Constants.ErrorMessages;
 using Microsoft.Extensions.Logging;
 using CsvHelper;
@@ -50,48 +51,30 @@ namespace DeliveryProject.DataAccess.Processors
 
         private async Task ProcessBatchUploadAsync(BatchUpload upload)
         {
-            var records = await ReadCsvFileAsync(upload.FilePath);
+            var existingPhoneNumbers = new HashSet<string>();
 
-            if (!records.Any())
+            await foreach (var batch in ReadCsvFileInBatchesAsync(upload.FilePath, _batchSize))
             {
-                upload.Status = UploadStatus.Failed;
-                return;
+                var newPhoneNumbers = await _batchUploadRepository
+                    .GetExistingPhoneNumbersAsync(batch.Select(r => r.PhoneNumber).ToList());
+
+                existingPhoneNumbers.UnionWith(newPhoneNumbers);
+
+                var batchValidator = new BatchValidator<DeliveryPersonDto>(
+                    new DeliveryPersonDtoValidator(existingPhoneNumbers),
+                    r => r.ToCsvString()
+                );
+
+                var validationResult = await batchValidator.ValidateRecordsAsync(batch);
+
+                await SaveErrorRecordsAsync(validationResult.ErrorRecords, upload.Id);
+                await SaveValidRecordsAsync(validationResult.ValidRecords);
             }
-
-            var existingPhoneNumbers = await _batchUploadRepository
-                .GetExistingPhoneNumbersAsync(records.Select(r => r.PhoneNumber).ToList());
-
-            var validationResult = await ValidateRecordsAsync(records, existingPhoneNumbers);
-            var validRecords = validationResult.ValidRecords;
-            var errorRecords = validationResult.ErrorRecords;
-
-            await SaveValidRecordsInBatchesAsync(validRecords);
-            await SaveErrorRecordsInBatchesAsync(errorRecords, upload.Id);
 
             await _batchUploadRepository.ExecuteMergeProcedureAsync(nameof(DeliveryPerson) + 's');
         }
 
-        private async Task SaveValidRecordsInBatchesAsync(List<DeliveryPersonDto> validRecords)
-        {
-            if (!validRecords.Any()) return;
-
-            foreach (var batch in validRecords.Chunk(_batchSize))
-            {
-                await SaveValidRecordsAsync(batch.ToList());
-            }
-        }
-
-        private async Task SaveErrorRecordsInBatchesAsync(List<ValidationRecordsError> errorRecords, Guid batchUploadId)
-        {
-            if (!errorRecords.Any()) return;
-
-            foreach (var batch in errorRecords.Chunk(_batchSize))
-            {
-                await SaveErrorRecordsAsync(batch.ToList(), batchUploadId);
-            }
-        }
-
-        private async Task<List<DeliveryPersonDto>> ReadCsvFileAsync(string filePath)
+        private async IAsyncEnumerable<List<DeliveryPersonDto>> ReadCsvFileInBatchesAsync(string filePath, int batchSize)
         {
             using var reader = new StreamReader(filePath);
             using var csv = new CsvReader(reader, new CsvConfiguration(System.Globalization.CultureInfo.InvariantCulture)
@@ -100,35 +83,23 @@ namespace DeliveryProject.DataAccess.Processors
                 MissingFieldFound = null
             });
 
-            return csv.GetRecords<DeliveryPersonDto>().ToList();
-        }
+            var batch = new List<DeliveryPersonDto>();
 
-        private async Task<ValidationRecordsResult<DeliveryPersonDto>> ValidateRecordsAsync(
-            List<DeliveryPersonDto> records, HashSet<string> existingPhoneNumbers)
-        {
-            var validator = new DeliveryPersonDtoValidator(existingPhoneNumbers);
-            var validationResult = new ValidationRecordsResult<DeliveryPersonDto>();
-
-            var validationTasks = records.Select(async record =>
+            await foreach (var record in csv.GetRecordsAsync<DeliveryPersonDto>())
             {
-                var result = await validator.ValidateAsync(record);
-                if (!result.IsValid)
-                {
-                    validationResult.ErrorRecords.Add(new ValidationRecordsError
-                    {
-                        RowData = record.ToCsvString(),
-                        ErrorMessage = string.Join(", ", result.Errors.Select(e => e.ErrorMessage))
-                    });
-                }
-                else
-                {
-                    validationResult.ValidRecords.Add(record);
-                }
-            });
+                batch.Add(record);
 
-            await Task.WhenAll(validationTasks);
+                if (batch.Count >= batchSize)
+                {
+                    yield return batch;
+                    batch = new List<DeliveryPersonDto>();
+                }
+            }
 
-            return validationResult;
+            if (batch.Any())
+            {
+                yield return batch;
+            }
         }
 
         private async Task SaveValidRecordsAsync(List<DeliveryPersonDto> validRecords)

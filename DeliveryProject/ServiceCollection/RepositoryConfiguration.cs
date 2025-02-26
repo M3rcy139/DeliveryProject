@@ -7,9 +7,9 @@ namespace DeliveryProject.ServiceCollection
     {
         public static void AddRepositories(this IServiceCollection services)
         {
-            services.AddScoped<IOrderRepository, OrderRepository>();
-            services.AddScoped<ISupplierRepository, SupplierRepository>();
-            services.AddScoped<IDeliveryPersonRepository, DeliveryPersonRepository>();
+            services.AddSingleton<IOrderRepository, OrderRepository>();
+            services.AddSingleton<ISupplierRepository, SupplierRepository>();
+            services.AddSingleton<IDeliveryPersonRepository, DeliveryPersonRepository>();
             services.AddSingleton<IBatchUploadRepository, BatchUploadRepository>();
         }
     }
