@@ -1,10 +1,10 @@
 ﻿using DeliveryProject.Core.Constants.ErrorMessages;
-using DeliveryProject.DataAccess.Entities;
+using DeliveryProject.Core.Models;
 using FluentValidation;
 
 namespace DeliveryProject.Bussiness.Validators
 {
-    public class OrdersValidator : AbstractValidator<List<OrderEntity>>
+    public class OrdersValidator : AbstractValidator<List<Order>>
     {
         public OrdersValidator()
         {

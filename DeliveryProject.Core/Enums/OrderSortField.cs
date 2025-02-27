@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace DeliveryProject.Bussiness.Enums
+namespace DeliveryProject.Core.Enums
 {
     [JsonConverter(typeof(JsonStringEnumConverter))]
     public enum OrderSortField

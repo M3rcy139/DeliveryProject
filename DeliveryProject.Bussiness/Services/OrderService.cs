@@ -3,9 +3,9 @@ using DeliveryProject.Core.Models;
 using Microsoft.Extensions.Logging;
 using AutoMapper;
 using DeliveryProject.DataAccess.Entities;
-using DeliveryProject.Bussiness.Enums;
-using DeliveryProject.Core.Constants;
+using DeliveryProject.Core.Enums;
 using DeliveryProject.Bussiness.Mediators;
+using DeliveryProject.Core.Constants.InfoMessages;
 
 namespace DeliveryProject.Bussiness.Services
 {

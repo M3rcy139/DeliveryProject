@@ -7,7 +7,7 @@ using FluentAssertions;
 using System.Net;
 using System.Net.Http.Json;
 using Microsoft.Extensions.DependencyInjection;
-using DeliveryProject.Bussiness.Enums;
+using DeliveryProject.Core.Enums;
 using DeliveryProject.Bussiness.Services;
 using DeliveryProject.Middleware;
 using DeliveryProject.Tests.Mocks;

@@ -1,4 +1,6 @@
-﻿using FluentValidation;
+﻿using DeliveryProject.Core.Exceptions;
+using FluentValidation;
+using Microsoft.AspNetCore.Http;
 
 namespace DeliveryProject.Core.Extensions
 {
@@ -8,6 +10,14 @@ namespace DeliveryProject.Core.Extensions
             this IValidator<T> validator, T instance)
         {
             return instance != null && (await validator.ValidateAsync(instance)).IsValid;
+        }
+
+        public static void ValidateFile(this IFormFile file, string errorMessage)
+        {
+            if (file == null || file.Length == 0)
+            {
+                throw new BussinessArgumentException(errorMessage);
+            }
         }
     }
 }

@@ -2,8 +2,8 @@
 using FluentValidation;
 using DeliveryProject.Core.Extensions;
 using System.Net;
-using DeliveryProject.Core.Constants;
 using DeliveryProject.Core.Constants.ErrorMessages;
+using DeliveryProject.Core.Constants.InfoMessages;
 
 namespace DeliveryProject.Middleware
 {

@@ -1,6 +1,7 @@
 using NLog;
 using DeliveryProject.ServiceCollection;
 using DeliveryProject.Bussiness.Mappings;
+using DeliveryProject.BackgroundServices;
 
 var builder = WebApplication.CreateBuilder(args);
 var services = builder.Services;
@@ -22,7 +23,10 @@ try
     services.AddControllersAndSwagger();
 
     services.AddServices();
+    services.AddProcessors();
     services.AddRepositories();
+
+    services.AddHostedService<BatchUploadService>();
 
     services.AddAutoMapper(typeof(DataBaseMappings));
 

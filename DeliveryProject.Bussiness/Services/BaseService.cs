@@ -1,4 +1,4 @@
-﻿using DeliveryProject.Bussiness.Enums;
+﻿using DeliveryProject.Core.Enums;
 using DeliveryProject.DataAccess.Entities;
 
 namespace DeliveryProject.Bussiness.Services

@@ -1,4 +1,4 @@
-﻿namespace DeliveryProject.Core.Constants
+﻿namespace DeliveryProject.Core.Constants.InfoMessages
 {
     public static class InfoMessages
     {
