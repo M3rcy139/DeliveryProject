@@ -2,7 +2,7 @@
 using DeliveryProject.Core.Dto;
 using FluentValidation;
 
-namespace DeliveryProject.Bussiness.Validators
+namespace DeliveryProject.Core.Validators
 {
     public class DeliveryPersonDtoValidator : AbstractValidator<DeliveryPersonDto>
     {

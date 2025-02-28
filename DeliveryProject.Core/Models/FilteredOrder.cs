@@ -3,15 +3,13 @@
     public class FilteredOrder
     {
         public Guid Id { get; set; } 
-        public Guid OrderId { get; set; } 
-        public int RegionId { get; set; }
-        public int DeliveryPersonId { get; set; }
-        public int SupplierId { get; set; }
-        public DateTime DeliveryTime { get; set; } 
+        public Guid OrderId { get; set; }
+        public Guid PersonId { get; set; }
+        public DateTime DeliveryTime { get; set; }
+        public decimal Amount { get; set; }
 
         public Order Order { get; set; }
-        public Region Region { get; set; }
-        public DeliveryPerson DeliveryPerson { get; set; }
-        public Supplier Supplier { get; set; }
+        public ICollection<Person> Persons { get; set; } = new List<Person>();
+        public ICollection<Product> Products { get; set; } = new List<Product>();
     }
 }

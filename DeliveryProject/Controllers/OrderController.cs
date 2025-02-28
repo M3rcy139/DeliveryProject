@@ -3,8 +3,8 @@ using DeliveryProject.Core.Models;
 using DeliveryProject.Core.Dto;
 using DeliveryProject.Bussiness.Interfaces.Services;
 using DeliveryProject.Core.Enums;
-using System.Diagnostics;
 using DeliveryProject.Core.Constants.InfoMessages;
+using DeliveryProject.DataAccess.Entities;
 
 namespace DeliveryProject.Controllers
 {
@@ -25,10 +25,15 @@ namespace DeliveryProject.Controllers
             var order = new Order()
             {
                 Id = Guid.NewGuid(),
-                RegionId = model.RegionId,
-                Weight = model.Weight,
+                Persons = new List<Person> 
+                {
+                    new Customer { Id = model.CustomerId }
+                },
+                Products = model.Products.Select(p => new Product
+                {
+                    Id = p.ProductId,
+                }).ToList(),
                 DeliveryTime = model.DeliveryTime,
-                SupplierId = model.SupplierId
             };
 
             var result = await _orderService.AddOrder(order);
@@ -54,10 +59,11 @@ namespace DeliveryProject.Controllers
             var order = new Order()
             {
                 Id = model.OrderId.Value,
-                RegionId = model.RegionId,
-                Weight = model.Weight,
+                Products = model.Products.Select(p => new Product
+                {
+                    Id = p.ProductId,
+                }).ToList(),
                 DeliveryTime = model.DeliveryTime,
-                SupplierId = model.SupplierId
             };
 
             await _orderService.UpdateOrder(order);

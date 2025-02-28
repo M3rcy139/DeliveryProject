@@ -11,7 +11,7 @@ using CsvHelper;
 using CsvHelper.Configuration;
 using DeliveryProject.Core.Constants.InfoMessages;
 using Microsoft.Extensions.Configuration;
-using DeliveryProject.Bussiness.Validators;
+using DeliveryProject.Core.Validators;
 
 namespace DeliveryProject.DataAccess.Processors
 {

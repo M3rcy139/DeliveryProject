@@ -10,6 +10,9 @@ namespace DeliveryProject.ServiceCollection
             services.AddSingleton<IOrderRepository, OrderRepository>();
             services.AddSingleton<ISupplierRepository, SupplierRepository>();
             services.AddSingleton<IDeliveryPersonRepository, DeliveryPersonRepository>();
+            services.AddSingleton<IProductRepository, ProductRepository>();
+            services.AddSingleton<ICustomerRepository, CustomerRepository>();
+
             services.AddSingleton<IBatchUploadRepository, BatchUploadRepository>();
         }
     }

@@ -24,13 +24,15 @@ namespace DeliveryProject.Bussiness.Services
 
         public async Task<Order> AddOrder(Order order)
         {
+            var customer = await _repositoryMediator.GetCustomerAsync(order.Persons.First().Id);
+            var products = await _repositoryMediator.GetProductsAsync(order.Products.Select(p => p.Id).ToList());
+
             var orderEntity = new OrderEntity()
             {
                 Id = order.Id,
-                Weight = order.Weight,
-                RegionId = order.RegionId,
+                Persons = new List<PersonEntity> { customer },
+                Products = products,
                 DeliveryTime = order.DeliveryTime,
-                SupplierId = order.SupplierId,
             };
 
             var createdOrderEntity = await _repositoryMediator.AddOrderAsync(orderEntity);
@@ -51,10 +53,15 @@ namespace DeliveryProject.Bussiness.Services
             var orderEntity = new OrderEntity()
             {
                 Id = order.Id,
-                Weight = order.Weight,
-                RegionId = order.RegionId,
+                Persons = new List<PersonEntity>
+                {
+                    new CustomerEntity { Id = order.Persons.First().Id } 
+                },
+                Products = order.Products.Select(p => new ProductEntity
+                {
+                    Id = p.Id,
+                }).ToList(),
                 DeliveryTime = order.DeliveryTime,
-                SupplierId = order.SupplierId
             };
 
             await _repositoryMediator.UpdateOrderAsync(orderEntity);

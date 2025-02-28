@@ -4,6 +4,7 @@ using DeliveryProject.DataAccess.Interfaces;
 using DeliveryProject.Core.Constants.ErrorMessages;
 using DeliveryProject.Core.Constants;
 using DeliveryProject.Core.Extensions;
+using DeliveryProject.Core.Enums;
 
 namespace DeliveryProject.Bussiness.Mediators
 {
@@ -12,29 +13,51 @@ namespace DeliveryProject.Bussiness.Mediators
         private readonly IOrderRepository _orderRepository;
         private readonly ISupplierRepository _supplierRepository;
         private readonly IDeliveryPersonRepository _deliveryPersonRepository;
+        private readonly ICustomerRepository _customerRepository;
+        private IProductRepository _productRepository;
 
         public RepositoryMediator(
             IOrderRepository orderRepository,
             ISupplierRepository supplierRepository,
-            IDeliveryPersonRepository deliveryPersonRepository)
+            IDeliveryPersonRepository deliveryPersonRepository,
+            ICustomerRepository customerRepository,
+            IProductRepository productRepository)
         {
             _orderRepository = orderRepository;
             _supplierRepository = supplierRepository;
             _deliveryPersonRepository = deliveryPersonRepository;
+            _customerRepository = customerRepository;
+            _productRepository = productRepository;
         }
 
         public async Task<OrderEntity> AddOrderAsync(OrderEntity orderEntity)
         {
-            await GetAndValidateSupplierById(orderEntity.SupplierId);
+            var suppliers = await _supplierRepository.GetSuppliersByProductIdsAsync(orderEntity.Products.ToList());
+            await Task.WhenAll(orderEntity.Products.Select(p => GetAndValidateSupplierById(p.SupplierId)));
+            
+            orderEntity.Persons.AddRange(suppliers);
+
+            //var productQuantities = orderEntity.Products
+            //    .GroupBy(p => p.Id)
+            //    .ToDictionary(g => g.Key, g => g.Count());
+
+            //orderEntity.Amount = orderEntity.Products.Sum(p => p.Price * productQuantities[p.Id]);
+
+            orderEntity.Amount = (decimal)100;
 
             var availableDeliveryPerson = await _deliveryPersonRepository.GetAvailableDeliveryPersonAsync(orderEntity.DeliveryTime);
             availableDeliveryPerson.ValidateEntity(ErrorMessages.NoAvailableDeliveryPersons,
                     ErrorCodes.NoAvailableDeliveryPersons);
 
-            orderEntity.DeliveryPersonId = availableDeliveryPerson.Id;
+            orderEntity.Persons.Add(availableDeliveryPerson);
+
             await _orderRepository.AddOrder(orderEntity);
 
-            availableDeliveryPerson.DeliverySlots.Add(orderEntity.DeliveryTime);
+            await _deliveryPersonRepository.AddSlotAsync(new DeliverySlotEntity
+            {
+                DeliveryPersonId = availableDeliveryPerson.Id,
+                SlotTime = orderEntity.DeliveryTime
+            });
             await _deliveryPersonRepository.UpdateAsync(availableDeliveryPerson);
 
             return orderEntity;
@@ -51,9 +74,10 @@ namespace DeliveryProject.Bussiness.Mediators
         {
             var order = await GetAndValidateOrderById(orderEntity.Id);
 
-            await GetAndValidateSupplierById(orderEntity.SupplierId);
+            await Task.WhenAll(orderEntity.Products.Select(p => GetAndValidateSupplierById(p.SupplierId)));
 
-            orderEntity.DeliveryPersonId = order.DeliveryPersonId;
+            var deliveryPerson = orderEntity.Persons
+                .FirstOrDefault(p => p.Role.Role == RoleType.DeliveryPerson);
 
             await _orderRepository.UpdateOrder(orderEntity); 
         }
@@ -99,7 +123,17 @@ namespace DeliveryProject.Bussiness.Mediators
             return orders.IsNullOrEmpty() ? new List<OrderEntity>() : orders;
         }
 
-        private async Task GetAndValidateSupplierById(int supplierId)
+        public async Task<CustomerEntity> GetCustomerAsync(Guid Id)
+        {
+            return await _customerRepository.GetCustomerByIdAsync(Id);
+        }
+
+        public async Task<List<ProductEntity>> GetProductsAsync(List<Guid> productIds)
+        {
+            return await _productRepository.GetProductsByIdAsync(productIds);
+        }
+
+        private async Task GetAndValidateSupplierById(Guid supplierId)
         {
             await _supplierRepository.GetByIdAsync(supplierId)
                 .ContinueWith(async t =>

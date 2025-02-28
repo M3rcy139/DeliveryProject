@@ -26,10 +26,12 @@ public class DataGenerationEntryPoint
 
             var dataSettings = configuration.GetSection("DataGenerationSettings").Get<DataGenerationSettings>();
 
+            await context.GenerateRoles();
             await context.GenerateRegions(dataSettings.RegionsCount);
             await context.GenerateDeliveryPersons(dataSettings.DeliveryPersonsCount);
             await context.GenerateSuppliers(dataSettings.SuppliersCount);
-            await context.GenerateOrders(dataSettings.OrdersCount);
+            await context.GenerateCustomers(dataSettings.CustomersCount);
+            //await context.GenerateOrders(dataSettings.OrdersCount);
 
             await context.SaveChangesAsync();
 

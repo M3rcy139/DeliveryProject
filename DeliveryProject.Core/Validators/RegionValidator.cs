@@ -2,7 +2,7 @@
 using DeliveryProject.Core.Models;
 using FluentValidation;
 
-namespace DeliveryProject.Bussiness.Validators
+namespace DeliveryProject.Core.Validators
 {
     public class RegionValidator : AbstractValidator<Region>
     {

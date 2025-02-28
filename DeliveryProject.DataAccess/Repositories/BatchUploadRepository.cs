@@ -6,6 +6,7 @@ using DeliveryProject.DataAccess.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using EFCore.BulkExtensions;
 using Microsoft.Extensions.Logging;
+using DeliveryProject.Core.Models;
 
 namespace DeliveryProject.DataAccess.Repositories
 {
@@ -67,12 +68,12 @@ namespace DeliveryProject.DataAccess.Repositories
         {
             await using var dbContext = await _dbContextFactory.CreateDbContextAsync();
 
-            var phoneNumbersList = await dbContext.DeliveryPersons
-                .Where(dp => phoneNumbers.Contains(dp.PhoneNumber))
-                .Select(dp => dp.PhoneNumber)
-                .ToListAsync(); 
+            var existingPhoneNumbers = await dbContext.PersonContacts
+                .Where(pc => phoneNumbers.Contains(pc.PhoneNumber) && pc.Person is DeliveryPerson)
+                .Select(pc => pc.PhoneNumber)
+                .ToListAsync();
 
-            return new HashSet<string>(phoneNumbersList); 
+            return new HashSet<string>(existingPhoneNumbers); 
         }
 
         public async Task ExecuteMergeProcedureAsync(string tableName)

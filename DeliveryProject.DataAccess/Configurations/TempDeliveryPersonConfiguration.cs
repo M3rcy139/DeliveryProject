@@ -8,8 +8,6 @@ namespace DeliveryProject.DataAccess.Configurations
     {
         public void Configure(EntityTypeBuilder<TempDeliveryPerson> builder)
         {
-            builder.ToTable("TempDeliveryPersons");
-
             builder.Property(tdp => tdp.Id).IsRequired();
             builder.Property(tdp => tdp.Name).IsRequired().HasMaxLength(100);
             builder.Property(tdp => tdp.PhoneNumber).IsRequired().HasMaxLength(20);
