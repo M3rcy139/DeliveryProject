@@ -10,6 +10,10 @@
 
         public const string SupplierNotFound = "SUPPLIER_NOT_FOUND";
 
+        public const string CustomerNotFound = "CUSTOMER_NOT_FOUND";
+
+        public const string ProductNotFound = "PRODUCT_NOT_FOUND";
+
         public const string NoAvailableDeliveryPersons = "NO_AVAILABLE_DELIVERYPERSONS";
     }
 }

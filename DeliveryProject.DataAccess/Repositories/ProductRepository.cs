@@ -10,20 +10,19 @@ namespace DeliveryProject.DataAccess.Repositories
 
         public ProductRepository(IDbContextFactory<DeliveryDbContext> contextFactory) => _contextFactory = contextFactory;
 
-        public async Task<ProductEntity> GetProductByNameAsync(string productName)
+        public async Task<List<ProductEntity?>> GetProductsByIdAsync(List<Guid> productIds)
         {
             await using var dbContext = await _contextFactory.CreateDbContextAsync();
-            return await dbContext.Products
-                .AsNoTracking()
-                .FirstOrDefaultAsync(o => o.Name == productName);
-        }
 
-        public async Task<List<ProductEntity>> GetProductsByIdAsync(List<Guid> productIds)
-        {
-            await using var dbContext = await _contextFactory.CreateDbContextAsync();
-            return await dbContext.Products
+            var productsDict = await dbContext.Products
                 .Where(p => productIds.Contains(p.Id))
-                .ToListAsync();
+                .ToDictionaryAsync(p => p.Id);
+
+            var result = productIds
+                .Select(id => productsDict.ContainsKey(id) ? productsDict[id] : null)
+                .ToList();
+
+            return result;
         }
     }
 }

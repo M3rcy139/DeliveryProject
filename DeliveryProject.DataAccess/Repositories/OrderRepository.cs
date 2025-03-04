@@ -1,4 +1,5 @@
-﻿using DeliveryProject.DataAccess.Entities;
+﻿using DeliveryProject.Core.Enums;
+using DeliveryProject.DataAccess.Entities;
 using DeliveryProject.DataAccess.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
@@ -114,7 +115,8 @@ namespace DeliveryProject.DataAccess.Repositories
         public async Task<bool> HasOrders(int regionId)
         {
             await using var dbContext = await _contextFactory.CreateDbContextAsync();
-            return await dbContext.Orders.AnyAsync(o => o.Persons.Any(p => p.Contacts.Any(c => c.RegionId == regionId)));
+            return await dbContext.Orders.AnyAsync(o => o.Persons.Any(p => p.Role.Role == RoleType.Customer &&
+                p.Contacts.Any(c => c.RegionId == regionId)));
         }
 
         public async Task<DateTime> GetFirstOrderTime(int regionId)

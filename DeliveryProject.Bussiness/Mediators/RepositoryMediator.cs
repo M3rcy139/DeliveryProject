@@ -36,20 +36,13 @@ namespace DeliveryProject.Bussiness.Mediators
 
             orderEntity.Persons.AddRange(suppliers);
 
-            var availableDeliveryPerson = await _deliveryPersonRepository
-                .GetAvailableDeliveryPersonAsync(orderEntity.DeliveryTime);
-            availableDeliveryPerson.ValidateEntity(ErrorMessages.NoAvailableDeliveryPersons,
-                    ErrorCodes.NoAvailableDeliveryPersons);
+            var availableDeliveryPerson = await GetAndValidateDeliveryPerson(orderEntity); 
 
             orderEntity.Persons.Add(availableDeliveryPerson);
 
             await _orderRepository.AddOrder(orderEntity);
 
-            await _deliveryPersonRepository.AddSlotAsync(new DeliverySlotEntity
-            {
-                DeliveryPersonId = availableDeliveryPerson.Id,
-                SlotTime = orderEntity.DeliveryTime
-            });
+            AddDeliverySlot(availableDeliveryPerson.Id, orderEntity.DeliveryTime);
 
             return orderEntity;
         }
@@ -66,10 +59,10 @@ namespace DeliveryProject.Bussiness.Mediators
             var order = await GetAndValidateOrderById(orderEntity.Id);
 
             orderEntity.Persons.Add(order.Persons
-                .FirstOrDefault(p => p.Role.Role == RoleType.DeliveryPerson));
+                .First(p => p.Role.Role == RoleType.DeliveryPerson));
 
             orderEntity.Persons.Add(order.Persons
-                .FirstOrDefault(p => p.Role.Role == RoleType.Customer));
+                .First(p => p.Role.Role == RoleType.Customer));
 
             var suppliers = await GetAndValidateSuppliers(orderEntity);
 
@@ -119,17 +112,27 @@ namespace DeliveryProject.Bussiness.Mediators
             return orders.IsNullOrEmpty() ? new List<OrderEntity>() : orders;
         }
 
-        public async Task<CustomerEntity> GetCustomerAsync(Guid Id)
+        public async Task<CustomerEntity?> GetAndValidateCustomerAsync(Guid customerId)
         {
-            return await _customerRepository.GetCustomerByIdAsync(Id);
+            var customer = await _customerRepository.GetCustomerByIdAsync(customerId);
+            customer.ValidateEntity(ErrorMessages.CustomerNotFound, ErrorCodes.CustomerNotFound);
+
+            return customer;
         }
 
-        public async Task<List<ProductEntity>> GetProductsAsync(List<Guid> productIds)
+        public async Task<List<ProductEntity?>> GetAndValidateProductsAsync(List<Guid> productIds)
         {
-            return await _productRepository.GetProductsByIdAsync(productIds);
+            var products = await _productRepository.GetProductsByIdAsync(productIds);
+
+            products.ForEach(product =>
+            {
+                product.ValidateEntity(ErrorMessages.ProductNotFound, ErrorCodes.ProductNotFound);
+            });
+
+            return products;
         }
 
-        private async Task<List<SupplierEntity>> GetAndValidateSuppliers(OrderEntity orderEntity)
+        private async Task<List<SupplierEntity?>> GetAndValidateSuppliers(OrderEntity orderEntity)
         {
             var suppliers = await _supplierRepository.GetSuppliersByProductIdsAsync(
                 orderEntity.OrderProducts.Select(op => op.ProductId).ToList()
@@ -149,6 +152,26 @@ namespace DeliveryProject.Bussiness.Mediators
             order.ValidateEntity(ErrorMessages.OrderNotFound, ErrorCodes.NoOrdersFound);
 
             return order;
+        }
+
+        private async Task<DeliveryPersonEntity?> GetAndValidateDeliveryPerson(OrderEntity orderEntity)
+        {
+            var availableDeliveryPerson = await _deliveryPersonRepository
+                .GetAvailableDeliveryPersonAsync(orderEntity.DeliveryTime);
+
+            availableDeliveryPerson.ValidateEntity(ErrorMessages.NoAvailableDeliveryPersons,
+                    ErrorCodes.NoAvailableDeliveryPersons);
+
+            return availableDeliveryPerson;
+        }
+
+        private async void AddDeliverySlot(Guid deliveryPersonId, DateTime deliveryTime)
+        {
+            await _deliveryPersonRepository.AddSlotAsync(new DeliverySlotEntity
+            {
+                DeliveryPersonId = deliveryPersonId,
+                SlotTime = deliveryTime
+            });
         }
     }
 }

@@ -25,7 +25,7 @@ namespace DeliveryProject.Bussiness.Services
 
         public async Task<Order> AddOrder(Order order, List<ProductItemViewModel> products)
         {
-            var customer = await _repositoryMediator.GetCustomerAsync(order.Persons.First().Id);
+            var customer = await _repositoryMediator.GetAndValidateCustomerAsync(order.Persons.First().Id);
             
             var orderProducts = await GetOrderProducts(order, products);
 
@@ -112,7 +112,7 @@ namespace DeliveryProject.Bussiness.Services
 
         private async Task<List<OrderProductEntity>> GetOrderProducts(Order order, List<ProductItemViewModel> products)
         {
-            var productEntities = await _repositoryMediator.GetProductsAsync(
+            var productEntities = await _repositoryMediator.GetAndValidateProductsAsync(
                 products.Select(p => p.ProductId).Distinct().ToList());
 
             var orderProducts = products
