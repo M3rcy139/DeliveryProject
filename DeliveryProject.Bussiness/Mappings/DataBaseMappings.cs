@@ -14,6 +14,8 @@ namespace DeliveryProject.Bussiness.Mappings
             CreateMap<DeliveryPersonEntity, DeliveryPerson>();
             CreateMap<SupplierEntity, Supplier>();
             CreateMap<BaseUnitEntity, BaseUnit>();
+            CreateMap<PersonContactEntity, PersonContact>();
+            CreateMap<RoleEntity, Role>();
 
             CreateMap<PersonEntity, Person>()
                 .Include<CustomerEntity, Customer>()
@@ -23,6 +25,7 @@ namespace DeliveryProject.Bussiness.Mappings
             CreateMap<CustomerEntity, Customer>();
             CreateMap<ProductEntity, Product>();
             CreateMap<DeliverySlotEntity, DeliverySlot>();
+            CreateMap<OrderProductEntity, OrderProduct>();
         }
     }
 }

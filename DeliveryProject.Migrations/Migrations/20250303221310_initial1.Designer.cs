@@ -3,6 +3,7 @@ using System;
 using DeliveryProject.DataAccess;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DeliveryProject.Migrations.Migrations
 {
     [DbContext(typeof(DeliveryDbContext))]
-    partial class DeliveryDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250303221310_initial1")]
+    partial class initial1
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -75,7 +78,16 @@ namespace DeliveryProject.Migrations.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("numeric");
+
+                    b.Property<DateTime>("DeliveryTime")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<Guid>("OrderId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("PersonId")
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
@@ -294,6 +306,39 @@ namespace DeliveryProject.Migrations.Migrations
                     b.ToTable("UploadErrors");
                 });
 
+            modelBuilder.Entity("FilteredOrderEntityOrderProductEntity", b =>
+                {
+                    b.Property<Guid>("FilteredOrderEntityId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("OrderProductsOrderId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("OrderProductsProductId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("FilteredOrderEntityId", "OrderProductsOrderId", "OrderProductsProductId");
+
+                    b.HasIndex("OrderProductsOrderId", "OrderProductsProductId");
+
+                    b.ToTable("FilteredOrderEntityOrderProductEntity");
+                });
+
+            modelBuilder.Entity("FilteredOrderEntityPersonEntity", b =>
+                {
+                    b.Property<Guid>("FilteredOrderEntityId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("PersonsId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("FilteredOrderEntityId", "PersonsId");
+
+                    b.HasIndex("PersonsId");
+
+                    b.ToTable("FilteredOrderEntityPersonEntity");
+                });
+
             modelBuilder.Entity("OrderEntityPersonEntity", b =>
                 {
                     b.Property<Guid>("OrdersId")
@@ -439,6 +484,36 @@ namespace DeliveryProject.Migrations.Migrations
                         .IsRequired();
 
                     b.Navigation("BatchUpload");
+                });
+
+            modelBuilder.Entity("FilteredOrderEntityOrderProductEntity", b =>
+                {
+                    b.HasOne("DeliveryProject.DataAccess.Entities.FilteredOrderEntity", null)
+                        .WithMany()
+                        .HasForeignKey("FilteredOrderEntityId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("DeliveryProject.DataAccess.Entities.OrderProductEntity", null)
+                        .WithMany()
+                        .HasForeignKey("OrderProductsOrderId", "OrderProductsProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("FilteredOrderEntityPersonEntity", b =>
+                {
+                    b.HasOne("DeliveryProject.DataAccess.Entities.FilteredOrderEntity", null)
+                        .WithMany()
+                        .HasForeignKey("FilteredOrderEntityId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("DeliveryProject.DataAccess.Entities.PersonEntity", null)
+                        .WithMany()
+                        .HasForeignKey("PersonsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("OrderEntityPersonEntity", b =>

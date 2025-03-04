@@ -7,6 +7,6 @@
         public decimal Amount { get; set; }
 
         public ICollection<PersonEntity> Persons { get; set; } = new List<PersonEntity>();
-        public ICollection<ProductEntity> Products { get; set; } = new List<ProductEntity>();
+        public ICollection<OrderProductEntity> OrderProducts { get; set; } = new List<OrderProductEntity>();
     }
 }

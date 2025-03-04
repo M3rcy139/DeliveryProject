@@ -16,11 +16,9 @@ namespace DeliveryProject.DataAccess.Repositories
             return await dbContext.Suppliers.FirstOrDefaultAsync(s => s.Id == id);
         }
 
-        public async Task<List<SupplierEntity>> GetSuppliersByProductIdsAsync(List<ProductEntity> products)
+        public async Task<List<SupplierEntity>> GetSuppliersByProductIdsAsync(List<Guid> productIds)
         {
             await using var dbContext = await _contextFactory.CreateDbContextAsync();
-
-            var productIds = products.Select(p => p.Id).ToList();
 
             return await dbContext.Suppliers
                 .Where(s => s.Products.Any(p => productIds.Contains(p.Id)))

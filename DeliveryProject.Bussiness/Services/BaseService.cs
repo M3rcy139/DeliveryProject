@@ -8,9 +8,6 @@ namespace DeliveryProject.Bussiness.Services
         protected static Func<List<OrderEntity>, List<OrderEntity>>? GetSortDelegate(OrderSortField? sortBy, bool descending) =>
             sortBy switch
             {
-                //OrderSortField.Weight => orders => descending
-                //    ? orders.OrderByDescending(o => o.Weight).ToList()
-                //    : orders.OrderBy(o => o.Weight).ToList(),
                 OrderSortField.RegionId => orders => descending
                 ? orders.OrderByDescending(o => o.Persons
                     .FirstOrDefault(p => p.Role.Role == RoleType.Customer)?

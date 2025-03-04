@@ -6,6 +6,7 @@ using DeliveryProject.DataAccess.Entities;
 using DeliveryProject.Core.Enums;
 using DeliveryProject.Bussiness.Mediators;
 using DeliveryProject.Core.Constants.InfoMessages;
+using DeliveryProject.Core.Dto;
 
 namespace DeliveryProject.Bussiness.Services
 {
@@ -22,16 +23,20 @@ namespace DeliveryProject.Bussiness.Services
             _mapper = mapper;
         }
 
-        public async Task<Order> AddOrder(Order order)
+        public async Task<Order> AddOrder(Order order, List<ProductItemViewModel> products)
         {
             var customer = await _repositoryMediator.GetCustomerAsync(order.Persons.First().Id);
-            var products = await _repositoryMediator.GetProductsAsync(order.Products.Select(p => p.Id).ToList());
+            
+            var orderProducts = await GetOrderProducts(order, products);
+
+            decimal amount = await CalculateOrderAmount(orderProducts);
 
             var orderEntity = new OrderEntity()
             {
                 Id = order.Id,
                 Persons = new List<PersonEntity> { customer },
-                Products = products,
+                OrderProducts = orderProducts,
+                Amount = amount,
                 DeliveryTime = order.DeliveryTime,
             };
 
@@ -48,19 +53,17 @@ namespace DeliveryProject.Bussiness.Services
             return _mapper.Map<Order>(orderEntity);
         }
 
-        public async Task UpdateOrder(Order order)
+        public async Task UpdateOrder(Order order, List<ProductItemViewModel> products)
         {
+            var orderProducts = await GetOrderProducts(order, products);
+
+            decimal amount = await CalculateOrderAmount(orderProducts);
+
             var orderEntity = new OrderEntity()
             {
                 Id = order.Id,
-                Persons = new List<PersonEntity>
-                {
-                    new CustomerEntity { Id = order.Persons.First().Id } 
-                },
-                Products = order.Products.Select(p => new ProductEntity
-                {
-                    Id = p.Id,
-                }).ToList(),
+                OrderProducts = orderProducts,
+                Amount = amount,
                 DeliveryTime = order.DeliveryTime,
             };
 
@@ -105,6 +108,28 @@ namespace DeliveryProject.Bussiness.Services
 
                 return _mapper.Map<List<Order>>(orders);
             }, TaskCreationOptions.LongRunning).Unwrap();
+        }
+
+        private async Task<List<OrderProductEntity>> GetOrderProducts(Order order, List<ProductItemViewModel> products)
+        {
+            var productEntities = await _repositoryMediator.GetProductsAsync(
+                products.Select(p => p.ProductId).Distinct().ToList());
+
+            var orderProducts = products
+                .Select(p => new OrderProductEntity
+                {
+                    OrderId = order.Id,
+                    ProductId = p.ProductId,
+                    Product = productEntities.First(pe => pe.Id == p.ProductId),
+                    Quantity = p.Quantity
+                }).ToList();
+
+            return orderProducts;
+        }
+
+        private async Task<decimal> CalculateOrderAmount(List<OrderProductEntity> orderProducts)
+        {
+            return orderProducts.Sum(op => op.Product.Price * op.Quantity);
         }
     }
 }

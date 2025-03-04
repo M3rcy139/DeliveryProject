@@ -16,6 +16,7 @@ namespace DeliveryProject.DataAccess
         public DbSet<DeliveryPersonEntity> DeliveryPersons { get; set; }
         public DbSet<CustomerEntity> Customers { get; set; }
         public DbSet<ProductEntity> Products { get; set; }
+        public DbSet<OrderProductEntity> OrderProducts { get; set; }
         public DbSet<PersonContactEntity> PersonContacts { get; set; }
         public DbSet<DeliverySlotEntity> DeliverySlots { get; set; }
         public DbSet<RoleEntity> Roles { get; set; }

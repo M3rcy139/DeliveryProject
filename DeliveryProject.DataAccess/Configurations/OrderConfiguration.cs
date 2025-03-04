@@ -21,8 +21,9 @@ namespace DeliveryProject.DataAccess.Configurations
                 .WithMany(p => p.Orders);
 
             builder
-                .HasMany(o => o.Products)
-                .WithMany();
+                .HasMany(o => o.OrderProducts)
+                .WithOne(op => op.Order)
+                .HasForeignKey(op => op.OrderId);
         }
     }
 }
