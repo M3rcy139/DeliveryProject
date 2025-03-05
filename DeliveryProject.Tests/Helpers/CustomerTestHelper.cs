@@ -2,6 +2,7 @@
 using DeliveryProject.DataAccess.Entities;
 using DeliveryProject.DataAccess;
 using Microsoft.EntityFrameworkCore;
+using DeliveryProject.Core.Models;
 
 namespace DeliveryProject.Tests.Helpers
 {
@@ -30,21 +31,16 @@ namespace DeliveryProject.Tests.Helpers
 
                 customers.Add(customer);
 
-                contacts.Add(new PersonContactEntity
-                {
-                    Id = Guid.NewGuid(),
-                    PhoneNumber = $"{random.Next(100, 999)}-{random.Next(1000, 9999)}",
-                    Email = $"customer{i}@example.com",
-                    RegionId = random.Next(1, 80), 
-                    PersonId = customer.Id
-                });
+                var contact = PersonContactHelper.CreatePersonContact(customer.Id, random, i, "customer");
+                contacts.Add(contact);
             }
 
-            await context.Customers.AddRangeAsync(customers);
-            await context.SaveChangesAsync();
-
-            await context.PersonContacts.AddRangeAsync(contacts);
-            await context.SaveChangesAsync();
+            await TransactionHelper.ExecuteInTransactionAsync(context, async () =>
+            {
+                await context.Customers.AddRangeAsync(customers);
+                await context.PersonContacts.AddRangeAsync(contacts);
+                await context.SaveChangesAsync();
+            });
         }
     }
 }

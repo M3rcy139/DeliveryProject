@@ -28,14 +28,8 @@ namespace DeliveryProject.Tests.Helpers
 
                 deliveryPersons.Add(deliveryPerson);
 
-                contacts.Add(new PersonContactEntity
-                {
-                    Id = Guid.NewGuid(),
-                    PhoneNumber = $"{random.Next(100, 999)}-{random.Next(1000, 9999)}",
-                    Email = $"deliveryperson{i}@example.com",
-                    RegionId = random.Next(1, 80),
-                    PersonId = deliveryPerson.Id
-                });
+                var contact = PersonContactHelper.CreatePersonContact(deliveryPerson.Id, random, i, "deliveryperson");
+                contacts.Add(contact);
 
                 int slotCount = random.Next(1, 6);
                 for (int j = 0; j < slotCount; j++)
@@ -49,14 +43,13 @@ namespace DeliveryProject.Tests.Helpers
                 }
             }
 
-            await context.DeliveryPersons.AddRangeAsync(deliveryPersons);
-            await context.SaveChangesAsync();
-
-            await context.PersonContacts.AddRangeAsync(contacts);
-            await context.SaveChangesAsync();
-
-            await context.DeliverySlots.AddRangeAsync(deliverySlots);
-            await context.SaveChangesAsync();
+            await TransactionHelper.ExecuteInTransactionAsync(context, async () =>
+            {
+                await context.DeliveryPersons.AddRangeAsync(deliveryPersons);
+                await context.PersonContacts.AddRangeAsync(contacts);
+                await context.DeliverySlots.AddRangeAsync(deliverySlots);
+                await context.SaveChangesAsync();
+            });
         }
     }
 }

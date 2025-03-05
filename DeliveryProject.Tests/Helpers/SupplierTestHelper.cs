@@ -25,17 +25,10 @@ namespace DeliveryProject.Tests.Helpers
                     Rating = Math.Round(4.0 + (i % 5) * 0.2, 1),
                     RoleId = supplierRole.Id
                 };
-
                 suppliers.Add(supplier);
 
-                contacts.Add(new PersonContactEntity
-                {
-                    Id = Guid.NewGuid(), 
-                    PhoneNumber = $"{random.Next(100, 999)}-{random.Next(1000, 9999)}",
-                    Email = $"supplier{i}@example.com",
-                    RegionId = random.Next(1, 80),
-                    PersonId = supplier.Id  
-                });
+                var contact = PersonContactHelper.CreatePersonContact(supplier.Id, random, i, "supplier");
+                contacts.Add(contact);
 
                 int productCount = random.Next(3, 11);
                 for (int j = 1; j <= productCount; j++)
@@ -51,14 +44,13 @@ namespace DeliveryProject.Tests.Helpers
                 }
             }
 
-            await context.Suppliers.AddRangeAsync(suppliers);
-            await context.SaveChangesAsync();
-
-            await context.PersonContacts.AddRangeAsync(contacts);
-            await context.SaveChangesAsync();
-
-            await context.Products.AddRangeAsync(products);
-            await context.SaveChangesAsync();
+            await TransactionHelper.ExecuteInTransactionAsync(context, async () =>
+            {
+                await context.Suppliers.AddRangeAsync(suppliers);
+                await context.PersonContacts.AddRangeAsync(contacts);
+                await context.Products.AddRangeAsync(products);
+                await context.SaveChangesAsync();
+            });
         }
     }
 }
