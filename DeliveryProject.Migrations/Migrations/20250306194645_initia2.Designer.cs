@@ -3,6 +3,7 @@ using System;
 using DeliveryProject.DataAccess;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DeliveryProject.Migrations.Migrations
 {
     [DbContext(typeof(DeliveryDbContext))]
-    partial class DeliveryDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250306194645_initia2")]
+    partial class initia2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -246,6 +249,11 @@ namespace DeliveryProject.Migrations.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
+                    b.Property<string>("PhoneNumber")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
                     b.Property<double>("Rating")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("double precision")
@@ -272,7 +280,7 @@ namespace DeliveryProject.Migrations.Migrations
 
                     b.HasIndex("DeliveryPersonId");
 
-                    b.ToTable("TempDeliverySlots");
+                    b.ToTable("TempDeliverySlot");
                 });
 
             modelBuilder.Entity("DeliveryProject.DataAccess.Entities.TempPersonContact", b =>
@@ -299,7 +307,7 @@ namespace DeliveryProject.Migrations.Migrations
 
                     b.HasIndex("DeliveryPersonId");
 
-                    b.ToTable("TempPersonContacts");
+                    b.ToTable("TempPersonContact");
                 });
 
             modelBuilder.Entity("DeliveryProject.DataAccess.Entities.UploadError", b =>

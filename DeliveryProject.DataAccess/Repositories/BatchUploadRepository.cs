@@ -69,7 +69,7 @@ namespace DeliveryProject.DataAccess.Repositories
             await using var dbContext = await _dbContextFactory.CreateDbContextAsync();
 
             var existingPhoneNumbers = await dbContext.PersonContacts
-                .Where(pc => phoneNumbers.Contains(pc.PhoneNumber) && pc.Person is DeliveryPerson)
+                .Where(pc => phoneNumbers.Contains(pc.PhoneNumber) && pc.Person.RoleId == 3)
                 .Select(pc => pc.PhoneNumber)
                 .ToListAsync();
 
@@ -82,7 +82,7 @@ namespace DeliveryProject.DataAccess.Repositories
 
             try
             {
-                await dbContext.Database.ExecuteSqlRawAsync($"DO $$ BEGIN PERFORM Merge{tableName}(); END $$;");
+                await dbContext.Database.ExecuteSqlRawAsync($"CALL Merge{tableName}();");
                 _logger.LogInformation(BatchUploadInfoMessages.MergeIsCompleted);
             }
             catch (Exception ex)

@@ -8,6 +8,7 @@ namespace DeliveryProject.DataAccess.Configurations
     {
         public void Configure(EntityTypeBuilder<CustomerEntity> builder)
         {
+            builder.ToTable("Customers");
             builder.Property(c => c.LastName).IsRequired().HasMaxLength(100);
             builder.Property(c => c.Gender).IsRequired();
         }

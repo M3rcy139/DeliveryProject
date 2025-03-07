@@ -2,10 +2,11 @@
 {
     public class TempDeliveryPerson
     {
-        public int Id { get; set; }
+        public Guid Id { get; set; } 
         public string Name { get; set; }
-        public string PhoneNumber { get; set; }
         public double Rating { get; set; }
-        public List<DateTime> DeliverySlots { get; set; } = new();
+
+        public ICollection<TempPersonContact> Contacts { get; set; } = new List<TempPersonContact>();
+        public ICollection<TempDeliverySlot> DeliverySlots { get; set; } = new List<TempDeliverySlot>();
     }
 }

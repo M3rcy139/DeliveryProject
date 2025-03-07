@@ -3,6 +3,7 @@ using System;
 using DeliveryProject.DataAccess;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DeliveryProject.Migrations.Migrations
 {
     [DbContext(typeof(DeliveryDbContext))]
-    partial class DeliveryDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250306194149_initial")]
+    partial class initial
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -157,6 +160,11 @@ namespace DeliveryProject.Migrations.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<string>("Discriminator")
+                        .IsRequired()
+                        .HasMaxLength(21)
+                        .HasColumnType("character varying(21)");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -171,7 +179,9 @@ namespace DeliveryProject.Migrations.Migrations
 
                     b.ToTable("Persons");
 
-                    b.UseTptMappingStrategy();
+                    b.HasDiscriminator().HasValue("PersonEntity");
+
+                    b.UseTphMappingStrategy();
                 });
 
             modelBuilder.Entity("DeliveryProject.DataAccess.Entities.ProductEntity", b =>
@@ -246,6 +256,11 @@ namespace DeliveryProject.Migrations.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
+                    b.Property<string>("PhoneNumber")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
                     b.Property<double>("Rating")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("double precision")
@@ -272,7 +287,7 @@ namespace DeliveryProject.Migrations.Migrations
 
                     b.HasIndex("DeliveryPersonId");
 
-                    b.ToTable("TempDeliverySlots");
+                    b.ToTable("TempDeliverySlot");
                 });
 
             modelBuilder.Entity("DeliveryProject.DataAccess.Entities.TempPersonContact", b =>
@@ -299,7 +314,7 @@ namespace DeliveryProject.Migrations.Migrations
 
                     b.HasIndex("DeliveryPersonId");
 
-                    b.ToTable("TempPersonContacts");
+                    b.ToTable("TempPersonContact");
                 });
 
             modelBuilder.Entity("DeliveryProject.DataAccess.Entities.UploadError", b =>
@@ -356,7 +371,7 @@ namespace DeliveryProject.Migrations.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
-                    b.ToTable("Customers", (string)null);
+                    b.HasDiscriminator().HasValue("CustomerEntity");
                 });
 
             modelBuilder.Entity("DeliveryProject.DataAccess.Entities.DeliveryPersonEntity", b =>
@@ -368,7 +383,7 @@ namespace DeliveryProject.Migrations.Migrations
                         .HasColumnType("double precision")
                         .HasDefaultValue(0.0);
 
-                    b.ToTable("DeliveryPersons", (string)null);
+                    b.HasDiscriminator().HasValue("DeliveryPersonEntity");
                 });
 
             modelBuilder.Entity("DeliveryProject.DataAccess.Entities.SupplierEntity", b =>
@@ -380,7 +395,13 @@ namespace DeliveryProject.Migrations.Migrations
                         .HasColumnType("double precision")
                         .HasDefaultValue(0.0);
 
-                    b.ToTable("Suppliers", (string)null);
+                    b.ToTable("Persons", t =>
+                        {
+                            t.Property("Rating")
+                                .HasColumnName("SupplierEntity_Rating");
+                        });
+
+                    b.HasDiscriminator().HasValue("SupplierEntity");
                 });
 
             modelBuilder.Entity("DeliveryProject.DataAccess.Entities.DeliverySlotEntity", b =>
@@ -509,33 +530,6 @@ namespace DeliveryProject.Migrations.Migrations
                     b.HasOne("DeliveryProject.DataAccess.Entities.PersonEntity", null)
                         .WithMany()
                         .HasForeignKey("PersonsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("DeliveryProject.DataAccess.Entities.CustomerEntity", b =>
-                {
-                    b.HasOne("DeliveryProject.DataAccess.Entities.PersonEntity", null)
-                        .WithOne()
-                        .HasForeignKey("DeliveryProject.DataAccess.Entities.CustomerEntity", "Id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("DeliveryProject.DataAccess.Entities.DeliveryPersonEntity", b =>
-                {
-                    b.HasOne("DeliveryProject.DataAccess.Entities.PersonEntity", null)
-                        .WithOne()
-                        .HasForeignKey("DeliveryProject.DataAccess.Entities.DeliveryPersonEntity", "Id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("DeliveryProject.DataAccess.Entities.SupplierEntity", b =>
-                {
-                    b.HasOne("DeliveryProject.DataAccess.Entities.PersonEntity", null)
-                        .WithOne()
-                        .HasForeignKey("DeliveryProject.DataAccess.Entities.SupplierEntity", "Id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

@@ -4,7 +4,7 @@ using DeliveryProject.DataAccess.Entities;
 
 namespace DeliveryProject.DataAccess.Configurations
 {
-    internal class DeliverySlotConfiguration : IEntityTypeConfiguration<DeliverySlotEntity>
+    public class DeliverySlotConfiguration : IEntityTypeConfiguration<DeliverySlotEntity>
     {
         public void Configure(EntityTypeBuilder<DeliverySlotEntity> builder)
         {

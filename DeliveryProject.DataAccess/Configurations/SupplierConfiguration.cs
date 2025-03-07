@@ -8,6 +8,7 @@ namespace DeliveryProject.DataAccess.Configurations
     {
         public void Configure(EntityTypeBuilder<SupplierEntity> builder)
         {
+            builder.ToTable("Suppliers");
             builder.Property(s => s.Rating).HasDefaultValue(0);
 
             builder

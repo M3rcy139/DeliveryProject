@@ -8,18 +8,20 @@ namespace DeliveryProject.DataAccess.Configurations
     {
         public void Configure(EntityTypeBuilder<TempDeliveryPerson> builder)
         {
-            builder.Property(tdp => tdp.Id).IsRequired();
             builder.Property(tdp => tdp.Name).IsRequired().HasMaxLength(100);
-            builder.Property(tdp => tdp.PhoneNumber).IsRequired().HasMaxLength(20);
             builder.Property(tdp => tdp.Rating).HasDefaultValue(0);
 
             builder
-                .Property(tdp => tdp.DeliverySlots)
-                .HasConversion(
-                    v => string.Join(',', v.Select(d => d.ToString("o"))),
-                    v => v.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(DateTime.Parse).ToList()
-                )
-                .HasColumnType("text");
+                .HasMany(tdp => tdp.Contacts)
+                .WithOne(tpc => tpc.DeliveryPerson)
+                .HasForeignKey(tpc => tpc.DeliveryPersonId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder
+                .HasMany(tdp => tdp.DeliverySlots)
+                .WithOne(tds => tds.DeliveryPerson)
+                .HasForeignKey(tds => tds.DeliveryPersonId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }
