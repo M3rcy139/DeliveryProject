@@ -1,5 +1,4 @@
-﻿using DeliveryProject.Bussiness.Helpers;
-using DeliveryProject.DataAccess.Entities;
+﻿using DeliveryProject.DataAccess.Entities;
 using DeliveryProject.DataAccess.Interfaces;
 using DeliveryProject.Core.Constants.ErrorMessages;
 using DeliveryProject.Core.Constants;
@@ -11,38 +10,53 @@ namespace DeliveryProject.Bussiness.Mediators
     public class RepositoryMediator
     {
         private readonly IOrderRepository _orderRepository;
-        private readonly ISupplierRepository _supplierRepository;
+        private readonly IPersonRepository _personRepository;
         private readonly IDeliveryPersonRepository _deliveryPersonRepository;
         private readonly ICustomerRepository _customerRepository;
-        private IProductRepository _productRepository;
+        private readonly ISupplierRepository _supplierRepository;
+        private readonly IProductRepository _productRepository;
 
         public RepositoryMediator(
             IOrderRepository orderRepository,
-            ISupplierRepository supplierRepository,
+            IPersonRepository personRepository,
             IDeliveryPersonRepository deliveryPersonRepository,
             ICustomerRepository customerRepository,
+            ISupplierRepository supplierRepository,
             IProductRepository productRepository)
         {
             _orderRepository = orderRepository;
-            _supplierRepository = supplierRepository;
+            _personRepository = personRepository;
             _deliveryPersonRepository = deliveryPersonRepository;
             _customerRepository = customerRepository;
+            _supplierRepository = supplierRepository;
             _productRepository = productRepository;
         }
 
-        public async Task<OrderEntity> AddOrderAsync(OrderEntity orderEntity)
+        public async Task<OrderEntity> AddOrderAsync(OrderEntity orderEntity, decimal amount)
         {
             var suppliers = await GetAndValidateSuppliers(orderEntity);
+            var availableDeliveryPerson = await GetAndValidateDeliveryPerson(orderEntity);
 
-            orderEntity.Persons.AddRange(suppliers);
+            orderEntity.OrderPersons.AddRange(suppliers.Select(s => new OrderPersonEntity { PersonId = s.Id }));
+            orderEntity.OrderPersons.Add(new OrderPersonEntity { PersonId = availableDeliveryPerson.Id });
 
-            var availableDeliveryPerson = await GetAndValidateDeliveryPerson(orderEntity); 
+            var deliveryTime = await CalculateDeliveryTime();
 
-            orderEntity.Persons.Add(availableDeliveryPerson);
+            var invoice = new InvoiceEntity
+            {
+                Id = Guid.NewGuid(),
+                OrderId = orderEntity.Id,
+                DeliveryPersonId = availableDeliveryPerson.Id,
+                Amount = amount,
+                DeliveryTime = deliveryTime,
+                IsExecuted = false
+            };
+
+            orderEntity.Invoice = invoice;
 
             await _orderRepository.AddOrder(orderEntity);
 
-            AddDeliverySlot(availableDeliveryPerson.Id, orderEntity.DeliveryTime);
+            AddDeliverySlot(availableDeliveryPerson.Id, deliveryTime);
 
             return orderEntity;
         }
@@ -58,17 +72,19 @@ namespace DeliveryProject.Bussiness.Mediators
         {
             var order = await GetAndValidateOrderById(orderEntity.Id);
 
-            orderEntity.Persons.Add(order.Persons
-                .First(p => p.Role.Role == RoleType.DeliveryPerson));
+            order.Status = orderEntity.Status;
 
-            orderEntity.Persons.Add(order.Persons
-                .First(p => p.Role.Role == RoleType.Customer));
+            //orderEntity.Persons.Add(order.Persons
+            //    .First(p => p.Role.Role == RoleType.DeliveryPerson));
+
+            //orderEntity.Persons.Add(order.Persons
+            //    .First(p => p.Role.Role == RoleType.Customer));
 
             var suppliers = await GetAndValidateSuppliers(orderEntity);
 
-            orderEntity.Persons.AddRange(suppliers);
+            order.OrderPersons.AddRange(suppliers.Select(s => new OrderPersonEntity { PersonId = s.Id }));
 
-            await _orderRepository.UpdateOrder(orderEntity); 
+            await _orderRepository.UpdateOrder(order); 
         }
 
         public async Task DeleteOrderAsync(Guid orderId)
@@ -86,9 +102,9 @@ namespace DeliveryProject.Bussiness.Mediators
             return orders.IsNullOrEmpty() ? new List<OrderEntity>() : orders;
         }
 
-        public async Task<CustomerEntity?> GetAndValidateCustomerAsync(Guid customerId)
+        public async Task<PersonEntity?> GetAndValidateCustomerAsync(Guid personId)
         {
-            var customer = await _customerRepository.GetCustomerByIdAsync(customerId);
+            var customer = await _customerRepository.GetCustomerByIdAndRoleAsync(personId);
             customer.ValidateEntity(ErrorMessages.CustomerNotFound, ErrorCodes.CustomerNotFound);
 
             return customer;
@@ -106,11 +122,10 @@ namespace DeliveryProject.Bussiness.Mediators
             return products;
         }
 
-        private async Task<List<SupplierEntity?>> GetAndValidateSuppliers(OrderEntity orderEntity)
+        private async Task<List<PersonEntity>> GetAndValidateSuppliers(OrderEntity orderEntity)
         {
-            var suppliers = await _supplierRepository.GetSuppliersByProductIdsAsync(
-                orderEntity.OrderProducts.Select(op => op.ProductId).ToList()
-            );
+            var suppliers = await _supplierRepository.GetPersonsByProductIdsAndRoleAsync(
+                orderEntity.OrderProducts.Select(op => op.ProductId).ToList());
 
             suppliers.ForEach(supplier =>
             {
@@ -120,7 +135,7 @@ namespace DeliveryProject.Bussiness.Mediators
             return suppliers;
         }
 
-        private async Task<OrderEntity?> GetAndValidateOrderById(Guid orderId)
+        private async Task<OrderEntity> GetAndValidateOrderById(Guid orderId)
         {
             var order = await _orderRepository.GetOrderById(orderId);
             order.ValidateEntity(ErrorMessages.OrderNotFound, ErrorCodes.NoOrdersFound);
@@ -128,15 +143,22 @@ namespace DeliveryProject.Bussiness.Mediators
             return order;
         }
 
-        private async Task<DeliveryPersonEntity?> GetAndValidateDeliveryPerson(OrderEntity orderEntity)
+        private async Task<PersonEntity> GetAndValidateDeliveryPerson(OrderEntity orderEntity)
         {
             var availableDeliveryPerson = await _deliveryPersonRepository
-                .GetAvailableDeliveryPersonAsync(orderEntity.DeliveryTime);
+                .GetAvailableDeliveryPersonAsync(orderEntity.Invoice.DeliveryTime);
 
             availableDeliveryPerson.ValidateEntity(ErrorMessages.NoAvailableDeliveryPersons,
                     ErrorCodes.NoAvailableDeliveryPersons);
 
             return availableDeliveryPerson;
+        }
+
+        private async Task<DateTime> CalculateDeliveryTime()
+        {
+            var random = new Random();
+
+            return new DateTime(2027, 5, 5, random.Next(0, 24), random.Next(0, 60), 0);
         }
 
         private async void AddDeliverySlot(Guid deliveryPersonId, DateTime deliveryTime)

@@ -5,7 +5,5 @@ namespace DeliveryProject.DataAccess.Entities
     {
         public int Id { get; set; }
         public string Name { get; set; }
-
-        public ICollection<PersonContactEntity> PersonContacts { get; set; } = new List<PersonContactEntity>();
     }
 }

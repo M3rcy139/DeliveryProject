@@ -24,11 +24,10 @@ namespace DeliveryProject.Controllers
             var order = new Order()
             {
                 Id = Guid.NewGuid(),
-                Persons = new List<Person> 
+                OrderPersons = new List<OrderPerson> 
                 {
-                    new Customer { Id = model.CustomerId }
+                    new OrderPerson { PersonId = model.CustomerId }
                 },
-                DeliveryTime = model.DeliveryTime
             };
 
             var result = await _orderService.AddOrder(order, model.Products);
@@ -54,7 +53,6 @@ namespace DeliveryProject.Controllers
             var order = new Order()
             {
                 Id = model.OrderId.Value,
-                DeliveryTime = model.DeliveryTime,
             };
 
             await _orderService.UpdateOrder(order, model.Products);

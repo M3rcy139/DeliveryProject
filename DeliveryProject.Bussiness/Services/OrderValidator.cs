@@ -14,8 +14,8 @@ namespace DeliveryProject.API.Services
             //RuleFor(x => x.Weight)
             //    .GreaterThan(0).WithMessage(ValidationErrorMessages.InvalidWeight);
 
-            RuleFor(x => x.DeliveryTime)
-                .GreaterThanOrEqualTo(DateTime.Now).WithMessage(ValidationErrorMessages.PastDeliveryTime);
+            RuleFor(x => x.CreatedTime)
+                .LessThanOrEqualTo(DateTime.Now).WithMessage(ValidationErrorMessages.PastDeliveryTime);
         }
 
     }
