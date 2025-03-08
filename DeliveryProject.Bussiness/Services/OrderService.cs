@@ -25,7 +25,7 @@ namespace DeliveryProject.Bussiness.Services
 
         public async Task<Order> AddOrder(Order order, List<ProductItemViewModel> products)
         {
-            var customer = await _repositoryMediator.GetAndValidateCustomerAsync(order.Persons.First().Id);
+            var customer = await _repositoryMediator.GetAndValidateCustomerAsync(order.OrderPersons.First().PersonId);
             
             var orderProducts = await GetOrderProducts(order, products);
 
@@ -34,13 +34,16 @@ namespace DeliveryProject.Bussiness.Services
             var orderEntity = new OrderEntity()
             {
                 Id = order.Id,
-                Persons = new List<PersonEntity> { customer },
-                OrderProducts = orderProducts,
-                Amount = amount,
-                DeliveryTime = order.DeliveryTime,
+                CreatedTime = DateTime.UtcNow,
+                Status = OrderStatus.Active,
+                OrderPersons = new List<OrderPersonEntity>
+                {
+                    new OrderPersonEntity { PersonId = customer.Id }
+                },
+                OrderProducts = orderProducts
             };
 
-            var createdOrderEntity = await _repositoryMediator.AddOrderAsync(orderEntity);
+            var createdOrderEntity = await _repositoryMediator.AddOrderAsync(orderEntity, amount);
 
             _logger.LogInformation(InfoMessages.AddedOrder, order.Id);
 
@@ -62,9 +65,8 @@ namespace DeliveryProject.Bussiness.Services
             var orderEntity = new OrderEntity()
             {
                 Id = order.Id,
+                Status = OrderStatus.Active,
                 OrderProducts = orderProducts,
-                Amount = amount,
-                DeliveryTime = order.DeliveryTime,
             };
 
             await _repositoryMediator.UpdateOrderAsync(orderEntity);

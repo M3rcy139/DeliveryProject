@@ -15,7 +15,7 @@ namespace DeliveryProject.DataAccess.Repositories
         public async Task AddOrder(OrderEntity orderEntity)
         {
             await using var dbContext = await _contextFactory.CreateDbContextAsync();
-            dbContext.AttachRange(orderEntity.Persons);
+            dbContext.AttachRange(orderEntity.OrderPersons.Select(op => op.Person));
             dbContext.AttachRange(orderEntity.OrderProducts.Select(op => op.Product));
 
             await dbContext.Orders.AddAsync(orderEntity);
@@ -34,12 +34,12 @@ namespace DeliveryProject.DataAccess.Repositories
             await using var dbContext = await _contextFactory.CreateDbContextAsync();
             var order = await dbContext.Orders
                 .AsNoTracking()
-                .Include(o => o.Persons)
-                    .ThenInclude(p => p.Contacts)
-                .Include(o => o.Persons)
-                    .ThenInclude(p => p.Role)
+                .Include(o => o.OrderPersons)
+                    .ThenInclude(op => op.Person)
+                        .ThenInclude(p => p.Role)
                 .Include(o => o.OrderProducts)
                     .ThenInclude(op => op.Product)
+                .Include(o => o.Invoice)
                 .FirstOrDefaultAsync(o => o.Id == id);
 
             if (order != null)
@@ -53,7 +53,7 @@ namespace DeliveryProject.DataAccess.Repositories
         {
             await using var dbContext = await _contextFactory.CreateDbContextAsync();
             var existingEntity = await dbContext.Orders
-                .Include(o => o.Persons)
+                .Include(o => o.OrderPersons)
                 .Include(o => o.OrderProducts)
                 .FirstOrDefaultAsync(o => o.Id == orderEntity.Id);
 
@@ -62,24 +62,33 @@ namespace DeliveryProject.DataAccess.Repositories
                 dbContext.Entry(existingEntity).CurrentValues.SetValues(orderEntity);
             }
 
-            existingEntity.Persons.Clear();
-            foreach (var person in orderEntity.Persons)
+            var existingOrderPersons = existingEntity.OrderPersons.ToList();
+            existingEntity.OrderPersons.Clear();
+
+            foreach (var newOrderPerson in orderEntity.OrderPersons)
             {
-                var trackedPerson = await dbContext.Persons.FindAsync(person.Id);
-                existingEntity.Persons.Add(trackedPerson ?? person);
+                if (!existingOrderPersons.Any(eop => eop.PersonId == newOrderPerson.PersonId))
+                {
+                    existingEntity.OrderPersons.Add(new OrderPersonEntity
+                    {
+                        OrderId = orderEntity.Id,
+                        PersonId = newOrderPerson.PersonId
+                    });
+                }
             }
 
+            var existingOrderProducts = existingEntity.OrderProducts.ToList();
             existingEntity.OrderProducts.Clear();
-            foreach (var orderProduct in orderEntity.OrderProducts)
+
+            foreach (var newOrderProduct in orderEntity.OrderProducts)
             {
-                var trackedProduct = await dbContext.Products.FindAsync(orderProduct.ProductId);
-                if (trackedProduct != null)
+                if (!existingOrderProducts.Any(eop => eop.ProductId == newOrderProduct.ProductId))
                 {
                     existingEntity.OrderProducts.Add(new OrderProductEntity
                     {
                         OrderId = orderEntity.Id,
-                        ProductId = trackedProduct.Id,
-                        Quantity = orderProduct.Quantity
+                        ProductId = newOrderProduct.ProductId,
+                        Quantity = newOrderProduct.Quantity
                     });
                 }
             }
@@ -107,10 +116,8 @@ namespace DeliveryProject.DataAccess.Repositories
             await using var dbContext = await _contextFactory.CreateDbContextAsync();
             var orders = await dbContext.Orders
                 .AsNoTracking()
-                .Include(o => o.Persons)
-                    .ThenInclude(p => p.Contacts)
-                .Include(o => o.Persons) 
-                    .ThenInclude(p => p.Role)
+                .Include(o => o.OrderPersons)
+                    .ThenInclude(op => op.Person)
                 .Include(o => o.OrderProducts)
                     .ThenInclude(op => op.Product)
                 .ToListAsync();

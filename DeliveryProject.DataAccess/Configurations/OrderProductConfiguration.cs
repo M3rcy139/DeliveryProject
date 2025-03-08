@@ -18,7 +18,8 @@ namespace DeliveryProject.DataAccess.Configurations
                 .WithMany(o => o.OrderProducts)
                 .HasForeignKey(op => op.OrderId);
 
-            builder .HasOne(op => op.Product)
+            builder
+                .HasOne(op => op.Product)
                 .WithMany()
                 .HasForeignKey(op => op.ProductId);
         }

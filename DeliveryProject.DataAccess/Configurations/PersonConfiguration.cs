@@ -9,17 +9,15 @@ namespace DeliveryProject.DataAccess.Configurations
         public void Configure(EntityTypeBuilder<PersonEntity> builder)
         {
             builder.HasKey(p => p.Id);
-            builder.Property(p => p.Name).IsRequired().HasMaxLength(100);
+            builder.Property(p => p.Status).IsRequired();
 
             builder
-                .HasMany(pc => pc.Contacts)
-                .WithOne(c => c.Person)
-                .HasForeignKey(p => p.PersonId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .HasOne(p => p.Role)
+                .WithMany();
 
             builder
-                .HasMany(pc => pc.Orders)
-                .WithMany(o => o.Persons);
+                .HasOne(p => p.Region)
+                .WithMany();
         }
     }
 }

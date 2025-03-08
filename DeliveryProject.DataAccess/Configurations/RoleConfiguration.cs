@@ -8,10 +8,10 @@ namespace DeliveryProject.DataAccess.Configurations
     {
         public void Configure(EntityTypeBuilder<RoleEntity> builder)
         {
-            builder.Property(r => r.Role).IsRequired();
+            builder.Property(r => r.RoleType).IsRequired();
 
             builder
-                .HasMany(r => r.Persons)
+                .HasMany(r => r.RoleAttributes)
                 .WithOne(p => p.Role)
                 .HasForeignKey(p => p.RoleId);
         }
