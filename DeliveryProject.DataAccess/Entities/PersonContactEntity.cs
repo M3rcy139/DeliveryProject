@@ -1,7 +1,8 @@
 ﻿namespace DeliveryProject.DataAccess.Entities
 {
-    public class PersonContactEntity : BaseUnitEntity
+    public class PersonContactEntity
     {
+        public Guid Id { get; set; }
         public string PhoneNumber { get; set; }
         public string Email { get; set; }
 

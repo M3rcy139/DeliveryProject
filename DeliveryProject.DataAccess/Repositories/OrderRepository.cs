@@ -102,54 +102,6 @@ namespace DeliveryProject.DataAccess.Repositories
             }
         }
 
-        public async Task<RegionEntity> GetRegionByName(string regionName)
-        {
-            await using var dbContext = await _contextFactory.CreateDbContextAsync();
-            var region = await dbContext.Regions
-                .AsNoTracking() 
-                .Where(r => r.Name.ToLower() == regionName.ToLower())
-                .FirstOrDefaultAsync();
-
-            return region;
-        }
-        public async Task<bool> HasOrders(int regionId)
-        {
-            await using var dbContext = await _contextFactory.CreateDbContextAsync();
-            return await dbContext.Orders.AnyAsync(o => o.Persons.Any(p => p.Role.Role == RoleType.Customer &&
-                p.Contacts.Any(c => c.RegionId == regionId)));
-        }
-
-        public async Task<DateTime> GetFirstOrderTime(int regionId)
-        {
-            await using var dbContext = await _contextFactory.CreateDbContextAsync();
-            return await dbContext.Orders
-                .Where(o => o.Persons.Any(p => p.Contacts.Any(c => c.RegionId == regionId)))
-                .Select(o => o.DeliveryTime)
-                .OrderBy(dt => dt)
-                .FirstOrDefaultAsync();
-        }
-
-        public async Task<List<OrderEntity>> GetOrdersWithinTimeRange(int regionId, DateTime fromTime, DateTime toTime)
-        {
-            await using var dbContext = await _contextFactory.CreateDbContextAsync();
-            var filteredOrders = await dbContext.Orders
-                .Where(o => o.Persons.Any(p => p.Contacts.Any(c => c.RegionId == regionId)) &&
-                            o.DeliveryTime >= fromTime && o.DeliveryTime <= toTime)
-                .ToListAsync();
-
-            var filteredOrderEntities = filteredOrders.Select(o => new FilteredOrderEntity
-            {
-                Id = Guid.NewGuid(),
-                OrderId = o.Id,
-                Order = o
-            }).ToList();
-
-            await dbContext.FilteredOrders.AddRangeAsync(filteredOrderEntities);
-            await dbContext.SaveChangesAsync();
-
-            return filteredOrders;
-        }
-
         public async Task<List<OrderEntity>> GetAllOrdersImmediate()
         {
             await using var dbContext = await _contextFactory.CreateDbContextAsync();

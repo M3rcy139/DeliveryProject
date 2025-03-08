@@ -1,7 +1,8 @@
 ﻿namespace DeliveryProject.Core.Models
 {
-    public class PersonContact : BaseUnit
+    public class PersonContact
     {
+        public Guid Id { get; set; }
         public string PhoneNumber { get; set; }
         public string Email { get; set; }
 
