@@ -9,7 +9,6 @@ namespace DeliveryProject.DataAccess
         {
         }
         public DbSet<RegionEntity> Regions { get; set; }
-        public DbSet<FilteredOrderEntity> FilteredOrders { get; set; }
         public DbSet<OrderEntity> Orders { get; set; }
         public DbSet<PersonEntity> Persons { get; set; }
         public DbSet<SupplierEntity> Suppliers { get; set; }
@@ -28,8 +27,6 @@ namespace DeliveryProject.DataAccess
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Ignore<BaseUnitEntity>();
-
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(DeliveryDbContext).Assembly);
         }
     }

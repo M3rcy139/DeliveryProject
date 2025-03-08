@@ -70,14 +70,6 @@ namespace DeliveryProject.Controllers
             return Ok(new { message = string.Format(InfoMessages.DeletedOrder, orderId) });
         }
 
-        [HttpGet("Orders/Filter")]
-        public async Task<IActionResult> FilterOrders(string? regionName)
-        {
-            var filteredOrders = await _orderService.FilterOrders(regionName);
-
-            return Ok(filteredOrders);
-        }
-
         [HttpGet("Orders/GetAll")]
         public async Task<IActionResult> GetAllOrders([FromQuery] OrderSortField? sortBy = null,
             [FromQuery] bool descending = false)

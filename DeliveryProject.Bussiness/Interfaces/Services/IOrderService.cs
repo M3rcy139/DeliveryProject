@@ -10,7 +10,6 @@ namespace DeliveryProject.Bussiness.Interfaces.Services
         Task<Order> GetOrderById(Guid id);
         Task UpdateOrder(Order order, List<ProductItemViewModel> products);
         Task DeleteOrder(Guid id);
-        Task<List<Order>> FilterOrders(string? regionName);
         Task<List<Order>> GetAllOrders(OrderSortField? sortBy, bool descending);
     }
 }

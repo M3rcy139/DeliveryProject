@@ -77,20 +77,6 @@ namespace DeliveryProject.Bussiness.Services
             await _repositoryMediator.DeleteOrderAsync(orderId);
             _logger.LogInformation(InfoMessages.DeletedOrder, orderId);
         }
-        public async Task<List<Order>> FilterOrders(string? regionName)
-        {
-            var region = await _repositoryMediator.GetRegionByNameAsync(regionName);
-
-            var firstOrderTime = await _repositoryMediator.GetFirstOrderTimeAsync(region.Id);
-            var timeRangeEnd = firstOrderTime.AddMinutes(30);
-
-            var filteredOrders = await _repositoryMediator.GetOrdersWithinTimeRangeAsync(region.Id, firstOrderTime, timeRangeEnd);
-
-            _logger.LogInformation(
-                InfoMessages.FoundInRegion, filteredOrders.Count, region.Id, firstOrderTime, timeRangeEnd);
-
-            return _mapper.Map<List<Order>>(filteredOrders);
-        }
 
         public Task<List<Order>> GetAllOrders(OrderSortField? sortBy, bool descending)
         {

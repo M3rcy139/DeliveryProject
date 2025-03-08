@@ -9,11 +9,9 @@ namespace DeliveryProject.Bussiness.Mappings
         public DataBaseMappings() 
         { 
             CreateMap<RegionEntity, Region>();
-            CreateMap<FilteredOrderEntity, FilteredOrder>();
             CreateMap<OrderEntity, Order>();
             CreateMap<DeliveryPersonEntity, DeliveryPerson>();
             CreateMap<SupplierEntity, Supplier>();
-            CreateMap<BaseUnitEntity, BaseUnit>();
             CreateMap<PersonContactEntity, PersonContact>();
             CreateMap<RoleEntity, Role>();
 

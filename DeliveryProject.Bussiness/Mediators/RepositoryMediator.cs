@@ -78,32 +78,6 @@ namespace DeliveryProject.Bussiness.Mediators
             await _orderRepository.DeleteOrder(orderId); 
         }
 
-        public async Task<RegionEntity> GetRegionByNameAsync(string regionName)
-        {
-            regionName.ValidateNotEmpty(ErrorMessages.RegionMustNotBeEmpty, ErrorCodes.MustNotBeEmpty);
-
-            var region = await _orderRepository.GetRegionByName(regionName);
-            region.ValidateEntity(ErrorMessages.RegionNotFound, ErrorCodes.RegionNotFound);
-
-            return region;
-        }
-
-        public async Task<DateTime> GetFirstOrderTimeAsync(int regionId)
-        {
-            var hasOrders = await _orderRepository.HasOrders(regionId);
-            ValidationHelper.ValidateOrdersInRegion(hasOrders, regionId);
-
-            return await _orderRepository.GetFirstOrderTime(regionId);
-
-        }
-
-        public async Task<List<OrderEntity>> GetOrdersWithinTimeRangeAsync(int regionId, DateTime fromTime, DateTime toTime)
-        {
-            var filteredOrders = await _orderRepository.GetOrdersWithinTimeRange(regionId, fromTime, toTime);
-
-            return filteredOrders.IsNullOrEmpty() ? new List<OrderEntity>() : filteredOrders;
-        }
-
         public async Task<List<OrderEntity>> GetAllOrdersImmediate()
         {
             var concurrentOrders = await _orderRepository.GetAllOrdersImmediate();
