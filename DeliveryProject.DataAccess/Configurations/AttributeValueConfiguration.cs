@@ -8,13 +8,13 @@ namespace DeliveryProject.DataAccess.Configurations
     {
         public void Configure(EntityTypeBuilder<AttributeValueEntity> builder)
         {
-            builder.HasKey(pav => pav.PersonId);
+            builder.HasKey(pav => pav.Id);
 
             builder.Property(pav => pav.Value).IsRequired();
 
             builder
                 .HasOne(pav => pav.Person)
-                .WithMany(p => p.PersonAttributeValues)
+                .WithMany(p => p.AttributeValues)
                 .HasForeignKey(pav => pav.PersonId);
 
             builder

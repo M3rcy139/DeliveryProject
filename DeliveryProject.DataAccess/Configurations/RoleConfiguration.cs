@@ -1,6 +1,8 @@
-﻿using DeliveryProject.DataAccess.Entities;
+﻿using DeliveryProject.Core.Enums;
+using DeliveryProject.DataAccess.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace DeliveryProject.DataAccess.Configurations
 {
@@ -14,6 +16,10 @@ namespace DeliveryProject.DataAccess.Configurations
                 .HasMany(r => r.RoleAttributes)
                 .WithOne(p => p.Role)
                 .HasForeignKey(p => p.RoleId);
+
+            builder
+                .Property(r => r.RoleType)
+                .HasConversion(new EnumToStringConverter<RoleType>());
         }
     }
 }
