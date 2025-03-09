@@ -12,8 +12,8 @@ namespace DeliveryProject.Tests.Helpers
             {
                 var roles = new List<RoleEntity>
                 {
-                    new RoleEntity { Id = 1, RoleType = RoleType.Supplier },
-                    new RoleEntity { Id = 2, RoleType = RoleType.Customer },
+                    new RoleEntity { Id = 1, RoleType = RoleType.Customer },
+                    new RoleEntity { Id = 2, RoleType = RoleType.Supplier },
                     new RoleEntity { Id = 3, RoleType = RoleType.DeliveryPerson }
                 };
 

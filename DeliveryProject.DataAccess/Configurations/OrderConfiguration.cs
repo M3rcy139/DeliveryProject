@@ -1,6 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using DeliveryProject.DataAccess.Entities;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using DeliveryProject.Core.Enums;
 
 namespace DeliveryProject.DataAccess.Configurations
 {
@@ -30,6 +32,10 @@ namespace DeliveryProject.DataAccess.Configurations
                 .HasOne(o => o.Invoice)
                 .WithOne(i => i.Order)
                 .HasForeignKey<InvoiceEntity>(i => i.OrderId);
+
+            builder
+                .Property(o => o.Status)
+                .HasConversion(new EnumToStringConverter<OrderStatus>());
         }
     }
 }

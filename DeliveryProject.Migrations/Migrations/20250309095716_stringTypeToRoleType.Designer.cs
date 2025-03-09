@@ -3,6 +3,7 @@ using System;
 using DeliveryProject.DataAccess;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DeliveryProject.Migrations.Migrations
 {
     [DbContext(typeof(DeliveryDbContext))]
-    partial class DeliveryDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250309095716_stringTypeToRoleType")]
+    partial class stringTypeToRoleType
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -45,25 +48,22 @@ namespace DeliveryProject.Migrations.Migrations
 
             modelBuilder.Entity("DeliveryProject.DataAccess.Entities.AttributeValueEntity", b =>
                 {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
+                    b.Property<Guid>("PersonId")
                         .HasColumnType("uuid");
 
                     b.Property<int>("AttributeId")
                         .HasColumnType("integer");
 
-                    b.Property<Guid>("PersonId")
+                    b.Property<Guid>("Id")
                         .HasColumnType("uuid");
 
                     b.Property<string>("Value")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.HasKey("Id");
+                    b.HasKey("PersonId");
 
                     b.HasIndex("AttributeId");
-
-                    b.HasIndex("PersonId");
 
                     b.ToTable("AttributeValues");
                 });
@@ -155,9 +155,8 @@ namespace DeliveryProject.Migrations.Migrations
                     b.Property<DateTime>("CreatedTime")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 
@@ -214,9 +213,8 @@ namespace DeliveryProject.Migrations.Migrations
                     b.Property<int>("RoleId")
                         .HasColumnType("integer");
 
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 
@@ -407,7 +405,7 @@ namespace DeliveryProject.Migrations.Migrations
                         .IsRequired();
 
                     b.HasOne("DeliveryProject.DataAccess.Entities.PersonEntity", "Person")
-                        .WithMany("AttributeValues")
+                        .WithMany("PersonAttributeValues")
                         .HasForeignKey("PersonId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -590,9 +588,9 @@ namespace DeliveryProject.Migrations.Migrations
 
             modelBuilder.Entity("DeliveryProject.DataAccess.Entities.PersonEntity", b =>
                 {
-                    b.Navigation("AttributeValues");
-
                     b.Navigation("OrderPersons");
+
+                    b.Navigation("PersonAttributeValues");
                 });
 
             modelBuilder.Entity("DeliveryProject.DataAccess.Entities.ProductEntity", b =>
