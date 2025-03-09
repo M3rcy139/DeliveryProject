@@ -20,7 +20,7 @@ namespace DeliveryProject.DataAccess.Repositories
                       person => person.Id,
                       slot => slot.DeliveryPersonId,
                       (person, slot) => new { person, slot })
-                .Where(ps => ps.slot.SlotTime == deliveryTime)
+                .Where(ps => ps.slot.SlotTime != deliveryTime)
                 .Select(ps => ps.person)
                 .FirstOrDefaultAsync();
         }
