@@ -38,7 +38,7 @@ namespace DeliveryProject.Bussiness.Services
                 Status = OrderStatus.Active,
                 OrderPersons = new List<OrderPersonEntity>
                 {
-                    new OrderPersonEntity { PersonId = customer.Id }
+                    new OrderPersonEntity { Person = customer }
                 },
                 OrderProducts = orderProducts
             };
@@ -69,7 +69,7 @@ namespace DeliveryProject.Bussiness.Services
                 OrderProducts = orderProducts,
             };
 
-            await _repositoryMediator.UpdateOrderAsync(orderEntity);
+            await _repositoryMediator.UpdateOrderAsync(orderEntity, amount);
 
             _logger.LogInformation(InfoMessages.UpdatedOrder, order.Id);
         }

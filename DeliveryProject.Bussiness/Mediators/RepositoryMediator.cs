@@ -10,7 +10,6 @@ namespace DeliveryProject.Bussiness.Mediators
     public class RepositoryMediator
     {
         private readonly IOrderRepository _orderRepository;
-        private readonly IPersonRepository _personRepository;
         private readonly IDeliveryPersonRepository _deliveryPersonRepository;
         private readonly ICustomerRepository _customerRepository;
         private readonly ISupplierRepository _supplierRepository;
@@ -18,14 +17,12 @@ namespace DeliveryProject.Bussiness.Mediators
 
         public RepositoryMediator(
             IOrderRepository orderRepository,
-            IPersonRepository personRepository,
             IDeliveryPersonRepository deliveryPersonRepository,
             ICustomerRepository customerRepository,
             ISupplierRepository supplierRepository,
             IProductRepository productRepository)
         {
             _orderRepository = orderRepository;
-            _personRepository = personRepository;
             _deliveryPersonRepository = deliveryPersonRepository;
             _customerRepository = customerRepository;
             _supplierRepository = supplierRepository;
@@ -34,25 +31,25 @@ namespace DeliveryProject.Bussiness.Mediators
 
         public async Task<OrderEntity> AddOrderAsync(OrderEntity orderEntity, decimal amount)
         {
-            var suppliers = await GetAndValidateSuppliers(orderEntity);
-            var availableDeliveryPerson = await GetAndValidateDeliveryPerson(orderEntity);
-
-            orderEntity.OrderPersons.AddRange(suppliers.Select(s => new OrderPersonEntity { PersonId = s.Id }));
-            orderEntity.OrderPersons.Add(new OrderPersonEntity { PersonId = availableDeliveryPerson.Id });
-
             var deliveryTime = await CalculateDeliveryTime();
 
             var invoice = new InvoiceEntity
             {
                 Id = Guid.NewGuid(),
                 OrderId = orderEntity.Id,
-                DeliveryPersonId = availableDeliveryPerson.Id,
                 Amount = amount,
-                DeliveryTime = deliveryTime,
+                DeliveryTime = deliveryTime.ToUniversalTime(),
                 IsExecuted = false
             };
-
             orderEntity.Invoice = invoice;
+
+            var suppliers = await GetAndValidateSuppliers(orderEntity);
+            var availableDeliveryPerson = await GetAndValidateDeliveryPerson(orderEntity);
+
+            orderEntity.OrderPersons.AddRange(suppliers.Select(s => new OrderPersonEntity { Person = s }));
+            orderEntity.OrderPersons.Add(new OrderPersonEntity { Person = availableDeliveryPerson });
+
+            invoice.DeliveryPersonId = availableDeliveryPerson.Id;
 
             await _orderRepository.AddOrder(orderEntity);
 
@@ -68,23 +65,28 @@ namespace DeliveryProject.Bussiness.Mediators
             return order;
         }
 
-        public async Task UpdateOrderAsync(OrderEntity orderEntity)
+        public async Task UpdateOrderAsync(OrderEntity orderEntity, decimal amount)
         {
             var order = await GetAndValidateOrderById(orderEntity.Id);
 
             order.Status = orderEntity.Status;
+            order.Invoice.Amount = amount;
 
-            //orderEntity.Persons.Add(order.Persons
-            //    .First(p => p.Role.Role == RoleType.DeliveryPerson));
+            var customer = order.OrderPersons.First(p => p.Person.Role.RoleType == RoleType.Customer);
+            var deliveryPerson = order.OrderPersons.First(p => p.Person.Role.RoleType == RoleType.DeliveryPerson);
 
-            //orderEntity.Persons.Add(order.Persons
-            //    .First(p => p.Role.Role == RoleType.Customer));
+            var newSuppliers = await GetAndValidateSuppliers(orderEntity);
 
-            var suppliers = await GetAndValidateSuppliers(orderEntity);
+            order.OrderPersons.Clear();
+            order.OrderPersons.Add(customer);
+            order.OrderPersons.Add(deliveryPerson);
+            order.OrderPersons.AddRange(newSuppliers.Select(s => new OrderPersonEntity { PersonId = s.Id, OrderId = order.Id }));
 
-            order.OrderPersons.AddRange(suppliers.Select(s => new OrderPersonEntity { PersonId = s.Id }));
+            order.OrderProducts.Clear();
+            order.OrderProducts.AddRange(orderEntity.OrderProducts
+                .Select(op => new OrderProductEntity { ProductId = op.ProductId, OrderId = op.OrderId, Quantity = op.Quantity }));
 
-            await _orderRepository.UpdateOrder(order); 
+            await _orderRepository.UpdateOrder(order);
         }
 
         public async Task DeleteOrderAsync(Guid orderId)

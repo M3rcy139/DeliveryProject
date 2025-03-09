@@ -1,4 +1,5 @@
 ﻿using DeliveryProject.Core.Enums;
+using DeliveryProject.Core.Extensions;
 using DeliveryProject.DataAccess.Entities;
 using DeliveryProject.DataAccess.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -52,50 +53,76 @@ namespace DeliveryProject.DataAccess.Repositories
         public async Task UpdateOrder(OrderEntity orderEntity)
         {
             await using var dbContext = await _contextFactory.CreateDbContextAsync();
+
             var existingEntity = await dbContext.Orders
                 .Include(o => o.OrderPersons)
+                .ThenInclude(op => op.Person)
                 .Include(o => o.OrderProducts)
+                .Include(o => o.Invoice)
                 .FirstOrDefaultAsync(o => o.Id == orderEntity.Id);
 
             if (existingEntity != null)
-            {
                 dbContext.Entry(existingEntity).CurrentValues.SetValues(orderEntity);
+
+            if (existingEntity.Invoice != null && orderEntity.Invoice != null)
+            {
+                existingEntity.Invoice.Amount = orderEntity.Invoice.Amount;
             }
 
-            var existingOrderPersons = existingEntity.OrderPersons.ToList();
+            await UpdateOrderPersons(dbContext, existingEntity, orderEntity);
+            UpdateOrderProducts(dbContext, existingEntity, orderEntity);
+
+            await dbContext.SaveChangesAsync();
+            _orderCache[orderEntity.Id] = orderEntity;
+        }
+
+        private async Task UpdateOrderPersons(DeliveryDbContext dbContext, OrderEntity existingEntity, OrderEntity orderEntity)
+        {
             existingEntity.OrderPersons.Clear();
 
             foreach (var newOrderPerson in orderEntity.OrderPersons)
             {
-                if (!existingOrderPersons.Any(eop => eop.PersonId == newOrderPerson.PersonId))
+                var attachedPerson = await dbContext.Persons.FindAsync(newOrderPerson.PersonId);
+                if (attachedPerson == null)
                 {
-                    existingEntity.OrderPersons.Add(new OrderPersonEntity
-                    {
-                        OrderId = orderEntity.Id,
-                        PersonId = newOrderPerson.PersonId
-                    });
+                    attachedPerson = new PersonEntity { Id = newOrderPerson.PersonId };
+                    dbContext.Attach(attachedPerson);
                 }
+
+                existingEntity.OrderPersons.Add(new OrderPersonEntity
+                {
+                    OrderId = orderEntity.Id,
+                    PersonId = attachedPerson.Id,
+                    Person = attachedPerson
+                });
             }
+        }
 
-            var existingOrderProducts = existingEntity.OrderProducts.ToList();
-            existingEntity.OrderProducts.Clear();
+        private void UpdateOrderProducts(DeliveryDbContext dbContext, OrderEntity existingEntity, OrderEntity orderEntity)
+        {
+            var newProducts = orderEntity.OrderProducts.ToList();
+            var existingProducts = existingEntity.OrderProducts.ToList();
 
-            foreach (var newOrderProduct in orderEntity.OrderProducts)
+            foreach (var existingProduct in existingProducts)
             {
-                if (!existingOrderProducts.Any(eop => eop.ProductId == newOrderProduct.ProductId))
+                if (!newProducts.Any(np => np.ProductId == existingProduct.ProductId))
                 {
-                    existingEntity.OrderProducts.Add(new OrderProductEntity
-                    {
-                        OrderId = orderEntity.Id,
-                        ProductId = newOrderProduct.ProductId,
-                        Quantity = newOrderProduct.Quantity
-                    });
+                    dbContext.Remove(existingProduct);
                 }
             }
 
-            await dbContext.SaveChangesAsync();
-
-            _orderCache[orderEntity.Id] = orderEntity;
+            foreach (var newProduct in newProducts)
+            {
+                var existingProduct = existingProducts.FirstOrDefault(ep => ep.ProductId == newProduct.ProductId);
+                if (existingProduct == null)
+                {
+                    existingEntity.OrderProducts.Add(newProduct);
+                }
+                else
+                {
+                    existingProduct.Quantity = newProduct.Quantity;
+                }
+            }
         }
 
         public async Task DeleteOrder(Guid id)
