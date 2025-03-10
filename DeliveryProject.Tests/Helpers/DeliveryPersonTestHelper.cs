@@ -33,37 +33,15 @@ namespace DeliveryProject.Tests.Helpers
 
                 deliveryPersons.Add(deliveryPerson);
 
-                attributes.Add(new AttributeValueEntity
-                {
-                    Id = Guid.NewGuid(),
-                    PersonId = deliveryPerson.Id,
-                    AttributeId = nameAttribute.Id,
-                    Value = $"Delivery Person {i}"
-                });
+                attributes.Add(AttributeValueHelper
+                    .CreateAttribute(deliveryPerson.Id, nameAttribute.Id, $"Delivery Person {i}"));
+                attributes.Add(AttributeValueHelper
+                    .CreateAttribute(deliveryPerson.Id, ratingAttribute.Id, Math.Round(3.5 + (i % 5) * 0.3, 1).ToString()));
+                attributes.Add(AttributeValueHelper
+                    .CreateAttribute(deliveryPerson.Id, phoneNumberAttribute.Id, $"{random.Next(100, 999)}-{random.Next(1000, 9999)}"));
+                attributes.Add(AttributeValueHelper
+                    .CreateAttribute(deliveryPerson.Id, emailAttribute.Id, $"deliveryPerson{i}@email.com"));
 
-                attributes.Add(new AttributeValueEntity
-                {
-                    Id = Guid.NewGuid(),
-                    PersonId = deliveryPerson.Id,
-                    AttributeId = ratingAttribute.Id,
-                    Value = Math.Round(3.5 + (i % 5) * 0.3, 1).ToString()
-                });
-
-                attributes.Add(new AttributeValueEntity
-                {
-                    Id = Guid.NewGuid(),
-                    PersonId = deliveryPerson.Id,
-                    AttributeId = phoneNumberAttribute.Id,
-                    Value = $"{random.Next(100, 999)}-{random.Next(1000, 9999)}"
-                });
-
-                attributes.Add(new AttributeValueEntity
-                {
-                    Id = Guid.NewGuid(),
-                    PersonId = deliveryPerson.Id,
-                    AttributeId = emailAttribute.Id,
-                    Value = $"deliveryPerson{i}@email.com"
-                });
 
                 int slotCount = random.Next(1, 6);
                 for (int j = 0; j < slotCount; j++)

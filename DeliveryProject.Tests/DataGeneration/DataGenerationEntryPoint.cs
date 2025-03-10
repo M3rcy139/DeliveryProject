@@ -38,7 +38,7 @@ public class DataGenerationEntryPoint
             await context.GenerateSuppliers(dataSettings.SuppliersCount);
             await context.GenerateCustomers(dataSettings.CustomersCount);
 
-            //await context.GenerateOrders(dataSettings.OrdersCount);
+            await context.GenerateOrders(dataSettings.OrdersCount);
 
             await context.SaveChangesAsync();
 
