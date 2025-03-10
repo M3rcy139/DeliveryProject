@@ -15,42 +15,33 @@ namespace DeliveryProject.Migrations.Migrations
                 LANGUAGE plpgsql
                 AS $$
                 BEGIN
-                    INSERT INTO ""Persons"" (""Id"", ""Name"", ""RoleId"")
-                    SELECT tdp.""Id"", tdp.""Name"", 3
+                    INSERT INTO ""Persons"" (""Id"", ""Status"", ""RegionId"", ""RoleId"")
+                    SELECT tdp.""Id"", 'Active', tdp.""RegionId"", tdp.""RoleId""
                     FROM ""TempDeliveryPersons"" tdp
                     WHERE NOT EXISTS (
                         SELECT 1 FROM ""Persons"" p WHERE p.""Id"" = tdp.""Id""
                     );
 
-                    INSERT INTO ""DeliveryPersons"" (""Id"", ""Rating"")
-                    SELECT tdp.""Id"", tdp.""Rating""
-                    FROM ""TempDeliveryPersons"" tdp
+                    INSERT INTO ""AttributeValues"" (""Id"", ""PersonId"", ""AttributeId"", ""Value"")
+                    SELECT tav.""Id"", tav.""DeliveryPersonId"", tav.""AttributeId"", tav.""Value""
+                    FROM ""TempAttributeValues"" tav
                     WHERE NOT EXISTS (
-                        SELECT 1 FROM ""DeliveryPersons"" dp WHERE dp.""Id"" = tdp.""Id""
-                    );
-
-                    INSERT INTO ""PersonContacts"" (""Id"", ""PhoneNumber"", ""Email"", ""RegionId"", ""PersonId"")
-                    SELECT tpc.""Id"", tpc.""PhoneNumber"", tpc.""Email"", tpc.""RegionId"", tpc.""DeliveryPersonId""
-                    FROM ""TempPersonContacts"" tpc
-                    WHERE NOT EXISTS (
-                        SELECT 1 
-                        FROM ""PersonContacts"" pc 
-                        WHERE pc.""PhoneNumber"" = tpc.""PhoneNumber"" 
-                        AND pc.""PersonId"" = tpc.""DeliveryPersonId""
+                        SELECT 1 FROM ""AttributeValues"" av 
+                        WHERE av.""PersonId"" = tav.""DeliveryPersonId"" 
+                        AND av.""AttributeId"" = tav.""AttributeId""
                     );
 
                     INSERT INTO ""DeliverySlots"" (""Id"", ""SlotTime"", ""DeliveryPersonId"")
                     SELECT tds.""Id"", tds.""SlotTime"", tds.""DeliveryPersonId""
                     FROM ""TempDeliverySlots"" tds
                     WHERE NOT EXISTS (
-                        SELECT 1 
-                        FROM ""DeliverySlots"" ds 
+                        SELECT 1 FROM ""DeliverySlots"" ds 
                         WHERE ds.""SlotTime"" = tds.""SlotTime"" 
                         AND ds.""DeliveryPersonId"" = tds.""DeliveryPersonId""
                     );
 
                     DELETE FROM ""TempDeliveryPersons"";
-                    DELETE FROM ""TempPersonContacts"";
+                    DELETE FROM ""TempAttributeValues"";
                     DELETE FROM ""TempDeliverySlots"";
                 END;
                 $$;

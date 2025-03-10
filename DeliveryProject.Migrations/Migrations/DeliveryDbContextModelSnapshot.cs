@@ -304,21 +304,40 @@ namespace DeliveryProject.Migrations.Migrations
                     b.ToTable("Roles");
                 });
 
+            modelBuilder.Entity("DeliveryProject.DataAccess.Entities.TempAttributeValue", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("AttributeId")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("DeliveryPersonId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Value")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DeliveryPersonId");
+
+                    b.ToTable("TempAttributeValues");
+                });
+
             modelBuilder.Entity("DeliveryProject.DataAccess.Entities.TempDeliveryPerson", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
+                    b.Property<int>("RegionId")
+                        .HasColumnType("integer");
 
-                    b.Property<double>("Rating")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("double precision")
-                        .HasDefaultValue(0.0);
+                    b.Property<int>("RoleId")
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 
@@ -342,33 +361,6 @@ namespace DeliveryProject.Migrations.Migrations
                     b.HasIndex("DeliveryPersonId");
 
                     b.ToTable("TempDeliverySlots");
-                });
-
-            modelBuilder.Entity("DeliveryProject.DataAccess.Entities.TempPersonContact", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("DeliveryPersonId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("PhoneNumber")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<int>("RegionId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("DeliveryPersonId");
-
-                    b.ToTable("TempPersonContacts");
                 });
 
             modelBuilder.Entity("DeliveryProject.DataAccess.Entities.UploadError", b =>
@@ -538,10 +530,10 @@ namespace DeliveryProject.Migrations.Migrations
                     b.Navigation("Role");
                 });
 
-            modelBuilder.Entity("DeliveryProject.DataAccess.Entities.TempDeliverySlot", b =>
+            modelBuilder.Entity("DeliveryProject.DataAccess.Entities.TempAttributeValue", b =>
                 {
                     b.HasOne("DeliveryProject.DataAccess.Entities.TempDeliveryPerson", "DeliveryPerson")
-                        .WithMany("DeliverySlots")
+                        .WithMany("AttributeValues")
                         .HasForeignKey("DeliveryPersonId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -549,10 +541,10 @@ namespace DeliveryProject.Migrations.Migrations
                     b.Navigation("DeliveryPerson");
                 });
 
-            modelBuilder.Entity("DeliveryProject.DataAccess.Entities.TempPersonContact", b =>
+            modelBuilder.Entity("DeliveryProject.DataAccess.Entities.TempDeliverySlot", b =>
                 {
                     b.HasOne("DeliveryProject.DataAccess.Entities.TempDeliveryPerson", "DeliveryPerson")
-                        .WithMany("Contacts")
+                        .WithMany("DeliverySlots")
                         .HasForeignKey("DeliveryPersonId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -607,7 +599,7 @@ namespace DeliveryProject.Migrations.Migrations
 
             modelBuilder.Entity("DeliveryProject.DataAccess.Entities.TempDeliveryPerson", b =>
                 {
-                    b.Navigation("Contacts");
+                    b.Navigation("AttributeValues");
 
                     b.Navigation("DeliverySlots");
                 });

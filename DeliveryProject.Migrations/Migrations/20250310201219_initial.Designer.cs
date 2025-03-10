@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DeliveryProject.Migrations.Migrations
 {
     [DbContext(typeof(DeliveryDbContext))]
-    [Migration("20250308101523_deleteFiltedOrders")]
-    partial class deleteFilteredOrders
+    [Migration("20250310201219_initial")]
+    partial class initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -24,6 +24,52 @@ namespace DeliveryProject.Migrations.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+
+            modelBuilder.Entity("DeliveryProject.DataAccess.Entities.AttributeEntity", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Key")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Attributes");
+                });
+
+            modelBuilder.Entity("DeliveryProject.DataAccess.Entities.AttributeValueEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("AttributeId")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("PersonId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Value")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AttributeId");
+
+                    b.HasIndex("PersonId");
+
+                    b.ToTable("AttributeValues");
+                });
 
             modelBuilder.Entity("DeliveryProject.DataAccess.Entities.BatchUpload", b =>
                 {
@@ -72,7 +118,7 @@ namespace DeliveryProject.Migrations.Migrations
                     b.ToTable("DeliverySlots");
                 });
 
-            modelBuilder.Entity("DeliveryProject.DataAccess.Entities.OrderEntity", b =>
+            modelBuilder.Entity("DeliveryProject.DataAccess.Entities.InvoiceEntity", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -81,12 +127,59 @@ namespace DeliveryProject.Migrations.Migrations
                     b.Property<decimal>("Amount")
                         .HasColumnType("numeric");
 
+                    b.Property<Guid>("DeliveryPersonId")
+                        .HasColumnType("uuid");
+
                     b.Property<DateTime>("DeliveryTime")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsExecuted")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid>("OrderId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DeliveryPersonId");
+
+                    b.HasIndex("OrderId")
+                        .IsUnique();
+
+                    b.ToTable("Invoices");
+                });
+
+            modelBuilder.Entity("DeliveryProject.DataAccess.Entities.OrderEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
                     b.ToTable("Orders");
+                });
+
+            modelBuilder.Entity("DeliveryProject.DataAccess.Entities.OrderPersonEntity", b =>
+                {
+                    b.Property<Guid>("OrderId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("PersonId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("OrderId", "PersonId");
+
+                    b.HasIndex("PersonId");
+
+                    b.ToTable("OrderPersons");
                 });
 
             modelBuilder.Entity("DeliveryProject.DataAccess.Entities.OrderProductEntity", b =>
@@ -97,45 +190,19 @@ namespace DeliveryProject.Migrations.Migrations
                     b.Property<Guid>("ProductId")
                         .HasColumnType("uuid");
 
+                    b.Property<Guid?>("ProductEntityId")
+                        .HasColumnType("uuid");
+
                     b.Property<int>("Quantity")
                         .HasColumnType("integer");
 
                     b.HasKey("OrderId", "ProductId");
 
+                    b.HasIndex("ProductEntityId");
+
                     b.HasIndex("ProductId");
 
                     b.ToTable("OrderProducts");
-                });
-
-            modelBuilder.Entity("DeliveryProject.DataAccess.Entities.PersonContactEntity", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.Property<Guid>("PersonId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("PhoneNumber")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("character varying(20)");
-
-                    b.Property<int>("RegionId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("PersonId");
-
-                    b.HasIndex("RegionId");
-
-                    b.ToTable("PersonContacts");
                 });
 
             modelBuilder.Entity("DeliveryProject.DataAccess.Entities.PersonEntity", b =>
@@ -144,21 +211,23 @@ namespace DeliveryProject.Migrations.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
+                    b.Property<int>("RegionId")
+                        .HasColumnType("integer");
 
                     b.Property<int>("RoleId")
                         .HasColumnType("integer");
 
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("RegionId");
 
                     b.HasIndex("RoleId");
 
                     b.ToTable("Persons");
-
-                    b.UseTptMappingStrategy();
                 });
 
             modelBuilder.Entity("DeliveryProject.DataAccess.Entities.ProductEntity", b =>
@@ -206,6 +275,21 @@ namespace DeliveryProject.Migrations.Migrations
                     b.ToTable("Regions");
                 });
 
+            modelBuilder.Entity("DeliveryProject.DataAccess.Entities.RoleAttributeEntity", b =>
+                {
+                    b.Property<int>("RoleId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("AttributeId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("RoleId", "AttributeId");
+
+                    b.HasIndex("AttributeId");
+
+                    b.ToTable("RoleAttributes");
+                });
+
             modelBuilder.Entity("DeliveryProject.DataAccess.Entities.RoleEntity", b =>
                 {
                     b.Property<int>("Id")
@@ -214,12 +298,36 @@ namespace DeliveryProject.Migrations.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("Role")
-                        .HasColumnType("integer");
+                    b.Property<string>("RoleType")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
                     b.ToTable("Roles");
+                });
+
+            modelBuilder.Entity("DeliveryProject.DataAccess.Entities.TempAttributeValue", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("AttributeId")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("DeliveryPersonId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Value")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DeliveryPersonId");
+
+                    b.ToTable("TempAttributeValues");
                 });
 
             modelBuilder.Entity("DeliveryProject.DataAccess.Entities.TempDeliveryPerson", b =>
@@ -228,15 +336,11 @@ namespace DeliveryProject.Migrations.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
+                    b.Property<int>("RegionId")
+                        .HasColumnType("integer");
 
-                    b.Property<double>("Rating")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("double precision")
-                        .HasDefaultValue(0.0);
+                    b.Property<int>("RoleId")
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 
@@ -260,33 +364,6 @@ namespace DeliveryProject.Migrations.Migrations
                     b.HasIndex("DeliveryPersonId");
 
                     b.ToTable("TempDeliverySlots");
-                });
-
-            modelBuilder.Entity("DeliveryProject.DataAccess.Entities.TempPersonContact", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("DeliveryPersonId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("PhoneNumber")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<int>("RegionId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("DeliveryPersonId");
-
-                    b.ToTable("TempPersonContacts");
                 });
 
             modelBuilder.Entity("DeliveryProject.DataAccess.Entities.UploadError", b =>
@@ -316,69 +393,72 @@ namespace DeliveryProject.Migrations.Migrations
                     b.ToTable("UploadErrors");
                 });
 
-            modelBuilder.Entity("OrderEntityPersonEntity", b =>
+            modelBuilder.Entity("DeliveryProject.DataAccess.Entities.AttributeValueEntity", b =>
                 {
-                    b.Property<Guid>("OrdersId")
-                        .HasColumnType("uuid");
+                    b.HasOne("DeliveryProject.DataAccess.Entities.AttributeEntity", "Attribute")
+                        .WithMany("AttributeValues")
+                        .HasForeignKey("AttributeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-                    b.Property<Guid>("PersonsId")
-                        .HasColumnType("uuid");
+                    b.HasOne("DeliveryProject.DataAccess.Entities.PersonEntity", "Person")
+                        .WithMany("AttributeValues")
+                        .HasForeignKey("PersonId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-                    b.HasKey("OrdersId", "PersonsId");
+                    b.Navigation("Attribute");
 
-                    b.HasIndex("PersonsId");
-
-                    b.ToTable("OrderEntityPersonEntity");
-                });
-
-            modelBuilder.Entity("DeliveryProject.DataAccess.Entities.CustomerEntity", b =>
-                {
-                    b.HasBaseType("DeliveryProject.DataAccess.Entities.PersonEntity");
-
-                    b.Property<int>("Gender")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("LastName")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.ToTable("Customers", (string)null);
-                });
-
-            modelBuilder.Entity("DeliveryProject.DataAccess.Entities.DeliveryPersonEntity", b =>
-                {
-                    b.HasBaseType("DeliveryProject.DataAccess.Entities.PersonEntity");
-
-                    b.Property<double>("Rating")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("double precision")
-                        .HasDefaultValue(0.0);
-
-                    b.ToTable("DeliveryPersons", (string)null);
-                });
-
-            modelBuilder.Entity("DeliveryProject.DataAccess.Entities.SupplierEntity", b =>
-                {
-                    b.HasBaseType("DeliveryProject.DataAccess.Entities.PersonEntity");
-
-                    b.Property<double>("Rating")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("double precision")
-                        .HasDefaultValue(0.0);
-
-                    b.ToTable("Suppliers", (string)null);
+                    b.Navigation("Person");
                 });
 
             modelBuilder.Entity("DeliveryProject.DataAccess.Entities.DeliverySlotEntity", b =>
                 {
-                    b.HasOne("DeliveryProject.DataAccess.Entities.DeliveryPersonEntity", "DeliveryPerson")
-                        .WithMany("DeliverySlots")
+                    b.HasOne("DeliveryProject.DataAccess.Entities.PersonEntity", "DeliveryPerson")
+                        .WithMany()
                         .HasForeignKey("DeliveryPersonId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("DeliveryPerson");
+                });
+
+            modelBuilder.Entity("DeliveryProject.DataAccess.Entities.InvoiceEntity", b =>
+                {
+                    b.HasOne("DeliveryProject.DataAccess.Entities.PersonEntity", "DeliveryPerson")
+                        .WithMany()
+                        .HasForeignKey("DeliveryPersonId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("DeliveryProject.DataAccess.Entities.OrderEntity", "Order")
+                        .WithOne("Invoice")
+                        .HasForeignKey("DeliveryProject.DataAccess.Entities.InvoiceEntity", "OrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("DeliveryPerson");
+
+                    b.Navigation("Order");
+                });
+
+            modelBuilder.Entity("DeliveryProject.DataAccess.Entities.OrderPersonEntity", b =>
+                {
+                    b.HasOne("DeliveryProject.DataAccess.Entities.OrderEntity", "Order")
+                        .WithMany("OrderPersons")
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("DeliveryProject.DataAccess.Entities.PersonEntity", "Person")
+                        .WithMany("OrderPersons")
+                        .HasForeignKey("PersonId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Order");
+
+                    b.Navigation("Person");
                 });
 
             modelBuilder.Entity("DeliveryProject.DataAccess.Entities.OrderProductEntity", b =>
@@ -388,6 +468,10 @@ namespace DeliveryProject.Migrations.Migrations
                         .HasForeignKey("OrderId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("DeliveryProject.DataAccess.Entities.ProductEntity", null)
+                        .WithMany("OrderProducts")
+                        .HasForeignKey("ProductEntityId");
 
                     b.HasOne("DeliveryProject.DataAccess.Entities.ProductEntity", "Product")
                         .WithMany()
@@ -400,51 +484,59 @@ namespace DeliveryProject.Migrations.Migrations
                     b.Navigation("Product");
                 });
 
-            modelBuilder.Entity("DeliveryProject.DataAccess.Entities.PersonContactEntity", b =>
-                {
-                    b.HasOne("DeliveryProject.DataAccess.Entities.PersonEntity", "Person")
-                        .WithMany("Contacts")
-                        .HasForeignKey("PersonId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("DeliveryProject.DataAccess.Entities.RegionEntity", "Region")
-                        .WithMany("PersonContacts")
-                        .HasForeignKey("RegionId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Person");
-
-                    b.Navigation("Region");
-                });
-
             modelBuilder.Entity("DeliveryProject.DataAccess.Entities.PersonEntity", b =>
                 {
+                    b.HasOne("DeliveryProject.DataAccess.Entities.RegionEntity", "Region")
+                        .WithMany()
+                        .HasForeignKey("RegionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("DeliveryProject.DataAccess.Entities.RoleEntity", "Role")
-                        .WithMany("Persons")
+                        .WithMany()
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Region");
 
                     b.Navigation("Role");
                 });
 
             modelBuilder.Entity("DeliveryProject.DataAccess.Entities.ProductEntity", b =>
                 {
-                    b.HasOne("DeliveryProject.DataAccess.Entities.SupplierEntity", "Supplier")
-                        .WithMany("Products")
+                    b.HasOne("DeliveryProject.DataAccess.Entities.PersonEntity", "Supplier")
+                        .WithMany()
                         .HasForeignKey("SupplierId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Supplier");
                 });
 
-            modelBuilder.Entity("DeliveryProject.DataAccess.Entities.TempDeliverySlot", b =>
+            modelBuilder.Entity("DeliveryProject.DataAccess.Entities.RoleAttributeEntity", b =>
+                {
+                    b.HasOne("DeliveryProject.DataAccess.Entities.AttributeEntity", "Attribute")
+                        .WithMany("RoleAttributes")
+                        .HasForeignKey("AttributeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("DeliveryProject.DataAccess.Entities.RoleEntity", "Role")
+                        .WithMany("RoleAttributes")
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Attribute");
+
+                    b.Navigation("Role");
+                });
+
+            modelBuilder.Entity("DeliveryProject.DataAccess.Entities.TempAttributeValue", b =>
                 {
                     b.HasOne("DeliveryProject.DataAccess.Entities.TempDeliveryPerson", "DeliveryPerson")
-                        .WithMany("DeliverySlots")
+                        .WithMany("AttributeValues")
                         .HasForeignKey("DeliveryPersonId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -452,10 +544,10 @@ namespace DeliveryProject.Migrations.Migrations
                     b.Navigation("DeliveryPerson");
                 });
 
-            modelBuilder.Entity("DeliveryProject.DataAccess.Entities.TempPersonContact", b =>
+            modelBuilder.Entity("DeliveryProject.DataAccess.Entities.TempDeliverySlot", b =>
                 {
                     b.HasOne("DeliveryProject.DataAccess.Entities.TempDeliveryPerson", "DeliveryPerson")
-                        .WithMany("Contacts")
+                        .WithMany("DeliverySlots")
                         .HasForeignKey("DeliveryPersonId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -474,83 +566,45 @@ namespace DeliveryProject.Migrations.Migrations
                     b.Navigation("BatchUpload");
                 });
 
-            modelBuilder.Entity("OrderEntityPersonEntity", b =>
+            modelBuilder.Entity("DeliveryProject.DataAccess.Entities.AttributeEntity", b =>
                 {
-                    b.HasOne("DeliveryProject.DataAccess.Entities.OrderEntity", null)
-                        .WithMany()
-                        .HasForeignKey("OrdersId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.Navigation("AttributeValues");
 
-                    b.HasOne("DeliveryProject.DataAccess.Entities.PersonEntity", null)
-                        .WithMany()
-                        .HasForeignKey("PersonsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("DeliveryProject.DataAccess.Entities.CustomerEntity", b =>
-                {
-                    b.HasOne("DeliveryProject.DataAccess.Entities.PersonEntity", null)
-                        .WithOne()
-                        .HasForeignKey("DeliveryProject.DataAccess.Entities.CustomerEntity", "Id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("DeliveryProject.DataAccess.Entities.DeliveryPersonEntity", b =>
-                {
-                    b.HasOne("DeliveryProject.DataAccess.Entities.PersonEntity", null)
-                        .WithOne()
-                        .HasForeignKey("DeliveryProject.DataAccess.Entities.DeliveryPersonEntity", "Id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("DeliveryProject.DataAccess.Entities.SupplierEntity", b =>
-                {
-                    b.HasOne("DeliveryProject.DataAccess.Entities.PersonEntity", null)
-                        .WithOne()
-                        .HasForeignKey("DeliveryProject.DataAccess.Entities.SupplierEntity", "Id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.Navigation("RoleAttributes");
                 });
 
             modelBuilder.Entity("DeliveryProject.DataAccess.Entities.OrderEntity", b =>
                 {
+                    b.Navigation("Invoice")
+                        .IsRequired();
+
+                    b.Navigation("OrderPersons");
+
                     b.Navigation("OrderProducts");
                 });
 
             modelBuilder.Entity("DeliveryProject.DataAccess.Entities.PersonEntity", b =>
                 {
-                    b.Navigation("Contacts");
+                    b.Navigation("AttributeValues");
+
+                    b.Navigation("OrderPersons");
                 });
 
-            modelBuilder.Entity("DeliveryProject.DataAccess.Entities.RegionEntity", b =>
+            modelBuilder.Entity("DeliveryProject.DataAccess.Entities.ProductEntity", b =>
                 {
-                    b.Navigation("PersonContacts");
+                    b.Navigation("OrderProducts");
                 });
 
             modelBuilder.Entity("DeliveryProject.DataAccess.Entities.RoleEntity", b =>
                 {
-                    b.Navigation("Persons");
+                    b.Navigation("RoleAttributes");
                 });
 
             modelBuilder.Entity("DeliveryProject.DataAccess.Entities.TempDeliveryPerson", b =>
                 {
-                    b.Navigation("Contacts");
+                    b.Navigation("AttributeValues");
 
                     b.Navigation("DeliverySlots");
-                });
-
-            modelBuilder.Entity("DeliveryProject.DataAccess.Entities.DeliveryPersonEntity", b =>
-                {
-                    b.Navigation("DeliverySlots");
-                });
-
-            modelBuilder.Entity("DeliveryProject.DataAccess.Entities.SupplierEntity", b =>
-                {
-                    b.Navigation("Products");
                 });
 #pragma warning restore 612, 618
         }

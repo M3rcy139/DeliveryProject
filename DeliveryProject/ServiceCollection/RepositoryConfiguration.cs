@@ -12,6 +12,7 @@ namespace DeliveryProject.ServiceCollection
             services.AddSingleton<IDeliveryPersonRepository, DeliveryPersonRepository>();
             services.AddSingleton<IProductRepository, ProductRepository>();
             services.AddSingleton<ICustomerRepository, CustomerRepository>();
+            services.AddSingleton<IAttributeRepository, AttributeRepository>();
 
             services.AddSingleton<IBatchUploadRepository, BatchUploadRepository>();
         }

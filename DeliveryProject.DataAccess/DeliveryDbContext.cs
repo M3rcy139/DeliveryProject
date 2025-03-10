@@ -25,7 +25,7 @@ namespace DeliveryProject.DataAccess
         public DbSet<BatchUpload> BatchUploads { get; set; }
         public DbSet<UploadError> UploadErrors { get; set; }
         public DbSet<TempDeliveryPerson> TempDeliveryPersons { get; set; }
-        public DbSet<TempPersonContact> TempPersonContacts { get; set; }
+        public DbSet<TempAttributeValue> TempAttributeValues { get; set; }
         public DbSet<TempDeliverySlot> TempDeliverySlots { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

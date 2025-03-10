@@ -8,11 +8,8 @@ namespace DeliveryProject.DataAccess.Configurations
     {
         public void Configure(EntityTypeBuilder<TempDeliveryPerson> builder)
         {
-            builder.Property(tdp => tdp.Name).IsRequired().HasMaxLength(100);
-            builder.Property(tdp => tdp.Rating).HasDefaultValue(0);
-
             builder
-                .HasMany(tdp => tdp.Contacts)
+                .HasMany(tdp => tdp.AttributeValues)
                 .WithOne(tpc => tpc.DeliveryPerson)
                 .HasForeignKey(tpc => tpc.DeliveryPersonId)
                 .OnDelete(DeleteBehavior.Cascade);
