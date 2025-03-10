@@ -2,11 +2,11 @@
 {
     public enum AttributeKey
     {
-        Name,
-        LastName,
-        Sex,
-        PhoneNumber,
-        Email,
-        Rating
+        Name = 1,
+        LastName = 2,
+        Sex = 3,
+        PhoneNumber = 4,
+        Email = 5,
+        Rating = 6
     }
 }

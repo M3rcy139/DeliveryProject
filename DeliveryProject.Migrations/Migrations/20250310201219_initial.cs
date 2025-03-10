@@ -13,6 +13,20 @@ namespace DeliveryProject.Migrations.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
+                name: "Attributes",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Key = table.Column<string>(type: "text", nullable: false),
+                    Type = table.Column<string>(type: "text", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Attributes", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "BatchUploads",
                 columns: table => new
                 {
@@ -33,8 +47,8 @@ namespace DeliveryProject.Migrations.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    DeliveryTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    Amount = table.Column<decimal>(type: "numeric", nullable: false)
+                    CreatedTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    Status = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -60,7 +74,7 @@ namespace DeliveryProject.Migrations.Migrations
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Role = table.Column<int>(type: "integer", nullable: false)
+                    RoleType = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -72,9 +86,8 @@ namespace DeliveryProject.Migrations.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    Name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
-                    PhoneNumber = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false),
-                    Rating = table.Column<double>(type: "double precision", nullable: false, defaultValue: 0.0)
+                    RegionId = table.Column<int>(type: "integer", nullable: false),
+                    RoleId = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -103,39 +116,23 @@ namespace DeliveryProject.Migrations.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "FilteredOrders",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    OrderId = table.Column<Guid>(type: "uuid", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_FilteredOrders", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_FilteredOrders_Orders_OrderId",
-                        column: x => x.OrderId,
-                        principalTable: "Orders",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Persons",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    Name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
-                    RoleId = table.Column<int>(type: "integer", nullable: false),
-                    Discriminator = table.Column<string>(type: "character varying(21)", maxLength: 21, nullable: false),
-                    LastName = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
-                    Gender = table.Column<int>(type: "integer", nullable: true),
-                    Rating = table.Column<double>(type: "double precision", nullable: true, defaultValue: 0.0),
-                    SupplierEntity_Rating = table.Column<double>(type: "double precision", nullable: true, defaultValue: 0.0)
+                    Status = table.Column<string>(type: "text", nullable: false),
+                    RegionId = table.Column<int>(type: "integer", nullable: false),
+                    RoleId = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Persons", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Persons_Regions_RegionId",
+                        column: x => x.RegionId,
+                        principalTable: "Regions",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Persons_Roles_RoleId",
                         column: x => x.RoleId,
@@ -145,18 +142,43 @@ namespace DeliveryProject.Migrations.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "TempDeliverySlot",
+                name: "RoleAttributes",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    SlotTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    DeliveryPersonId = table.Column<Guid>(type: "uuid", nullable: false)
+                    RoleId = table.Column<int>(type: "integer", nullable: false),
+                    AttributeId = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_TempDeliverySlot", x => x.Id);
+                    table.PrimaryKey("PK_RoleAttributes", x => new { x.RoleId, x.AttributeId });
                     table.ForeignKey(
-                        name: "FK_TempDeliverySlot_TempDeliveryPersons_DeliveryPersonId",
+                        name: "FK_RoleAttributes_Attributes_AttributeId",
+                        column: x => x.AttributeId,
+                        principalTable: "Attributes",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_RoleAttributes_Roles_RoleId",
+                        column: x => x.RoleId,
+                        principalTable: "Roles",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "TempAttributeValues",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    DeliveryPersonId = table.Column<Guid>(type: "uuid", nullable: false),
+                    AttributeId = table.Column<int>(type: "integer", nullable: false),
+                    Value = table.Column<string>(type: "text", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_TempAttributeValues", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_TempAttributeValues_TempDeliveryPersons_DeliveryPersonId",
                         column: x => x.DeliveryPersonId,
                         principalTable: "TempDeliveryPersons",
                         principalColumn: "Id",
@@ -164,22 +186,46 @@ namespace DeliveryProject.Migrations.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "TempPersonContact",
+                name: "TempDeliverySlots",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    PhoneNumber = table.Column<string>(type: "text", nullable: false),
-                    Email = table.Column<string>(type: "text", nullable: false),
-                    RegionId = table.Column<int>(type: "integer", nullable: false),
-                    DeliveryPersonId = table.Column<Guid>(type: "uuid", nullable: false)
+                    DeliveryPersonId = table.Column<Guid>(type: "uuid", nullable: false),
+                    SlotTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_TempPersonContact", x => x.Id);
+                    table.PrimaryKey("PK_TempDeliverySlots", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_TempPersonContact_TempDeliveryPersons_DeliveryPersonId",
+                        name: "FK_TempDeliverySlots_TempDeliveryPersons_DeliveryPersonId",
                         column: x => x.DeliveryPersonId,
                         principalTable: "TempDeliveryPersons",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "AttributeValues",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Value = table.Column<string>(type: "text", nullable: false),
+                    PersonId = table.Column<Guid>(type: "uuid", nullable: false),
+                    AttributeId = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AttributeValues", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_AttributeValues_Attributes_AttributeId",
+                        column: x => x.AttributeId,
+                        principalTable: "Attributes",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_AttributeValues_Persons_PersonId",
+                        column: x => x.PersonId,
+                        principalTable: "Persons",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -204,54 +250,55 @@ namespace DeliveryProject.Migrations.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "OrderEntityPersonEntity",
+                name: "Invoices",
                 columns: table => new
                 {
-                    OrdersId = table.Column<Guid>(type: "uuid", nullable: false),
-                    PersonsId = table.Column<Guid>(type: "uuid", nullable: false)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Amount = table.Column<decimal>(type: "numeric", nullable: false),
+                    OrderId = table.Column<Guid>(type: "uuid", nullable: false),
+                    DeliveryPersonId = table.Column<Guid>(type: "uuid", nullable: false),
+                    DeliveryTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    IsExecuted = table.Column<bool>(type: "boolean", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_OrderEntityPersonEntity", x => new { x.OrdersId, x.PersonsId });
+                    table.PrimaryKey("PK_Invoices", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_OrderEntityPersonEntity_Orders_OrdersId",
-                        column: x => x.OrdersId,
+                        name: "FK_Invoices_Orders_OrderId",
+                        column: x => x.OrderId,
                         principalTable: "Orders",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_OrderEntityPersonEntity_Persons_PersonsId",
-                        column: x => x.PersonsId,
+                        name: "FK_Invoices_Persons_DeliveryPersonId",
+                        column: x => x.DeliveryPersonId,
                         principalTable: "Persons",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "PersonContacts",
+                name: "OrderPersons",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    PhoneNumber = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false),
-                    Email = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
-                    PersonId = table.Column<Guid>(type: "uuid", nullable: false),
-                    RegionId = table.Column<int>(type: "integer", nullable: false)
+                    OrderId = table.Column<Guid>(type: "uuid", nullable: false),
+                    PersonId = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_PersonContacts", x => x.Id);
+                    table.PrimaryKey("PK_OrderPersons", x => new { x.OrderId, x.PersonId });
                     table.ForeignKey(
-                        name: "FK_PersonContacts_Persons_PersonId",
+                        name: "FK_OrderPersons_Orders_OrderId",
+                        column: x => x.OrderId,
+                        principalTable: "Orders",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_OrderPersons_Persons_PersonId",
                         column: x => x.PersonId,
                         principalTable: "Persons",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_PersonContacts_Regions_RegionId",
-                        column: x => x.RegionId,
-                        principalTable: "Regions",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -272,7 +319,7 @@ namespace DeliveryProject.Migrations.Migrations
                         column: x => x.SupplierId,
                         principalTable: "Persons",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -281,7 +328,8 @@ namespace DeliveryProject.Migrations.Migrations
                 {
                     OrderId = table.Column<Guid>(type: "uuid", nullable: false),
                     ProductId = table.Column<Guid>(type: "uuid", nullable: false),
-                    Quantity = table.Column<int>(type: "integer", nullable: false)
+                    Quantity = table.Column<int>(type: "integer", nullable: false),
+                    ProductEntityId = table.Column<Guid>(type: "uuid", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -293,6 +341,11 @@ namespace DeliveryProject.Migrations.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
+                        name: "FK_OrderProducts_Products_ProductEntityId",
+                        column: x => x.ProductEntityId,
+                        principalTable: "Products",
+                        principalColumn: "Id");
+                    table.ForeignKey(
                         name: "FK_OrderProducts_Products_ProductId",
                         column: x => x.ProductId,
                         principalTable: "Products",
@@ -301,19 +354,40 @@ namespace DeliveryProject.Migrations.Migrations
                 });
 
             migrationBuilder.CreateIndex(
+                name: "IX_AttributeValues_AttributeId",
+                table: "AttributeValues",
+                column: "AttributeId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AttributeValues_PersonId",
+                table: "AttributeValues",
+                column: "PersonId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_DeliverySlots_DeliveryPersonId",
                 table: "DeliverySlots",
                 column: "DeliveryPersonId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_FilteredOrders_OrderId",
-                table: "FilteredOrders",
-                column: "OrderId");
+                name: "IX_Invoices_DeliveryPersonId",
+                table: "Invoices",
+                column: "DeliveryPersonId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_OrderEntityPersonEntity_PersonsId",
-                table: "OrderEntityPersonEntity",
-                column: "PersonsId");
+                name: "IX_Invoices_OrderId",
+                table: "Invoices",
+                column: "OrderId",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_OrderPersons_PersonId",
+                table: "OrderPersons",
+                column: "PersonId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_OrderProducts_ProductEntityId",
+                table: "OrderProducts",
+                column: "ProductEntityId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_OrderProducts_ProductId",
@@ -321,13 +395,8 @@ namespace DeliveryProject.Migrations.Migrations
                 column: "ProductId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_PersonContacts_PersonId",
-                table: "PersonContacts",
-                column: "PersonId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_PersonContacts_RegionId",
-                table: "PersonContacts",
+                name: "IX_Persons_RegionId",
+                table: "Persons",
                 column: "RegionId");
 
             migrationBuilder.CreateIndex(
@@ -341,13 +410,18 @@ namespace DeliveryProject.Migrations.Migrations
                 column: "SupplierId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_TempDeliverySlot_DeliveryPersonId",
-                table: "TempDeliverySlot",
+                name: "IX_RoleAttributes_AttributeId",
+                table: "RoleAttributes",
+                column: "AttributeId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_TempAttributeValues_DeliveryPersonId",
+                table: "TempAttributeValues",
                 column: "DeliveryPersonId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_TempPersonContact_DeliveryPersonId",
-                table: "TempPersonContact",
+                name: "IX_TempDeliverySlots_DeliveryPersonId",
+                table: "TempDeliverySlots",
                 column: "DeliveryPersonId");
 
             migrationBuilder.CreateIndex(
@@ -360,25 +434,28 @@ namespace DeliveryProject.Migrations.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
+                name: "AttributeValues");
+
+            migrationBuilder.DropTable(
                 name: "DeliverySlots");
 
             migrationBuilder.DropTable(
-                name: "FilteredOrders");
+                name: "Invoices");
 
             migrationBuilder.DropTable(
-                name: "OrderEntityPersonEntity");
+                name: "OrderPersons");
 
             migrationBuilder.DropTable(
                 name: "OrderProducts");
 
             migrationBuilder.DropTable(
-                name: "PersonContacts");
+                name: "RoleAttributes");
 
             migrationBuilder.DropTable(
-                name: "TempDeliverySlot");
+                name: "TempAttributeValues");
 
             migrationBuilder.DropTable(
-                name: "TempPersonContact");
+                name: "TempDeliverySlots");
 
             migrationBuilder.DropTable(
                 name: "UploadErrors");
@@ -390,7 +467,7 @@ namespace DeliveryProject.Migrations.Migrations
                 name: "Products");
 
             migrationBuilder.DropTable(
-                name: "Regions");
+                name: "Attributes");
 
             migrationBuilder.DropTable(
                 name: "TempDeliveryPersons");
@@ -400,6 +477,9 @@ namespace DeliveryProject.Migrations.Migrations
 
             migrationBuilder.DropTable(
                 name: "Persons");
+
+            migrationBuilder.DropTable(
+                name: "Regions");
 
             migrationBuilder.DropTable(
                 name: "Roles");
