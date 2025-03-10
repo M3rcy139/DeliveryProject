@@ -36,45 +36,16 @@ namespace DeliveryProject.Tests.Helpers
 
                 customers.Add(customer);
 
-                attributes.Add(new AttributeValueEntity
-                {
-                    Id = Guid.NewGuid(),
-                    PersonId = customer.Id,
-                    AttributeId = nameAttribute.Id,
-                    Value = $"Customer {i}"
-                });
-
-                attributes.Add(new AttributeValueEntity
-                {
-                    Id = Guid.NewGuid(),
-                    PersonId = customer.Id,
-                    AttributeId = lastNameAttribute.Id,
-                    Value = $"LastName {i}"
-                });
-
-                attributes.Add(new AttributeValueEntity
-                {
-                    Id = Guid.NewGuid(),
-                    PersonId = customer.Id,
-                    AttributeId = sexAttribute.Id,
-                    Value = random.Next(0, 2).ToString()
-                });
-
-                attributes.Add(new AttributeValueEntity
-                {
-                    Id = Guid.NewGuid(),
-                    PersonId = customer.Id,
-                    AttributeId = phoneNumberAttribute.Id,
-                    Value = $"{random.Next(100, 999)}-{random.Next(1000, 9999)}"
-                });
-
-                attributes.Add(new AttributeValueEntity
-                {
-                    Id = Guid.NewGuid(),
-                    PersonId = customer.Id,
-                    AttributeId = emailAttribute.Id,
-                    Value = $"customer{i}@email.com"
-                });
+                attributes.Add(AttributeValueHelper
+                    .CreateAttribute(customer.Id, nameAttribute.Id, $"Customer {i}"));
+                attributes.Add(AttributeValueHelper
+                    .CreateAttribute(customer.Id, lastNameAttribute.Id, $"LastName {i}"));
+                attributes.Add(AttributeValueHelper
+                    .CreateAttribute(customer.Id, sexAttribute.Id, random.Next(0, 2).ToString()));
+                attributes.Add(AttributeValueHelper
+                    .CreateAttribute(customer.Id, phoneNumberAttribute.Id, $"{random.Next(100, 999)}-{random.Next(1000, 9999)}"));
+                attributes.Add(AttributeValueHelper
+                    .CreateAttribute(customer.Id, emailAttribute.Id, $"customer{i}@email.com"));
             }
 
             await TransactionHelper.ExecuteInTransactionAsync(context, async () =>

@@ -2,7 +2,6 @@
 using DeliveryProject.DataAccess;
 using Microsoft.EntityFrameworkCore;
 using DeliveryProject.Core.Enums;
-using DeliveryProject.Core.Models;
 
 namespace DeliveryProject.Tests.Helpers
 {
@@ -32,37 +31,14 @@ namespace DeliveryProject.Tests.Helpers
                 };
                 suppliers.Add(supplier);
 
-                attributes.Add(new AttributeValueEntity
-                {
-                    Id = Guid.NewGuid(),
-                    PersonId = supplier.Id,
-                    AttributeId = nameAttribute.Id,
-                    Value = $"Supplier {i}"
-                });
-
-                attributes.Add(new AttributeValueEntity
-                {
-                    Id = Guid.NewGuid(),
-                    PersonId = supplier.Id,
-                    AttributeId = ratingAttribute.Id,
-                    Value = Math.Round(4.0 + (i % 5) * 0.2, 1).ToString()
-                });
-
-                attributes.Add(new AttributeValueEntity
-                {
-                    Id = Guid.NewGuid(),
-                    PersonId = supplier.Id,
-                    AttributeId = phoneNumberAttribute.Id,
-                    Value = $"{random.Next(100, 999)}-{random.Next(1000, 9999)}"
-                });
-
-                attributes.Add(new AttributeValueEntity
-                {
-                    Id = Guid.NewGuid(),
-                    PersonId = supplier.Id,
-                    AttributeId = emailAttribute.Id,
-                    Value = $"supplier{i}@email.com"
-                });
+                attributes.Add(AttributeValueHelper
+                    .CreateAttribute(supplier.Id, nameAttribute.Id, $"Supplier {i}"));
+                attributes.Add(AttributeValueHelper
+                    .CreateAttribute(supplier.Id, ratingAttribute.Id, Math.Round(4.0 + (i % 5) * 0.2, 1).ToString()));
+                attributes.Add(AttributeValueHelper
+                    .CreateAttribute(supplier.Id, phoneNumberAttribute.Id, $"{random.Next(100, 999)}-{random.Next(1000, 9999)}"));
+                attributes.Add(AttributeValueHelper
+                    .CreateAttribute(supplier.Id, emailAttribute.Id, $"supplier{i}@email.com"));
 
                 int productCount = random.Next(3, 11);
                 for (int j = 1; j <= productCount; j++)
