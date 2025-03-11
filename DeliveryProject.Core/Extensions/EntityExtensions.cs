@@ -16,9 +16,9 @@ namespace DeliveryProject.Core.Extensions
         public static void ValidateEntities<T>(this IEnumerable<T?> entities, string errorMessage, string errorCode)
         where T : class
         {
-            foreach (var entity in entities)
+            if (!entities.Any() || entities.Any(e => e == null))
             {
-                entity?.ValidateEntity(errorMessage, errorCode);
+                throw new BussinessArgumentException(errorMessage, errorCode);
             }
         }
     }
