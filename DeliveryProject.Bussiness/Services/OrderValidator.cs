@@ -8,12 +8,6 @@ namespace DeliveryProject.API.Services
     {
         public OrderValidator()
         {
-            //RuleFor(x => x.RegionId)
-            //    .GreaterThan(0).WithMessage(ValidationErrorMessages.InvalidRegionId);
-
-            //RuleFor(x => x.Weight)
-            //    .GreaterThan(0).WithMessage(ValidationErrorMessages.InvalidWeight);
-
             RuleFor(x => x.CreatedTime)
                 .LessThanOrEqualTo(DateTime.Now).WithMessage(ValidationErrorMessages.PastDeliveryTime);
         }

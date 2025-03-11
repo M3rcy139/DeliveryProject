@@ -12,5 +12,14 @@ namespace DeliveryProject.Core.Extensions
                 throw new BussinessArgumentException(errorMessage, errorCode);
             }
         }
+
+        public static void ValidateEntities<T>(this IEnumerable<T?> entities, string errorMessage, string errorCode)
+        where T : class
+        {
+            foreach (var entity in entities)
+            {
+                entity?.ValidateEntity(errorMessage, errorCode);
+            }
+        }
     }
 }
