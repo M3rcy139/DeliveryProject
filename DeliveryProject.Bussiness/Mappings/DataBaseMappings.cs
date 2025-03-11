@@ -13,17 +13,9 @@ namespace DeliveryProject.Bussiness.Mappings
             CreateMap<InvoiceEntity, Invoice>();
             CreateMap<OrderEntity, Order>();
             CreateMap<OrderPersonEntity, OrderPerson>();
-            CreateMap<OrderProductEntity, OrderProduct>();
-            
+            CreateMap<OrderProductEntity, OrderProduct>();            
             
             CreateMap<PersonEntity, Person>();
-                //.Include<CustomerEntity, Customer>()
-                //.Include<DeliveryPersonEntity, DeliveryPerson>()
-                //.Include<SupplierEntity, Supplier>();
-            
-            //CreateMap<DeliveryPersonEntity, DeliveryPerson>();
-            //CreateMap<SupplierEntity, Supplier>();
-            //CreateMap<CustomerEntity, Customer>();
             
             CreateMap<AttributeValueEntity, AttributeValue>();
             CreateMap<ProductEntity, Product>();

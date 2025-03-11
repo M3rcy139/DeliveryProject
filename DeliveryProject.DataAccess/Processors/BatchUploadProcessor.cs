@@ -41,6 +41,7 @@ namespace DeliveryProject.DataAccess.Processors
 
             try
             {
+                await GetAttributeIds();
                 await ProcessBatchUploadAsync(upload);
                 upload.Status = UploadStatus.Completed;
             }
@@ -52,6 +53,12 @@ namespace DeliveryProject.DataAccess.Processors
 
             await _batchUploadRepository.UpdateAsync(upload);
             _logger.LogInformation(BatchUploadInfoMessages.ProcessIsCompleted);
+        }
+
+        private async Task GetAttributeIds()
+        {
+            _attributeIds = await _attributeRepository.GetAttributeIdsByKeys(
+                new[] { AttributeKey.Name, AttributeKey.PhoneNumber, AttributeKey.Email, AttributeKey.Rating });
         }
 
         private async Task ProcessBatchUploadAsync(BatchUpload upload)
@@ -75,9 +82,6 @@ namespace DeliveryProject.DataAccess.Processors
                 );
 
                 var validationResult = await batchValidator.ValidateRecordsAsync(batch);
-
-                _attributeIds = await _attributeRepository.GetAttributeIdsByKeys(
-                    new[] { AttributeKey.Name, AttributeKey.PhoneNumber, AttributeKey.Email, AttributeKey.Rating });
 
                 await SaveErrorRecordsAsync(validationResult.ErrorRecords, upload.Id);
                 await SaveValidRecordsAsync(validationResult.ValidRecords);
