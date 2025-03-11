@@ -29,7 +29,7 @@ namespace DeliveryProject.Bussiness.Services
             
             var orderProducts = await GetOrderProducts(order, products);
 
-            decimal amount = await CalculateOrderAmount(orderProducts);
+            var invoice = await GetInvoice(order, orderProducts);
 
             var orderEntity = new OrderEntity()
             {
@@ -40,10 +40,11 @@ namespace DeliveryProject.Bussiness.Services
                 {
                     new OrderPersonEntity { Person = customer }
                 },
-                OrderProducts = orderProducts
+                OrderProducts = orderProducts,
+                Invoice = invoice
             };
 
-            var createdOrderEntity = await _repositoryMediator.AddOrderAsync(orderEntity, amount);
+            var createdOrderEntity = await _repositoryMediator.AddOrderAsync(orderEntity);
 
             _logger.LogInformation(InfoMessages.AddedOrder, order.Id);
 
@@ -113,6 +114,22 @@ namespace DeliveryProject.Bussiness.Services
                 }).ToList();
 
             return orderProducts;
+        }
+
+        private async Task<InvoiceEntity> GetInvoice(Order order, List<OrderProductEntity> orderProducts)
+        {
+            decimal amount = await CalculateOrderAmount(orderProducts);
+
+            var deliveryTime = await _repositoryMediator.CalculateDeliveryTime();
+
+            return new InvoiceEntity
+            {
+                Id = Guid.NewGuid(),
+                OrderId = order.Id,
+                Amount = amount,
+                DeliveryTime = deliveryTime.ToUniversalTime(),
+                IsExecuted = false
+            };
         }
 
         private async Task<decimal> CalculateOrderAmount(List<OrderProductEntity> orderProducts)

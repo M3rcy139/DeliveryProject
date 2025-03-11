@@ -29,31 +29,19 @@ namespace DeliveryProject.Bussiness.Mediators
             _productRepository = productRepository;
         }
 
-        public async Task<OrderEntity> AddOrderAsync(OrderEntity orderEntity, decimal amount)
+        public async Task<OrderEntity> AddOrderAsync(OrderEntity orderEntity)
         {
-            var deliveryTime = await CalculateDeliveryTime();
-
-            var invoice = new InvoiceEntity
-            {
-                Id = Guid.NewGuid(),
-                OrderId = orderEntity.Id,
-                Amount = amount,
-                DeliveryTime = deliveryTime.ToUniversalTime(),
-                IsExecuted = false
-            };
-            orderEntity.Invoice = invoice;
-
             var suppliers = await GetAndValidateSuppliers(orderEntity);
             var availableDeliveryPerson = await GetAndValidateDeliveryPerson(orderEntity);
 
             orderEntity.OrderPersons.AddRange(suppliers.Select(s => new OrderPersonEntity { Person = s }));
             orderEntity.OrderPersons.Add(new OrderPersonEntity { Person = availableDeliveryPerson });
 
-            invoice.DeliveryPersonId = availableDeliveryPerson.Id;
+            orderEntity.Invoice.DeliveryPersonId = availableDeliveryPerson.Id;
 
             await _orderRepository.AddOrder(orderEntity);
 
-            AddDeliverySlot(availableDeliveryPerson.Id, deliveryTime);
+            AddDeliverySlot(availableDeliveryPerson.Id, orderEntity.Invoice.DeliveryTime);
 
             return orderEntity;
         }
@@ -115,12 +103,7 @@ namespace DeliveryProject.Bussiness.Mediators
         public async Task<List<ProductEntity?>> GetAndValidateProductsAsync(List<Guid> productIds)
         {
             var products = await _productRepository.GetProductsByIdAsync(productIds);
-
-            products.ForEach(product =>
-            {
-                product.ValidateEntity(ErrorMessages.ProductNotFound, ErrorCodes.ProductNotFound);
-            });
-
+            products.ValidateEntities(ErrorMessages.ProductNotFound, ErrorCodes.ProductNotFound);
             return products;
         }
 
@@ -129,11 +112,7 @@ namespace DeliveryProject.Bussiness.Mediators
             var suppliers = await _supplierRepository.GetPersonsByProductIdsAndRoleAsync(
                 orderEntity.OrderProducts.Select(op => op.ProductId).ToList());
 
-            suppliers.ForEach(supplier =>
-            {
-                supplier.ValidateEntity(ErrorMessages.SupplierNotFound, ErrorCodes.SupplierNotFound);
-            });
-
+            suppliers.ValidateEntities(ErrorMessages.SupplierNotFound, ErrorCodes.SupplierNotFound);
             return suppliers;
         }
 
@@ -156,7 +135,7 @@ namespace DeliveryProject.Bussiness.Mediators
             return availableDeliveryPerson;
         }
 
-        private async Task<DateTime> CalculateDeliveryTime()
+        public async Task<DateTime> CalculateDeliveryTime()
         {
             var random = new Random();
 
