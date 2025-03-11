@@ -1,9 +1,9 @@
 ﻿namespace DeliveryProject.Core.Dto
 {
-    public class OrderViewModel
+    public class OrderRequest
     {
         public Guid? OrderId { get; set; }
         public Guid CustomerId { get; set; }
-        public List<ProductItemViewModel> Products { get; set; }
+        public List<ProductDto> Products { get; set; }
     }
 }

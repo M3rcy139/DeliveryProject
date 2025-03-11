@@ -23,7 +23,7 @@ namespace DeliveryProject.Bussiness.Services
             _mapper = mapper;
         }
 
-        public async Task<Order> AddOrder(Order order, List<ProductItemViewModel> products)
+        public async Task<Order> AddOrder(Order order, List<ProductDto> products)
         {
             var customer = await _repositoryMediator.GetAndValidateCustomerAsync(order.OrderPersons.First().PersonId);
             
@@ -57,7 +57,7 @@ namespace DeliveryProject.Bussiness.Services
             return _mapper.Map<Order>(orderEntity);
         }
 
-        public async Task UpdateOrder(Order order, List<ProductItemViewModel> products)
+        public async Task UpdateOrder(Order order, List<ProductDto> products)
         {
             var orderProducts = await GetOrderProducts(order, products);
 
@@ -99,7 +99,7 @@ namespace DeliveryProject.Bussiness.Services
             }, TaskCreationOptions.LongRunning).Unwrap();
         }
 
-        private async Task<List<OrderProductEntity>> GetOrderProducts(Order order, List<ProductItemViewModel> products)
+        private async Task<List<OrderProductEntity>> GetOrderProducts(Order order, List<ProductDto> products)
         {
             var productEntities = await _repositoryMediator.GetAndValidateProductsAsync(
                 products.Select(p => p.ProductId).Distinct().ToList());

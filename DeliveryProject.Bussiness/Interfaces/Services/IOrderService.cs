@@ -6,9 +6,9 @@ namespace DeliveryProject.Bussiness.Interfaces.Services
 {
     public interface IOrderService
     {
-        Task<Order> AddOrder(Order order, List<ProductItemViewModel> products);
+        Task<Order> AddOrder(Order order, List<ProductDto> products);
         Task<Order> GetOrderById(Guid id);
-        Task UpdateOrder(Order order, List<ProductItemViewModel> products);
+        Task UpdateOrder(Order order, List<ProductDto> products);
         Task DeleteOrder(Guid id);
         Task<List<Order>> GetAllOrders(OrderSortField? sortBy, bool descending);
     }

@@ -3,8 +3,6 @@
     public static class ErrorMessages
     {
         public const string OrderNotFound = "No orders found.";
-        public const string OrderInTimeRangeNotFound = "No orders were found for the {0} area in the time range from {1} to {2}.";
-        public const string NoOrderInRegion = "No orders were found in this area ({0}).";
 
         public const string RegionMustNotBeEmpty = "The regionName field must not be empty.";
         public const string RegionNotFound = "The region was not found.";
