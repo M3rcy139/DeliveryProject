@@ -3,14 +3,10 @@
     public class OrderEntity
     {
         public Guid Id { get; set; }
-        public double Weight { get; set; }
-        public int RegionId { get; set; }
-        public int DeliveryPersonId { get; set; }
-        public int SupplierId { get; set; } 
         public DateTime DeliveryTime { get; set; }
+        public decimal Amount { get; set; }
 
-        public RegionEntity Region { get; set; }
-        public DeliveryPersonEntity DeliveryPerson { get; set; } 
-        public SupplierEntity Supplier { get; set; } 
+        public ICollection<PersonEntity> Persons { get; set; } = new List<PersonEntity>();
+        public ICollection<OrderProductEntity> OrderProducts { get; set; } = new List<OrderProductEntity>();
     }
 }

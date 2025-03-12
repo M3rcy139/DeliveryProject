@@ -1,8 +1,8 @@
 ﻿namespace DeliveryProject.Core.Models
 {
-    public class DeliveryPerson : BaseUnit
+    public class DeliveryPerson : Person
     {
-        public ICollection<Order> OrdersDelivered { get; set; } = new List<Order>();
-        public List<DateTime> DeliverySlots { get; set; } = new();
+        public double Rating { get; set; }
+        public ICollection<DeliverySlot> DeliverySlots { get; set; } = new List<DeliverySlot>();
     }
 }

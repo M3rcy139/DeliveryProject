@@ -14,9 +14,10 @@ namespace DeliveryProject.DataAccess.Configurations
                 .IsRequired()
                 .HasMaxLength(120);
 
-            builder.HasMany(r => r.Orders)
-                .WithOne(o => o.Region)
-                .HasForeignKey(o => o.RegionId);
+            builder.HasMany(r => r.PersonContacts)
+                .WithOne(pc => pc.Region)
+                .HasForeignKey(pc => pc.RegionId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

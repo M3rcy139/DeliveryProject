@@ -1,7 +1,7 @@
 ﻿using DeliveryProject.Core.Constants.ErrorMessages;
 using FluentValidation;
 
-namespace DeliveryProject.Bussiness.Validators
+namespace DeliveryProject.Core.Validators
 {
     public class RegionNameValidator : AbstractValidator<string>
     {

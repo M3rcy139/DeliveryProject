@@ -1,8 +1,8 @@
 ﻿namespace DeliveryProject.DataAccess.Entities
 {
-    public class DeliveryPersonEntity : BaseUnitEntity
+    public class DeliveryPersonEntity : PersonEntity
     {
-        public ICollection<OrderEntity> OrdersDelivered { get; set; } = new List<OrderEntity>();
-        public List<DateTime> DeliverySlots { get; set; } = new();
+        public double Rating { get; set; }
+        public ICollection<DeliverySlotEntity> DeliverySlots { get; set; } = new List<DeliverySlotEntity>();
     }
 }

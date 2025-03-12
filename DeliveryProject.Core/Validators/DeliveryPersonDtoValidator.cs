@@ -2,7 +2,7 @@
 using DeliveryProject.Core.Dto;
 using FluentValidation;
 
-namespace DeliveryProject.Bussiness.Validators
+namespace DeliveryProject.Core.Validators
 {
     public class DeliveryPersonDtoValidator : AbstractValidator<DeliveryPersonDto>
     {
@@ -11,9 +11,16 @@ namespace DeliveryProject.Bussiness.Validators
             RuleFor(x => x.Name)
                 .NotEmpty().WithMessage(BatchUploadErrorMessages.IncorrectData);
 
-            RuleFor(x => x.PhoneNumber)
-                .Must(phone => !existingPhoneNumbers.Contains(phone))
-                .WithMessage(BatchUploadErrorMessages.AlreadyExists);
+            RuleFor(x => x.Contacts)
+                .NotEmpty().WithMessage(BatchUploadErrorMessages.MustHaveOneContact);
+
+            RuleForEach(x => x.Contacts).ChildRules(contact =>
+            {
+                contact.RuleFor(c => c.PhoneNumber)
+                    .NotEmpty().WithMessage(BatchUploadErrorMessages.IncorrectData)
+                    .Must(phone => !existingPhoneNumbers.Contains(phone))
+                    .WithMessage(BatchUploadErrorMessages.AlreadyExists);
+            });
         }
     }
 }

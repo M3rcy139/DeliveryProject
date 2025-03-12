@@ -26,11 +26,11 @@ namespace DeliveryProject.Tests.Mocks
             return mock;
         }
 
-        public static void SetupValidationException(Mock<IOrderService> mock, string message)
-        {
-            mock.Setup(service => service.AddOrder(It.IsAny<Order>()))
-                .ThrowsAsync(new ValidationException(message));
-        }
+        //public static void SetupValidationException(Mock<IOrderService> mock, string message)
+        //{
+        //    mock.Setup(service => service.AddOrder(It.IsAny<Order>()))
+        //        .ThrowsAsync(new ValidationException(message));
+        //}
 
         public static void SetupGetAllOrders(Mock<IOrderService> mock, List<Order> list)
         {

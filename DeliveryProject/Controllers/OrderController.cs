@@ -3,7 +3,6 @@ using DeliveryProject.Core.Models;
 using DeliveryProject.Core.Dto;
 using DeliveryProject.Bussiness.Interfaces.Services;
 using DeliveryProject.Core.Enums;
-using System.Diagnostics;
 using DeliveryProject.Core.Constants.InfoMessages;
 
 namespace DeliveryProject.Controllers
@@ -25,13 +24,14 @@ namespace DeliveryProject.Controllers
             var order = new Order()
             {
                 Id = Guid.NewGuid(),
-                RegionId = model.RegionId,
-                Weight = model.Weight,
-                DeliveryTime = model.DeliveryTime,
-                SupplierId = model.SupplierId
+                Persons = new List<Person> 
+                {
+                    new Customer { Id = model.CustomerId }
+                },
+                DeliveryTime = model.DeliveryTime
             };
 
-            var result = await _orderService.AddOrder(order);
+            var result = await _orderService.AddOrder(order, model.Products);
 
             return Ok(new
             {
@@ -54,13 +54,10 @@ namespace DeliveryProject.Controllers
             var order = new Order()
             {
                 Id = model.OrderId.Value,
-                RegionId = model.RegionId,
-                Weight = model.Weight,
                 DeliveryTime = model.DeliveryTime,
-                SupplierId = model.SupplierId
             };
 
-            await _orderService.UpdateOrder(order);
+            await _orderService.UpdateOrder(order, model.Products);
 
             return Ok(new { message = string.Format(InfoMessages.UpdatedOrder, order.Id) });
         }

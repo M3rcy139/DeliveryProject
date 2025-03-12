@@ -13,12 +13,18 @@ namespace DeliveryProject.DataAccess.Repositories
         public async Task<DeliveryPersonEntity?> GetAvailableDeliveryPersonAsync(DateTime deliveryTime)
         {
             await using var dbContext = await _contextFactory.CreateDbContextAsync();
-            var deliveryPersons = await dbContext.DeliveryPersons
-                .AsNoTracking()
-                .ToListAsync(); 
 
-            return deliveryPersons
-                .FirstOrDefault(d => !d.DeliverySlots.Contains(deliveryTime));
+            return await dbContext.DeliveryPersons
+                .Include(dp => dp.DeliverySlots)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(dp => !dp.DeliverySlots.Any(ds => ds.SlotTime == deliveryTime));
+        }
+
+        public async Task AddSlotAsync(DeliverySlotEntity slot)
+        {
+            await using var dbContext = await _contextFactory.CreateDbContextAsync();
+            await dbContext.DeliverySlots.AddAsync(slot);
+            await dbContext.SaveChangesAsync();
         }
 
         public async Task UpdateAsync(DeliveryPersonEntity deliveryPerson)

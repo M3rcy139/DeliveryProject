@@ -1,9 +1,9 @@
 ﻿namespace DeliveryProject.DataAccess.Entities
 {
-    public class SupplierEntity : BaseUnitEntity
+    public class SupplierEntity : PersonEntity
     {
-        public ICollection<OrderEntity> OrdersSupplied { get; set; } = new List<OrderEntity>();
-        public string Email { get; set; }
+        public double Rating { get; set; }
+        public ICollection<ProductEntity> Products { get; set; } = new List<ProductEntity>();
     }
 }
 

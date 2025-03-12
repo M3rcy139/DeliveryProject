@@ -10,16 +10,9 @@ namespace DeliveryProject.DataAccess.Configurations
         {
             builder.HasKey(f => f.Id);
 
-            builder.Property(f => f.DeliveryTime)
-                .IsRequired();
-
             builder.HasOne(f => f.Order)
                 .WithMany()
                 .HasForeignKey(f => f.OrderId);
-
-            builder.HasOne(f => f.Region)
-                .WithMany()
-                .HasForeignKey(f => f.RegionId);
         }
     }
 }
