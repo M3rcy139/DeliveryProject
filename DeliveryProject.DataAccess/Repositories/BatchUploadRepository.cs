@@ -6,7 +6,7 @@ using DeliveryProject.DataAccess.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using EFCore.BulkExtensions;
 using Microsoft.Extensions.Logging;
-using DeliveryProject.Core.Models;
+using DeliveryProject.Core.Enums;
 
 namespace DeliveryProject.DataAccess.Repositories
 {
@@ -64,13 +64,19 @@ namespace DeliveryProject.DataAccess.Repositories
             await dbContext.BulkInsertAsync(errorEntities);
         }
 
-        public async Task<HashSet<string>> GetExistingPhoneNumbersAsync(List<string> phoneNumbers)
+        public async Task<HashSet<string>> GetExistingPhoneNumbersAsync(List<string> phoneNumbers, RoleType roleType)
         {
             await using var dbContext = await _dbContextFactory.CreateDbContextAsync();
 
-            var existingPhoneNumbers = await dbContext.PersonContacts
-                .Where(pc => phoneNumbers.Contains(pc.PhoneNumber) && pc.Person.RoleId == 3)
-                .Select(pc => pc.PhoneNumber)
+            var phoneNumberAttributeId = await dbContext.Attributes
+                .Where(a => a.Key == AttributeKey.PhoneNumber)
+                .Select(a => a.Id)
+                .FirstOrDefaultAsync();
+
+            var existingPhoneNumbers = await dbContext.AttributeValues
+                .Where(av => av.AttributeId == phoneNumberAttributeId && phoneNumbers.Contains(av.Value)
+                    && av.Person.Role.RoleType == roleType)
+                .Select(av => av.Value)
                 .ToListAsync();
 
             return new HashSet<string>(existingPhoneNumbers); 

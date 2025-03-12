@@ -9,27 +9,39 @@ namespace DeliveryProject.Tests.Helpers
     {
         public static async Task GenerateDeliveryPersons(this DeliveryDbContext context, int count)
         {
-            var deliveryPersons = new List<DeliveryPersonEntity>();
-            var contacts = new List<PersonContactEntity>();
+            var deliveryPersons = new List<PersonEntity>();
+            var attributes = new List<AttributeValueEntity>();
             var deliverySlots = new List<DeliverySlotEntity>();
             var random = new Random();
 
-            var deliveryRole = await context.Roles.FirstAsync(r => r.Role == RoleType.DeliveryPerson);
+            var deliveryRole = await context.Roles.FirstAsync(r => r.RoleType == RoleType.DeliveryPerson);
+            var nameAttribute = await context.Attributes.FirstAsync(a => a.Key == AttributeKey.Name);
+            var phoneNumberAttribute = await context.Attributes.FirstAsync(a => a.Key == AttributeKey.PhoneNumber);
+            var emailAttribute = await context.Attributes.FirstAsync(a => a.Key == AttributeKey.Email);
+            var ratingAttribute = await context.Attributes.FirstAsync(a => a.Key == AttributeKey.Rating);
+            
 
             for (int i = 1; i <= count; i++)
             {
-                var deliveryPerson = new DeliveryPersonEntity
+                var deliveryPerson = new PersonEntity
                 {
-                    Id = Guid.NewGuid(), 
-                    Name = $"Delivery Person {i}",
-                    Rating = Math.Round(3.5 + (i % 5) * 0.3, 1),
+                    Id = Guid.NewGuid(),
+                    Status = PersonStatus.Active,
+                    RegionId = random.Next(1, 80),
                     RoleId = deliveryRole.Id
                 };
 
                 deliveryPersons.Add(deliveryPerson);
 
-                var contact = PersonContactHelper.CreatePersonContact(deliveryPerson.Id, random, i, "deliveryperson");
-                contacts.Add(contact);
+                attributes.Add(AttributeValueHelper
+                    .CreateAttribute(deliveryPerson.Id, nameAttribute.Id, $"Delivery Person {i}"));
+                attributes.Add(AttributeValueHelper
+                    .CreateAttribute(deliveryPerson.Id, ratingAttribute.Id, Math.Round(3.5 + (i % 5) * 0.3, 1).ToString()));
+                attributes.Add(AttributeValueHelper
+                    .CreateAttribute(deliveryPerson.Id, phoneNumberAttribute.Id, $"{random.Next(100, 999)}-{random.Next(1000, 9999)}"));
+                attributes.Add(AttributeValueHelper
+                    .CreateAttribute(deliveryPerson.Id, emailAttribute.Id, $"deliveryPerson{i}@email.com"));
+
 
                 int slotCount = random.Next(1, 6);
                 for (int j = 0; j < slotCount; j++)
@@ -45,8 +57,8 @@ namespace DeliveryProject.Tests.Helpers
 
             await TransactionHelper.ExecuteInTransactionAsync(context, async () =>
             {
-                await context.DeliveryPersons.AddRangeAsync(deliveryPersons);
-                await context.PersonContacts.AddRangeAsync(contacts);
+                await context.Persons.AddRangeAsync(deliveryPersons);
+                await context.AttributeValues.AddRangeAsync(attributes);
                 await context.DeliverySlots.AddRangeAsync(deliverySlots);
                 await context.SaveChangesAsync();
             });

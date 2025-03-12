@@ -7,25 +7,22 @@ namespace DeliveryProject.Bussiness.Mappings
     public class DataBaseMappings : Profile
     {
         public DataBaseMappings() 
-        { 
-            CreateMap<RegionEntity, Region>();
-            CreateMap<FilteredOrderEntity, FilteredOrder>();
-            CreateMap<OrderEntity, Order>();
-            CreateMap<DeliveryPersonEntity, DeliveryPerson>();
-            CreateMap<SupplierEntity, Supplier>();
-            CreateMap<BaseUnitEntity, BaseUnit>();
-            CreateMap<PersonContactEntity, PersonContact>();
-            CreateMap<RoleEntity, Role>();
-
-            CreateMap<PersonEntity, Person>()
-                .Include<CustomerEntity, Customer>()
-                .Include<DeliveryPersonEntity, DeliveryPerson>()
-                .Include<SupplierEntity, Supplier>();
-
-            CreateMap<CustomerEntity, Customer>();
-            CreateMap<ProductEntity, Product>();
+        {
+            CreateMap<AttributeEntity, Core.Models.Attribute>();
             CreateMap<DeliverySlotEntity, DeliverySlot>();
-            CreateMap<OrderProductEntity, OrderProduct>();
+            CreateMap<InvoiceEntity, Invoice>();
+            CreateMap<OrderEntity, Order>();
+            CreateMap<OrderPersonEntity, OrderPerson>();
+            CreateMap<OrderProductEntity, OrderProduct>();            
+            
+            CreateMap<PersonEntity, Person>();
+            
+            CreateMap<AttributeValueEntity, AttributeValue>();
+            CreateMap<ProductEntity, Product>();
+            CreateMap<RegionEntity, Region>();
+            CreateMap<RoleEntity, Role>();
+            CreateMap<RoleAttributeEntity, RoleAttribute>();
+            
         }
     }
 }

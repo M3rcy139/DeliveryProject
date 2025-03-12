@@ -9,15 +9,15 @@ namespace DeliveryProject.Bussiness.Services
             sortBy switch
             {
                 OrderSortField.RegionId => orders => descending
-                ? orders.OrderByDescending(o => o.Persons
-                    .FirstOrDefault(p => p.Role.Role == RoleType.Customer)?
-                    .Contacts.FirstOrDefault()?.RegionId).ToList()
-                : orders.OrderBy(o => o.Persons
-                    .FirstOrDefault(p => p.Role.Role == RoleType.Customer)?
-                    .Contacts.FirstOrDefault()?.RegionId).ToList(),
-                OrderSortField.DeliveryTime => orders => descending
-                    ? orders.OrderByDescending(o => o.DeliveryTime).ToList()
-                    : orders.OrderBy(o => o.DeliveryTime).ToList(),
+                    ? orders.OrderByDescending(o => o.OrderPersons
+                        .FirstOrDefault(op => op.Person.RoleId == (int)RoleType.Customer)
+                        ?.Person.RegionId).ToList()
+                    : orders.OrderBy(o => o.OrderPersons
+                        .FirstOrDefault(op => op.Person.RoleId == (int)RoleType.Customer)
+                        ?.Person.RegionId).ToList(),
+                OrderSortField.CreatedTime => orders => descending
+                    ? orders.OrderByDescending(o => o.CreatedTime).ToList()
+                    : orders.OrderBy(o => o.CreatedTime).ToList(),
                 _ => null
             };
     }

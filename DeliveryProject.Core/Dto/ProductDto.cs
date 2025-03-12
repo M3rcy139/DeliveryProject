@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace DeliveryProject.Core.Dto
 {
-    public class ProductItemViewModel
+    public class ProductDto
     {
         public Guid ProductId { get; set; }
         [Range(1, 100, ErrorMessage = ValidationErrorMessages.QuantityLength)]

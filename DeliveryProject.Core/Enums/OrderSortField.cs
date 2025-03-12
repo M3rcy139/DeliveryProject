@@ -6,6 +6,6 @@ namespace DeliveryProject.Core.Enums
     public enum OrderSortField
     {
         RegionId,
-        DeliveryTime
+        CreatedTime
     }
 }

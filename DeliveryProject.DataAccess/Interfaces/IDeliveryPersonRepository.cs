@@ -4,8 +4,7 @@ namespace DeliveryProject.DataAccess.Interfaces
 {
     public interface IDeliveryPersonRepository
     {
-        Task<DeliveryPersonEntity?> GetAvailableDeliveryPersonAsync(DateTime deliveryTime);
+        Task<PersonEntity?> GetAvailableDeliveryPersonAsync(DateTime deliveryTime);
         Task AddSlotAsync(DeliverySlotEntity slot);
-        Task UpdateAsync(DeliveryPersonEntity deliveryPerson);
     }
 }

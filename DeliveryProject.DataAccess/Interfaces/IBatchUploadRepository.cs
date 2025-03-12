@@ -1,4 +1,5 @@
-﻿using DeliveryProject.DataAccess.Entities;
+﻿using DeliveryProject.Core.Enums;
+using DeliveryProject.DataAccess.Entities;
 
 namespace DeliveryProject.DataAccess.Interfaces
 {
@@ -11,7 +12,7 @@ namespace DeliveryProject.DataAccess.Interfaces
             Func<TDto, TEntity> entityMapper
         ) where TEntity : class;
         Task SaveErrorsAsync(List<UploadError> errorEntities);
-        Task<HashSet<string>> GetExistingPhoneNumbersAsync(List<string> phoneNumbers);
+        Task<HashSet<string>> GetExistingPhoneNumbersAsync(List<string> phoneNumbers, RoleType roleType);
         Task ExecuteMergeProcedureAsync(string tableName);
     }
 

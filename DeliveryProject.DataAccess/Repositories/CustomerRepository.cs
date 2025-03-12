@@ -1,4 +1,5 @@
-﻿using DeliveryProject.DataAccess.Entities;
+﻿using DeliveryProject.Core.Enums;
+using DeliveryProject.DataAccess.Entities;
 using DeliveryProject.DataAccess.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,11 +11,11 @@ namespace DeliveryProject.DataAccess.Repositories
 
         public CustomerRepository(IDbContextFactory<DeliveryDbContext> contextFactory) => _contextFactory = contextFactory;
 
-        public async Task<CustomerEntity?> GetCustomerByIdAsync(Guid customerId)
+        public async Task<PersonEntity?> GetCustomerByIdAndRoleAsync(Guid personId)
         {
             await using var dbContext = await _contextFactory.CreateDbContextAsync();
-            return await dbContext.Customers
-                .FirstOrDefaultAsync(c => c.Id == customerId);
+            return await dbContext.Persons
+                .FirstOrDefaultAsync(p => p.Id == personId && p.Role.RoleType == RoleType.Customer);
         }
     }
 }

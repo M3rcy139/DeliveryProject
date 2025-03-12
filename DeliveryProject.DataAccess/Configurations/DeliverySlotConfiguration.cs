@@ -9,6 +9,10 @@ namespace DeliveryProject.DataAccess.Configurations
         public void Configure(EntityTypeBuilder<DeliverySlotEntity> builder)
         {
             builder.Property(ds => ds.SlotTime).IsRequired();
+
+            builder
+                .HasOne(ds => ds.DeliveryPerson)
+                .WithMany();
         }
     }
 }

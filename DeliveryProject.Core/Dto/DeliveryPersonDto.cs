@@ -1,12 +1,14 @@
-﻿namespace DeliveryProject.Core.Dto
+﻿using DeliveryProject.Core.Enums;
+
+namespace DeliveryProject.Core.Dto
 {
     public class DeliveryPersonDto
     {
-        public string Name { get; set; }
-        public double Rating { get; set; }
+        public int RegionId { get; set; }
+        public int RoleId { get; set; } = (int)RoleType.DeliveryPerson;
+        public List<AttributeValueDto> Attributes { get; set; } = new();
         public List<DeliverySlotDto> DeliverySlots { get; set; } = new();
-        public List<PersonContactDto> Contacts { get; set; } = new();
 
-        public string ToCsvString() => $"{Name},{Rating}";
+        public string ToCsvString() => string.Join(",", Attributes.Select(a => a.Value));
     }
 }

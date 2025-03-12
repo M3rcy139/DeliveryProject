@@ -31,6 +31,9 @@ public class DataGenerationEntryPoint
 
             await context.SaveChangesAsync();
 
+            await context.GenerateAttributes();
+            await context.SaveChangesAsync();
+
             await context.GenerateDeliveryPersons(dataSettings.DeliveryPersonsCount);
             await context.GenerateSuppliers(dataSettings.SuppliersCount);
             await context.GenerateCustomers(dataSettings.CustomersCount);

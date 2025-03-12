@@ -1,10 +1,11 @@
 ﻿namespace DeliveryProject.Core.Models
 {
-    public class FilteredOrder
+    public class OrderPerson
     {
-        public Guid Id { get; set; } 
         public Guid OrderId { get; set; }
+        public Guid PersonId { get; set; }
 
         public Order Order { get; set; }
+        public Person Person { get; set; }
     }
 }

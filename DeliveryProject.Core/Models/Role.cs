@@ -6,6 +6,7 @@ namespace DeliveryProject.Core.Models
     {
         public int Id { get; set; }
         public RoleType RoleType { get; set; }
-        public ICollection<Person> Persons { get; set; } = new List<Person>();
+        public ICollection<RoleAttribute> RoleAttributes { get; set; }
+            = new List<RoleAttribute>();
     }
 }
