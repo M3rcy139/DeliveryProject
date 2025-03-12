@@ -2,7 +2,7 @@
 using DeliveryProject.Core.Models;
 using DeliveryProject.Core.Constants.ErrorMessages;
 
-namespace DeliveryProject.API.Services
+namespace DeliveryProject.Core.Validators
 {
     public class OrderValidator : AbstractValidator<Order>
     {
