@@ -1,7 +1,7 @@
 ﻿using DeliveryProject.Core.Models;
 using FluentValidation.AspNetCore;
 using FluentValidation;
-using DeliveryProject.API.Services;
+using DeliveryProject.Core.Validators;
 
 namespace DeliveryProject.ServiceCollection
 {
@@ -11,7 +11,6 @@ namespace DeliveryProject.ServiceCollection
         {
             services.AddFluentValidationAutoValidation();
             services.AddFluentValidationClientsideAdapters();
-            services.AddValidatorsFromAssemblyContaining<OrderValidator>();
             services.AddSingleton<IValidator<Order>, OrderValidator>();
         }
     }
