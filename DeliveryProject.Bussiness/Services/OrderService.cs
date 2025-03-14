@@ -63,14 +63,7 @@ namespace DeliveryProject.Bussiness.Services
 
             decimal amount = await CalculateOrderAmount(orderProducts);
 
-            var orderEntity = new OrderEntity()
-            {
-                Id = order.Id,
-                Status = OrderStatus.Active,
-                OrderProducts = orderProducts,
-            };
-
-            await _repositoryMediator.UpdateOrderAsync(orderEntity, amount);
+            await _repositoryMediator.UpdateOrderAsync(order.Id, orderProducts, amount);
 
             _logger.LogInformation(InfoMessages.UpdatedOrder, order.Id);
         }

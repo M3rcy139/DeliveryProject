@@ -11,7 +11,7 @@ namespace DeliveryProject.DataAccess.Repositories
 
         public CustomerRepository(IDbContextFactory<DeliveryDbContext> contextFactory) => _contextFactory = contextFactory;
 
-        public async Task<PersonEntity?> GetCustomerByIdAndRoleAsync(Guid personId)
+        public async Task<PersonEntity?> GetCustomerByIdAsync(Guid personId)
         {
             await using var dbContext = await _contextFactory.CreateDbContextAsync();
             return await dbContext.Persons

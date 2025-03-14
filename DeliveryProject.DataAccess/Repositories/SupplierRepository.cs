@@ -17,7 +17,7 @@ namespace DeliveryProject.DataAccess.Repositories
             return await dbContext.Persons.FirstOrDefaultAsync(s => s.Id == id);
         }
 
-        public async Task<List<PersonEntity>> GetPersonsByProductIdsAndRoleAsync(List<Guid> productIds)
+        public async Task<List<PersonEntity>> GetSuppliersByProductIdsAsync(List<Guid> productIds)
         {
             await using var dbContext = await _contextFactory.CreateDbContextAsync();
             return await dbContext.Products
