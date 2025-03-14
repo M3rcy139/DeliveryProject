@@ -20,17 +20,12 @@ namespace DeliveryProject.Tests.Helpers
                 .Where(p => p.Role.RoleType == RoleType.DeliveryPerson)
                 .ToListAsync();
 
-            var suppliers = await context.Persons
-                .Where(p => p.Role.RoleType == RoleType.Supplier)
-                .ToListAsync();
-
             var products = await context.Products.ToListAsync();
 
             for (int i = 0; i < count; i++)
             {
                 var customer = customers[random.Next(customers.Count)];
                 var deliveryPerson = deliveryPersons[random.Next(deliveryPersons.Count)];
-                var supplier = suppliers[random.Next(suppliers.Count)];
 
                 var orderProducts = GenerateOrderProducts(products, random);
                 var amount = orderProducts.Sum(op => op.Quantity * products.First(p => p.Id == op.ProductId).Price);
@@ -44,7 +39,6 @@ namespace DeliveryProject.Tests.Helpers
                 {
                     new OrderPersonEntity { PersonId = customer.Id },
                     new OrderPersonEntity { PersonId = deliveryPerson.Id },
-                    new OrderPersonEntity { PersonId = supplier.Id }
                 },
                     OrderProducts = orderProducts,
                     Invoice = new InvoiceEntity

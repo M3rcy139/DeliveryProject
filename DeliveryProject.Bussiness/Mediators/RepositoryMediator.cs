@@ -31,10 +31,7 @@ namespace DeliveryProject.Bussiness.Mediators
 
         public async Task<OrderEntity> AddOrderAsync(OrderEntity orderEntity)
         {
-            var suppliers = await GetAndValidateSuppliers(orderEntity.OrderProducts.ToList());
             var availableDeliveryPerson = await GetAndValidateDeliveryPerson(orderEntity);
-
-            orderEntity.OrderPersons.AddRange(suppliers.Select(s => new OrderPersonEntity { Person = s }));
             orderEntity.OrderPersons.Add(new OrderPersonEntity { Person = availableDeliveryPerson });
 
             orderEntity.Invoice.DeliveryPersonId = availableDeliveryPerson.Id;
@@ -62,12 +59,9 @@ namespace DeliveryProject.Bussiness.Mediators
             var customer = order.OrderPersons.First(p => p.Person.Role.RoleType == RoleType.Customer);
             var deliveryPerson = order.OrderPersons.First(p => p.Person.Role.RoleType == RoleType.DeliveryPerson);
 
-            var newSuppliers = await GetAndValidateSuppliers(orderProducts);
-
             order.OrderPersons.Clear();
             order.OrderPersons.Add(customer);
             order.OrderPersons.Add(deliveryPerson);
-            order.OrderPersons.AddRange(newSuppliers.Select(s => new OrderPersonEntity { PersonId = s.Id, OrderId = order.Id }));
 
             order.OrderProducts.Clear();
             order.OrderProducts.AddRange(orderProducts
@@ -104,15 +98,6 @@ namespace DeliveryProject.Bussiness.Mediators
             var products = await _productRepository.GetProductsByIdAsync(productIds);
             products.ValidateEntities(ErrorMessages.ProductNotFound, ErrorCodes.ProductNotFound);
             return products;
-        }
-
-        private async Task<List<PersonEntity>> GetAndValidateSuppliers(List<OrderProductEntity> orderProducts)
-        {
-            var suppliers = await _supplierRepository.GetSuppliersByProductIdsAsync(
-                orderProducts.Select(op => op.ProductId).ToList());
-
-            suppliers.ValidateEntities(ErrorMessages.SupplierNotFound, ErrorCodes.SupplierNotFound);
-            return suppliers;
         }
 
         private async Task<OrderEntity> GetAndValidateOrderById(Guid orderId)
