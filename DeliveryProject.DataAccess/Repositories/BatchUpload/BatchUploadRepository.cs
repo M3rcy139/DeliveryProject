@@ -8,7 +8,7 @@ using EFCore.BulkExtensions;
 using Microsoft.Extensions.Logging;
 using DeliveryProject.Core.Enums;
 
-namespace DeliveryProject.DataAccess.Repositories
+namespace DeliveryProject.DataAccess.Repositories.BatchUpload
 {
     public class BatchUploadRepository : IBatchUploadRepository
     {
@@ -21,7 +21,7 @@ namespace DeliveryProject.DataAccess.Repositories
             _logger = logger;
         }
 
-        public async Task<List<BatchUpload>> GetPendingUploadsAsync()
+        public async Task<List<Entities.BatchUpload>> GetPendingUploadsAsync()
         {
             await using var dbContext = await _dbContextFactory.CreateDbContextAsync();
             
@@ -30,7 +30,7 @@ namespace DeliveryProject.DataAccess.Repositories
                 .ToListAsync();
         }
 
-        public async Task AddAsync(BatchUpload batchUpload)
+        public async Task AddAsync(Entities.BatchUpload batchUpload)
         {
             await using var dbContext = await _dbContextFactory.CreateDbContextAsync();
             
@@ -38,7 +38,7 @@ namespace DeliveryProject.DataAccess.Repositories
             await dbContext.SaveChangesAsync();
         }
 
-        public async Task UpdateAsync(BatchUpload upload)
+        public async Task UpdateAsync(Entities.BatchUpload upload)
         {
             await using var dbContext = await _dbContextFactory.CreateDbContextAsync();
             

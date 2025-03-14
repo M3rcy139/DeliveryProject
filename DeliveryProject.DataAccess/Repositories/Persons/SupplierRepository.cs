@@ -3,7 +3,7 @@ using DeliveryProject.DataAccess.Entities;
 using DeliveryProject.DataAccess.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
-namespace DeliveryProject.DataAccess.Repositories
+namespace DeliveryProject.DataAccess.Repositories.Persons
 {
     public class SupplierRepository : ISupplierRepository
     {

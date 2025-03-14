@@ -2,7 +2,7 @@
 using DeliveryProject.DataAccess.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
-namespace DeliveryProject.DataAccess.Repositories
+namespace DeliveryProject.DataAccess.Repositories.Common
 {
     public class ProductRepository : IProductRepository
     {

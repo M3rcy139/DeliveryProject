@@ -1,5 +1,7 @@
 ﻿using DeliveryProject.DataAccess.Interfaces;
-using DeliveryProject.DataAccess.Repositories;
+using DeliveryProject.DataAccess.Repositories.BatchUpload;
+using DeliveryProject.DataAccess.Repositories.Common;
+using DeliveryProject.DataAccess.Repositories.Persons;
 
 namespace DeliveryProject.ServiceCollection
 {

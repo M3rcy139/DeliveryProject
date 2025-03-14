@@ -1,10 +1,8 @@
-﻿using DeliveryProject.Core.Enums;
-using DeliveryProject.Core.Extensions;
-using DeliveryProject.DataAccess.Entities;
+﻿using DeliveryProject.DataAccess.Entities;
 using DeliveryProject.DataAccess.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
-namespace DeliveryProject.DataAccess.Repositories
+namespace DeliveryProject.DataAccess.Repositories.Common
 {
     public class OrderRepository : IOrderRepository
     {
@@ -64,56 +62,78 @@ namespace DeliveryProject.DataAccess.Repositories
             if (existingEntity != null)
                 dbContext.Entry(existingEntity).CurrentValues.SetValues(orderEntity);
 
-            if (existingEntity.Invoice != null && orderEntity.Invoice != null)
-            {
-                existingEntity.Invoice.Amount = orderEntity.Invoice.Amount;
-            }
+            UpdateInvoice(existingEntity, orderEntity);
 
-            await UpdateOrderPersons(dbContext, existingEntity, orderEntity);
-            UpdateOrderProducts(dbContext, existingEntity, orderEntity);
+            await UpdateOrderRelationships(dbContext, existingEntity, orderEntity);
 
             await dbContext.SaveChangesAsync();
             _orderCache[orderEntity.Id] = orderEntity;
         }
 
-        private async Task UpdateOrderPersons(DeliveryDbContext dbContext, OrderEntity existingEntity, OrderEntity orderEntity)
+        private void UpdateInvoice(OrderEntity existingEntity, OrderEntity newEntity)
+        {
+            if (existingEntity.Invoice != null && newEntity.Invoice != null)
+            {
+                existingEntity.Invoice.Amount = newEntity.Invoice.Amount;
+            }
+        }
+
+        private async Task UpdateOrderRelationships(DeliveryDbContext dbContext, OrderEntity existingEntity, OrderEntity newEntity)
+        {
+            await UpdateOrderPersons(dbContext, existingEntity, newEntity);
+            UpdateOrderProducts(dbContext, existingEntity, newEntity);
+        }
+
+        private async Task UpdateOrderPersons(DeliveryDbContext dbContext, OrderEntity existingEntity, OrderEntity newEntity)
         {
             existingEntity.OrderPersons.Clear();
+            await ClearAndAttachNewPersons(dbContext, existingEntity, newEntity);
+        }
 
-            foreach (var newOrderPerson in orderEntity.OrderPersons)
+        private async Task ClearAndAttachNewPersons(DeliveryDbContext dbContext, OrderEntity existingEntity, OrderEntity newEntity)
+        {
+            foreach (var newOrderPerson in newEntity.OrderPersons)
             {
-                var attachedPerson = await dbContext.Persons.FindAsync(newOrderPerson.PersonId);
-                if (attachedPerson == null)
-                {
-                    attachedPerson = new PersonEntity { Id = newOrderPerson.PersonId };
-                    dbContext.Attach(attachedPerson);
-                }
-
+                var attachedPerson = await AttachPerson(dbContext, newOrderPerson.PersonId);
                 existingEntity.OrderPersons.Add(new OrderPersonEntity
                 {
-                    OrderId = orderEntity.Id,
+                    OrderId = newEntity.Id,
                     PersonId = attachedPerson.Id,
                     Person = attachedPerson
                 });
             }
         }
 
-        private void UpdateOrderProducts(DeliveryDbContext dbContext, OrderEntity existingEntity, OrderEntity orderEntity)
+        private async Task<PersonEntity> AttachPerson(DeliveryDbContext dbContext, Guid personId)
         {
-            var newProducts = orderEntity.OrderProducts.ToList();
-            var existingProducts = existingEntity.OrderProducts.ToList();
+            var person = await dbContext.Persons.FindAsync(personId) ?? new PersonEntity { Id = personId };
+            dbContext.Attach(person);
+            return person;
+        }
 
+        private void UpdateOrderProducts(DeliveryDbContext dbContext, OrderEntity existingEntity, OrderEntity newEntity)
+        {
+            RemoveOldProducts(dbContext, existingEntity, newEntity);
+            AddOrUpdateProducts(existingEntity, newEntity);
+        }
+
+        private void RemoveOldProducts(DeliveryDbContext dbContext, OrderEntity existingEntity, OrderEntity newEntity)
+        {
+            var existingProducts = existingEntity.OrderProducts.ToList();
             foreach (var existingProduct in existingProducts)
             {
-                if (!newProducts.Any(np => np.ProductId == existingProduct.ProductId))
+                if (!newEntity.OrderProducts.Any(np => np.ProductId == existingProduct.ProductId))
                 {
                     dbContext.Remove(existingProduct);
                 }
             }
+        }
 
-            foreach (var newProduct in newProducts)
+        private void AddOrUpdateProducts(OrderEntity existingEntity, OrderEntity newEntity)
+        {
+            foreach (var newProduct in newEntity.OrderProducts)
             {
-                var existingProduct = existingProducts.FirstOrDefault(ep => ep.ProductId == newProduct.ProductId);
+                var existingProduct = existingEntity.OrderProducts.FirstOrDefault(ep => ep.ProductId == newProduct.ProductId);
                 if (existingProduct == null)
                 {
                     existingEntity.OrderProducts.Add(newProduct);
