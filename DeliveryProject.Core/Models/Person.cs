@@ -13,6 +13,5 @@ namespace DeliveryProject.Core.Models
         public Role Role { get; set; }
         public ICollection<AttributeValue> AttributeValues { get; set; }
             = new List<AttributeValue>();
-        public ICollection<OrderPerson> OrderPersons { get; set; } = new List<OrderPerson>();
     }
 }

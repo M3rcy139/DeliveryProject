@@ -13,6 +13,5 @@ namespace DeliveryProject.DataAccess.Entities
         public RoleEntity Role { get; set; }
         public ICollection<AttributeValueEntity> AttributeValues { get; set; } 
             = new List<AttributeValueEntity>();
-        public ICollection<OrderPersonEntity> OrderPersons { get; set; } = new List<OrderPersonEntity>();
     }
 }

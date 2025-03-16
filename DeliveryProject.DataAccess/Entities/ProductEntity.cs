@@ -9,6 +9,5 @@
         public Guid SupplierId { get; set; }
 
         public PersonEntity Supplier { get; set; }
-        public ICollection<OrderProductEntity> OrderProducts { get; set; } = new List<OrderProductEntity>();
     }
 }
