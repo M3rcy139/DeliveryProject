@@ -1,4 +1,5 @@
 ﻿using DeliveryProject.DataAccess.Interfaces;
+using DeliveryProject.DataAccess.Interfaces.BatchUploads;
 using DeliveryProject.DataAccess.Repositories.BatchUpload;
 using DeliveryProject.DataAccess.Repositories.Common;
 using DeliveryProject.DataAccess.Repositories.Persons;

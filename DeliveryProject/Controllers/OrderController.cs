@@ -19,7 +19,7 @@ namespace DeliveryProject.Controllers
         }
 
         [HttpPost("Order/Add")]
-        public async Task<IActionResult> AddOrder([FromQuery] OrderRequest model)
+        public async Task<IActionResult> AddOrder([FromBody] OrderRequest model)
         {
             var order = new Order()
             {
@@ -48,7 +48,7 @@ namespace DeliveryProject.Controllers
         }
 
         [HttpPut("Order/Update")]
-        public async Task<IActionResult> UpdateOrder([FromQuery] OrderRequest model)
+        public async Task<IActionResult> UpdateOrder([FromBody] OrderRequest model)
         {
             var order = new Order()
             {

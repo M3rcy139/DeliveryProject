@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using DeliveryProject.Core.Constants.InfoMessages;
 using DeliveryProject.Core.Constants.ErrorMessages;
+using DeliveryProject.DataAccess.Interfaces.BatchUploads;
 
 namespace DeliveryProject.DataAccess.Processors
 {

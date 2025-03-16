@@ -14,6 +14,7 @@ using Microsoft.Extensions.Configuration;
 using DeliveryProject.Core.Validators;
 using DeliveryProject.DataAccess.Mappings;
 using DeliveryProject.Core.Enums;
+using DeliveryProject.DataAccess.Interfaces.BatchUploads;
 
 namespace DeliveryProject.DataAccess.Processors
 {

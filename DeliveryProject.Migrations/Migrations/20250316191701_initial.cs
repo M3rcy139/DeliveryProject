@@ -328,8 +328,7 @@ namespace DeliveryProject.Migrations.Migrations
                 {
                     OrderId = table.Column<Guid>(type: "uuid", nullable: false),
                     ProductId = table.Column<Guid>(type: "uuid", nullable: false),
-                    Quantity = table.Column<int>(type: "integer", nullable: false),
-                    ProductEntityId = table.Column<Guid>(type: "uuid", nullable: true)
+                    Quantity = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -340,11 +339,6 @@ namespace DeliveryProject.Migrations.Migrations
                         principalTable: "Orders",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_OrderProducts_Products_ProductEntityId",
-                        column: x => x.ProductEntityId,
-                        principalTable: "Products",
-                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_OrderProducts_Products_ProductId",
                         column: x => x.ProductId,
@@ -383,11 +377,6 @@ namespace DeliveryProject.Migrations.Migrations
                 name: "IX_OrderPersons_PersonId",
                 table: "OrderPersons",
                 column: "PersonId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_OrderProducts_ProductEntityId",
-                table: "OrderProducts",
-                column: "ProductEntityId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_OrderProducts_ProductId",

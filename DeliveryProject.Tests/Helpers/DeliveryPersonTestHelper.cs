@@ -15,33 +15,22 @@ namespace DeliveryProject.Tests.Helpers
             var random = new Random();
 
             var deliveryRole = await context.Roles.FirstAsync(r => r.RoleType == RoleType.DeliveryPerson);
-            var nameAttribute = await context.Attributes.FirstAsync(a => a.Key == AttributeKey.Name);
-            var phoneNumberAttribute = await context.Attributes.FirstAsync(a => a.Key == AttributeKey.PhoneNumber);
-            var emailAttribute = await context.Attributes.FirstAsync(a => a.Key == AttributeKey.Email);
-            var ratingAttribute = await context.Attributes.FirstAsync(a => a.Key == AttributeKey.Rating);
-            
 
             for (int i = 1; i <= count; i++)
             {
-                var deliveryPerson = new PersonEntity
+                var deliveryPerson = new DeliveryPersonEntity
                 {
                     Id = Guid.NewGuid(),
                     Status = PersonStatus.Active,
                     RegionId = random.Next(1, 80),
-                    RoleId = deliveryRole.Id
+                    RoleId = deliveryRole.Id,
+                    Name = $"Delivery Person {i}",
+                    PhoneNumber = $"{random.Next(100, 999)}-{random.Next(1000, 9999)}",
+                    Rating = Math.Round(4.0 + (i % 5) * 0.2, 1),
+                    Email = $"deliveryPerson{i}@email.com"
                 };
 
                 deliveryPersons.Add(deliveryPerson);
-
-                attributes.Add(AttributeValueHelper
-                    .CreateAttribute(deliveryPerson.Id, nameAttribute.Id, $"Delivery Person {i}"));
-                attributes.Add(AttributeValueHelper
-                    .CreateAttribute(deliveryPerson.Id, ratingAttribute.Id, Math.Round(3.5 + (i % 5) * 0.3, 1).ToString()));
-                attributes.Add(AttributeValueHelper
-                    .CreateAttribute(deliveryPerson.Id, phoneNumberAttribute.Id, $"{random.Next(100, 999)}-{random.Next(1000, 9999)}"));
-                attributes.Add(AttributeValueHelper
-                    .CreateAttribute(deliveryPerson.Id, emailAttribute.Id, $"deliveryPerson{i}@email.com"));
-
 
                 int slotCount = random.Next(1, 6);
                 for (int j = 0; j < slotCount; j++)
@@ -58,7 +47,6 @@ namespace DeliveryProject.Tests.Helpers
             await TransactionHelper.ExecuteInTransactionAsync(context, async () =>
             {
                 await context.Persons.AddRangeAsync(deliveryPersons);
-                await context.AttributeValues.AddRangeAsync(attributes);
                 await context.DeliverySlots.AddRangeAsync(deliverySlots);
                 await context.SaveChangesAsync();
             });

@@ -2,11 +2,11 @@
 using DeliveryProject.Core.Constants.InfoMessages;
 using DeliveryProject.DataAccess.Enums;
 using DeliveryProject.DataAccess.Entities;
-using DeliveryProject.DataAccess.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using EFCore.BulkExtensions;
 using Microsoft.Extensions.Logging;
 using DeliveryProject.Core.Enums;
+using DeliveryProject.DataAccess.Interfaces.BatchUploads;
 
 namespace DeliveryProject.DataAccess.Repositories.BatchUpload
 {

@@ -15,15 +15,28 @@ namespace DeliveryProject.DataAccess.Configurations
 
             builder
                 .HasOne(p => p.Role)
-                .WithMany();
+                .WithMany()
+                .HasForeignKey(p => p.RoleId);
 
             builder
                 .HasOne(p => p.Region)
-                .WithMany();
+                .WithMany()
+                .HasForeignKey(p => p.RegionId);
+
+            builder
+                .HasMany(p => p.AttributeValues)
+                .WithOne(av => av.Person)
+                .HasForeignKey(p => p.PersonId);
+
 
             builder
                 .Property(p => p.Status)
                 .HasConversion(new EnumToStringConverter<PersonStatus>());
+
+            builder.HasDiscriminator<int>("RoleId")
+                .HasValue<CustomerEntity>((int)RoleType.Customer)
+                .HasValue<DeliveryPersonEntity>((int)RoleType.DeliveryPerson)
+                .HasValue<SupplierEntity>((int)RoleType.Supplier);
         }
     }
 }

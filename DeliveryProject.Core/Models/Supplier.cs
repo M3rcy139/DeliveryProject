@@ -1,8 +1,14 @@
-﻿namespace DeliveryProject.Core.Models
+﻿using DeliveryProject.Core.Enums;
+using DeliveryProject.Core.Extensions;
+
+namespace DeliveryProject.Core.Models
 {
     public class Supplier : Person
     {
-        public double Rating { get; set; }
-        public ICollection<Product> Products { get; } = new List<Product>();
+        public double Rating
+        {
+            get => double.TryParse(this.GetAttributeValue(AttributeKey.Rating), out var rating) ? rating : 0;
+            set => this.SetAttributeValue(AttributeKey.Rating, value.ToString());
+        }
     }
 }

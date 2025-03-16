@@ -113,7 +113,7 @@ namespace DeliveryProject.Bussiness.Services
         {
             decimal amount = await CalculateOrderAmount(orderProducts);
 
-            var deliveryTime = await _repositoryMediator.CalculateDeliveryTime();
+            var deliveryTime = _repositoryMediator.CalculateDeliveryTime();
 
             return new InvoiceEntity
             {

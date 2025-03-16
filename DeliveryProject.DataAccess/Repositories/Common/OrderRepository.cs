@@ -106,7 +106,7 @@ namespace DeliveryProject.DataAccess.Repositories.Common
 
         private async Task<PersonEntity> AttachPerson(DeliveryDbContext dbContext, Guid personId)
         {
-            var person = await dbContext.Persons.FindAsync(personId) ?? new PersonEntity { Id = personId };
+            var person = await dbContext.Persons.FindAsync(personId);
             dbContext.Attach(person);
             return person;
         }

@@ -1,6 +1,6 @@
 ﻿using DeliveryProject.DataAccess.Entities;
 
-namespace DeliveryProject.DataAccess.Interfaces
+namespace DeliveryProject.DataAccess.Interfaces.BatchUploads
 {
    public interface IBatchUploadProcessor
     {

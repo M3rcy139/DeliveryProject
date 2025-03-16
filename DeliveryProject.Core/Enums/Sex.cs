@@ -3,7 +3,7 @@
 namespace DeliveryProject.Core.Enums
 {
     [JsonConverter(typeof(JsonStringEnumConverter))]
-    public enum Gender
+    public enum Sex
     {
         Male,
         Female

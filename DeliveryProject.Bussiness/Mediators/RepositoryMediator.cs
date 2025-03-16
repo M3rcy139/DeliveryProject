@@ -12,20 +12,17 @@ namespace DeliveryProject.Bussiness.Mediators
         private readonly IOrderRepository _orderRepository;
         private readonly IDeliveryPersonRepository _deliveryPersonRepository;
         private readonly ICustomerRepository _customerRepository;
-        private readonly ISupplierRepository _supplierRepository;
         private readonly IProductRepository _productRepository;
 
         public RepositoryMediator(
             IOrderRepository orderRepository,
             IDeliveryPersonRepository deliveryPersonRepository,
             ICustomerRepository customerRepository,
-            ISupplierRepository supplierRepository,
             IProductRepository productRepository)
         {
             _orderRepository = orderRepository;
             _deliveryPersonRepository = deliveryPersonRepository;
             _customerRepository = customerRepository;
-            _supplierRepository = supplierRepository;
             _productRepository = productRepository;
         }
 
@@ -119,7 +116,7 @@ namespace DeliveryProject.Bussiness.Mediators
             return availableDeliveryPerson;
         }
 
-        public async Task<DateTime> CalculateDeliveryTime()
+        public DateTime CalculateDeliveryTime()
         {
             var random = new Random();
 

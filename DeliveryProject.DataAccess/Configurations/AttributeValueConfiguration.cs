@@ -8,19 +8,19 @@ namespace DeliveryProject.DataAccess.Configurations
     {
         public void Configure(EntityTypeBuilder<AttributeValueEntity> builder)
         {
-            builder.HasKey(pav => pav.Id);
+            builder.HasKey(av => av.Id);
 
-            builder.Property(pav => pav.Value).IsRequired();
+            builder.Property(av => av.Value).IsRequired();
 
             builder
-                .HasOne(pav => pav.Person)
+                .HasOne(av => av.Person)
                 .WithMany(p => p.AttributeValues)
-                .HasForeignKey(pav => pav.PersonId);
+                .HasForeignKey(av => av.PersonId);
 
             builder
-                .HasOne(pav => pav.Attribute)
+                .HasOne(av => av.Attribute)
                 .WithMany(a => a.AttributeValues)
-                .HasForeignKey(pav => pav.AttributeId);
+                .HasForeignKey(av => av.AttributeId);
         }
     }
 }

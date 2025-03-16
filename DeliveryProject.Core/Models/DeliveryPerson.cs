@@ -1,8 +1,15 @@
-﻿namespace DeliveryProject.Core.Models
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using DeliveryProject.Core.Enums;
+using DeliveryProject.Core.Extensions;
+
+namespace DeliveryProject.Core.Models
 {
     public class DeliveryPerson : Person
     {
-        public double Rating { get; set; }
-        public ICollection<DeliverySlot> DeliverySlots { get; set; } = new List<DeliverySlot>();
+        public double Rating
+        {
+            get => double.TryParse(this.GetAttributeValue(AttributeKey.Rating), out var rating) ? rating : 0;
+            set => this.SetAttributeValue(AttributeKey.Rating, value.ToString());
+        }
     }
 }

@@ -220,6 +220,10 @@ namespace DeliveryProject.Migrations.Migrations
                     b.HasIndex("RoleId");
 
                     b.ToTable("Persons");
+
+                    b.HasDiscriminator<int>("RoleId");
+
+                    b.UseTphMappingStrategy();
                 });
 
             modelBuilder.Entity("DeliveryProject.DataAccess.Entities.ProductEntity", b =>
@@ -383,6 +387,27 @@ namespace DeliveryProject.Migrations.Migrations
                     b.HasIndex("BatchUploadId");
 
                     b.ToTable("UploadErrors");
+                });
+
+            modelBuilder.Entity("DeliveryProject.DataAccess.Entities.CustomerEntity", b =>
+                {
+                    b.HasBaseType("DeliveryProject.DataAccess.Entities.PersonEntity");
+
+                    b.HasDiscriminator().HasValue(1);
+                });
+
+            modelBuilder.Entity("DeliveryProject.DataAccess.Entities.DeliveryPersonEntity", b =>
+                {
+                    b.HasBaseType("DeliveryProject.DataAccess.Entities.PersonEntity");
+
+                    b.HasDiscriminator().HasValue(3);
+                });
+
+            modelBuilder.Entity("DeliveryProject.DataAccess.Entities.SupplierEntity", b =>
+                {
+                    b.HasBaseType("DeliveryProject.DataAccess.Entities.PersonEntity");
+
+                    b.HasDiscriminator().HasValue(2);
                 });
 
             modelBuilder.Entity("DeliveryProject.DataAccess.Entities.AttributeValueEntity", b =>

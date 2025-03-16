@@ -1,4 +1,4 @@
-﻿using DeliveryProject.DataAccess.Interfaces;
+﻿using DeliveryProject.DataAccess.Interfaces.BatchUploads;
 
 namespace DeliveryProject.BackgroundServices
 {
