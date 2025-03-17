@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using DeliveryProject.Core.Enums;
-using DeliveryProject.DataAccess.Extensions;
+
 
 namespace DeliveryProject.DataAccess.Entities
 {
@@ -12,29 +12,57 @@ namespace DeliveryProject.DataAccess.Entities
         public int RoleId { get; set; }
 
         public RegionEntity Region { get; set; }
-        public RoleEntity Role { get; set; }
-        public ICollection<AttributeValueEntity> AttributeValues { get; set; } 
+        protected virtual RoleEntity Role { get; set; }
+        protected virtual ICollection<AttributeValueEntity> AttributeValues { get; set; } 
             = new List<AttributeValueEntity>();
 
         [NotMapped]
         public string? Name
         {
-            get => this.GetAttributeValue(AttributeKey.Name);
-            set => this.SetAttributeValue(AttributeKey.Name, value);
+            get => GetAttributeValue(AttributeKey.Name);
+            set => SetAttributeValue(AttributeKey.Name, value);
         }
         
         [NotMapped]
         public string? PhoneNumber
         {
-            get => this.GetAttributeValue(AttributeKey.PhoneNumber);
-            set => this.SetAttributeValue(AttributeKey.PhoneNumber, value);
+            get => GetAttributeValue(AttributeKey.PhoneNumber);
+            set => SetAttributeValue(AttributeKey.PhoneNumber, value);
         }
         
         [NotMapped]
         public string? Email
         {
-            get => this.GetAttributeValue(AttributeKey.Email);
-            set => this.SetAttributeValue(AttributeKey.Email, value);
+            get => GetAttributeValue(AttributeKey.Email);
+            set => SetAttributeValue(AttributeKey.Email, value);
+        }
+
+        protected string? GetAttributeValue(AttributeKey key)
+        {
+            return AttributeValues
+                .FirstOrDefault(av => av.Attribute?.Key == key)?
+                .Value;
+        }
+
+        protected void SetAttributeValue(AttributeKey key, string? value)
+        {
+            var attributeValue = AttributeValues.FirstOrDefault(av => av.Attribute != null && av.Attribute.Key == key);
+
+            if (attributeValue != null)
+            {
+                attributeValue.Value = value;
+            }
+            else
+            {
+                AttributeValues.Add(new AttributeValueEntity
+                {
+                    Id = Guid.NewGuid(),
+                    PersonId = Id,
+                    AttributeId = (int)key,
+                    Value = value,
+                });
+            }
+
         }
     }
 }

@@ -14,20 +14,9 @@ namespace DeliveryProject.DataAccess.Configurations
             builder.Property(p => p.Status).IsRequired();
 
             builder
-                .HasOne(p => p.Role)
-                .WithMany()
-                .HasForeignKey(p => p.RoleId);
-
-            builder
                 .HasOne(p => p.Region)
                 .WithMany()
                 .HasForeignKey(p => p.RegionId);
-
-            builder
-                .HasMany(p => p.AttributeValues)
-                .WithOne(av => av.Person)
-                .HasForeignKey(p => p.PersonId);
-
 
             builder
                 .Property(p => p.Status)

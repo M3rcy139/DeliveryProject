@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using DeliveryProject.Core.Enums;
-using DeliveryProject.Core.Extensions;
+
 
 namespace DeliveryProject.Core.Models
 {
@@ -9,8 +9,8 @@ namespace DeliveryProject.Core.Models
         [NotMapped]
         public double Rating
         {
-            get => double.TryParse(this.GetAttributeValue(AttributeKey.Rating), out var rating) ? rating : 0;
-            set => this.SetAttributeValue(AttributeKey.Rating, value.ToString());
+            get => double.TryParse(GetAttributeValue(AttributeKey.Rating), out var rating) ? rating : 0;
+            set => SetAttributeValue(AttributeKey.Rating, value.ToString());
         }
     }
 }

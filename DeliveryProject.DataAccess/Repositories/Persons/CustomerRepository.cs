@@ -15,8 +15,6 @@ namespace DeliveryProject.DataAccess.Repositories.Persons
             await using var dbContext = await _contextFactory.CreateDbContextAsync();
             return await dbContext.Persons
                 .OfType<CustomerEntity>() 
-                .Include(c => c.AttributeValues)
-                .ThenInclude(av => av.Attribute)
                 .AsNoTracking()
                 .FirstOrDefaultAsync(p => p.Id == personId);
         }

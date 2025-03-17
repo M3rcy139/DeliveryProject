@@ -12,7 +12,7 @@ namespace DeliveryProject.DataAccess.Interfaces.BatchUploads
             Func<TDto, TEntity> entityMapper
         ) where TEntity : class;
         Task SaveErrorsAsync(List<UploadError> errorEntities);
-        Task<HashSet<string>> GetExistingPhoneNumbersAsync(List<string> phoneNumbers, RoleType roleType);
+        Task<HashSet<string>> GetExistingPhoneNumbersAsync<TPerson>(List<string> phoneNumbers) where TPerson : PersonEntity;
         Task ExecuteMergeProcedureAsync(string tableName);
     }
 

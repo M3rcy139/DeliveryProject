@@ -74,7 +74,7 @@ namespace DeliveryProject.DataAccess.Processors
                         .Select(a => a.Value))
                     .ToList();
 
-                var newPhoneNumbers = await _batchUploadRepository.GetExistingPhoneNumbersAsync(allPhoneNumbers, RoleType.DeliveryPerson);
+                var newPhoneNumbers = await _batchUploadRepository.GetExistingPhoneNumbersAsync<DeliveryPersonEntity>(allPhoneNumbers);
                 existingPhoneNumbers.UnionWith(newPhoneNumbers);
 
                 var batchValidator = new BatchValidator<DeliveryPersonDto>(

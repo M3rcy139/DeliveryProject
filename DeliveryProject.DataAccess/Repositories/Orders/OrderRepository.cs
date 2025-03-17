@@ -14,9 +14,8 @@ namespace DeliveryProject.DataAccess.Repositories.Orders
         public async Task AddOrder(OrderEntity orderEntity)
         {
             await using var dbContext = await _contextFactory.CreateDbContextAsync();
-            
-            AttachExistingOrderPersons(dbContext, orderEntity);
-            AttachExistingOrderProducts(dbContext, orderEntity);
+            dbContext.AttachRange(orderEntity.OrderPersons.Select(op => op.Person));
+            dbContext.AttachRange(orderEntity.OrderProducts.Select(op => op.Product));
 
             await dbContext.Orders.AddAsync(orderEntity);
             await dbContext.SaveChangesAsync();
@@ -36,7 +35,6 @@ namespace DeliveryProject.DataAccess.Repositories.Orders
                 .AsNoTracking()
                 .Include(o => o.OrderPersons)
                     .ThenInclude(op => op.Person)
-                        .ThenInclude(p => p.Role)
                 .Include(o => o.OrderProducts)
                     .ThenInclude(op => op.Product)
                 .Include(o => o.Invoice)
@@ -91,24 +89,6 @@ namespace DeliveryProject.DataAccess.Repositories.Orders
                 .ToListAsync();
 
             return new List<OrderEntity>(orders);
-        }
-
-        private void AttachExistingOrderPersons(DbContext dbContext, OrderEntity orderEntity)
-        {
-            foreach (var orderPerson in orderEntity.OrderPersons)
-            {
-                var person = orderPerson.Person;
-                dbContext.Entry(person).State = EntityState.Unchanged;
-            }
-        }
-
-        private void AttachExistingOrderProducts(DbContext dbContext, OrderEntity orderEntity)
-        {
-            foreach (var orderProduct in orderEntity.OrderProducts)
-            {
-                var product = orderProduct.Product;
-                dbContext.Entry(product).State = EntityState.Unchanged;
-            }
         }
     }
 }

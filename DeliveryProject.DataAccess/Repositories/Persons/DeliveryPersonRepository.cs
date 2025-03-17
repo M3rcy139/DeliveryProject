@@ -1,6 +1,4 @@
-﻿using System.Runtime.Intrinsics.Arm;
-using DeliveryProject.Core.Enums;
-using DeliveryProject.DataAccess.Entities;
+﻿using DeliveryProject.DataAccess.Entities;
 using DeliveryProject.DataAccess.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
@@ -17,10 +15,7 @@ namespace DeliveryProject.DataAccess.Repositories.Persons
             await using var dbContext = await _contextFactory.CreateDbContextAsync();
             return await dbContext.Persons
                 .OfType<DeliveryPersonEntity>()
-                .Include(dp => dp.AttributeValues)
-                .ThenInclude(av => av.Attribute)
                 .AsNoTracking()
-                .Where(p => p.RoleId == (int)RoleType.DeliveryPerson)
                 .Join(dbContext.DeliverySlots,
                       person => person.Id,
                       slot => slot.DeliveryPersonId,

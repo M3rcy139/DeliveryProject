@@ -54,12 +54,19 @@ namespace DeliveryProject.Bussiness.Mediators
 
             order.Invoice.Amount = amount;
 
-            var customer = order.OrderPersons.First(p => p.Person.Role.RoleType == RoleType.Customer);
-            var deliveryPerson = order.OrderPersons.First(p => p.Person.Role.RoleType == RoleType.DeliveryPerson);
+            var customer = order.OrderPersons
+                .Select(op => op.Person)
+                .OfType<CustomerEntity>()
+                .First();
+
+            var deliveryPerson = order.OrderPersons
+                .Select(op => op.Person)
+                .OfType<DeliveryPersonEntity>()
+                .First();
 
             order.OrderPersons.Clear();
-            order.OrderPersons.Add(customer);
-            order.OrderPersons.Add(deliveryPerson);
+            order.OrderPersons.Add(new OrderPersonEntity { PersonId = customer.Id });
+            order.OrderPersons.Add(new OrderPersonEntity { PersonId = deliveryPerson.Id });
 
             order.OrderProducts.Clear();
             order.OrderProducts.AddRange(orderProducts

@@ -25,7 +25,6 @@ namespace DeliveryProject.DataAccess.Repositories.Persons
                 .Where(p => productIds.Contains(p.Id))
                 .Select(p => p.Supplier)
                 .OfType<SupplierEntity>()
-                .Where(s => s.Role.RoleType == RoleType.Supplier)
                 .Distinct()
                 .ToListAsync();
         }

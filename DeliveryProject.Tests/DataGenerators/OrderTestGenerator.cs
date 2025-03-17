@@ -13,11 +13,11 @@ namespace DeliveryProject.Tests.DataGenerators
             var orders = new List<OrderEntity>();
 
             var customers = await context.Persons
-                .Where(p => p.Role.RoleType == RoleType.Customer)
+                .OfType<CustomerEntity>()
                 .ToListAsync();
 
             var deliveryPersons = await context.Persons
-                .Where(p => p.Role.RoleType == RoleType.DeliveryPerson)
+                .OfType<DeliveryPersonEntity>()
                 .ToListAsync();
 
             var products = await context.Products.ToListAsync();

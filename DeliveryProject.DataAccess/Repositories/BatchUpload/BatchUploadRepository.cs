@@ -7,6 +7,7 @@ using EFCore.BulkExtensions;
 using Microsoft.Extensions.Logging;
 using DeliveryProject.Core.Enums;
 using DeliveryProject.DataAccess.Interfaces.BatchUploads;
+using DeliveryProject.Core.Models;
 
 namespace DeliveryProject.DataAccess.Repositories.BatchUpload
 {
@@ -64,7 +65,7 @@ namespace DeliveryProject.DataAccess.Repositories.BatchUpload
             await dbContext.BulkInsertAsync(errorEntities);
         }
 
-        public async Task<HashSet<string>> GetExistingPhoneNumbersAsync(List<string> phoneNumbers, RoleType roleType)
+        public async Task<HashSet<string>> GetExistingPhoneNumbersAsync<TPerson>(List<string> phoneNumbers) where TPerson : PersonEntity
         {
             await using var dbContext = await _dbContextFactory.CreateDbContextAsync();
 
@@ -75,7 +76,7 @@ namespace DeliveryProject.DataAccess.Repositories.BatchUpload
 
             var existingPhoneNumbers = await dbContext.AttributeValues
                 .Where(av => av.AttributeId == phoneNumberAttributeId && phoneNumbers.Contains(av.Value)
-                    && av.Person.Role.RoleType == roleType)
+                    && av.Person is TPerson)
                 .Select(av => av.Value)
                 .ToListAsync();
 
