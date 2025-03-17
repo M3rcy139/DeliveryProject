@@ -12,7 +12,7 @@ namespace DeliveryProject.DataAccess.Repositories.Persons
 
         public DeliveryPersonRepository(IDbContextFactory<DeliveryDbContext> contextFactory) => _contextFactory = contextFactory;
 
-        public async Task<DeliveryPersonEntity?> GetAvailableDeliveryPersonAsync(DateTime deliveryTime)
+        public async Task<DeliveryPersonEntity?> GetDeliveryPersonByTimeAsync(DateTime deliveryTime)
         {
             await using var dbContext = await _contextFactory.CreateDbContextAsync();
             return await dbContext.Persons

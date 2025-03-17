@@ -108,7 +108,7 @@ namespace DeliveryProject.Bussiness.Mediators
         private async Task<PersonEntity> GetAndValidateDeliveryPerson(OrderEntity orderEntity)
         {
             var availableDeliveryPerson = await _deliveryPersonRepository
-                .GetAvailableDeliveryPersonAsync(orderEntity.Invoice.DeliveryTime);
+                .GetDeliveryPersonByTimeAsync(orderEntity.Invoice.DeliveryTime);
 
             availableDeliveryPerson.ValidateEntity(ErrorMessages.NoAvailableDeliveryPersons,
                     ErrorCodes.NoAvailableDeliveryPersons);
