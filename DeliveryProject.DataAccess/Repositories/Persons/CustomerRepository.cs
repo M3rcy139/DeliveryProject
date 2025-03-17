@@ -1,5 +1,4 @@
-﻿using DeliveryProject.Core.Enums;
-using DeliveryProject.DataAccess.Entities;
+﻿using DeliveryProject.DataAccess.Entities;
 using DeliveryProject.DataAccess.Interfaces;
 using Microsoft.EntityFrameworkCore;
 

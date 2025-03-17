@@ -17,21 +17,21 @@ namespace DeliveryProject.Core.Models
             = new List<AttributeValue>();
 
         [NotMapped]
-        public string? Name
+        protected string? Name
         {
             get => this.GetAttributeValue(AttributeKey.Name);
             set => this.SetAttributeValue(AttributeKey.Name, value);
         }
 
         [NotMapped]
-        public string? PhoneNumber
+        protected string? PhoneNumber
         {
             get => this.GetAttributeValue(AttributeKey.PhoneNumber);
             set => this.SetAttributeValue(AttributeKey.PhoneNumber, value);
         }
 
         [NotMapped]
-        public string? Email
+        protected string? Email
         {
             get => this.GetAttributeValue(AttributeKey.Email);
             set => this.SetAttributeValue(AttributeKey.Email, value);

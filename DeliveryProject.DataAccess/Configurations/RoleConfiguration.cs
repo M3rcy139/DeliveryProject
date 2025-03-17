@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace DeliveryProject.DataAccess.Configurations
 {
-    internal class RoleConfiguration : IEntityTypeConfiguration<RoleEntity>
+    public class RoleConfiguration : IEntityTypeConfiguration<RoleEntity>
     {
         public void Configure(EntityTypeBuilder<RoleEntity> builder)
         {
