@@ -4,7 +4,7 @@ namespace DeliveryProject.DataAccess.Interfaces
 {
     public interface ISupplierRepository
     {
-        Task<PersonEntity?> GetByIdAsync(Guid id);
-        Task<List<PersonEntity>> GetSuppliersByProductIdsAsync(List<Guid> productIds);
+        Task<SupplierEntity?> GetByIdAsync(Guid id);
+        Task<List<SupplierEntity>> GetSuppliersByProductIdsAsync(List<Guid> productIds);
     }
 }

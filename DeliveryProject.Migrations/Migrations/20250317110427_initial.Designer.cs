@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DeliveryProject.Migrations.Migrations
 {
     [DbContext(typeof(DeliveryDbContext))]
-    [Migration("20250316191701_initial")]
+    [Migration("20250317110427_initial")]
     partial class initial
     {
         /// <inheritdoc />
@@ -471,7 +471,7 @@ namespace DeliveryProject.Migrations.Migrations
                         .IsRequired();
 
                     b.HasOne("DeliveryProject.DataAccess.Entities.PersonEntity", "Person")
-                        .WithMany()
+                        .WithMany("OrderPersons")
                         .HasForeignKey("PersonId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -602,6 +602,8 @@ namespace DeliveryProject.Migrations.Migrations
             modelBuilder.Entity("DeliveryProject.DataAccess.Entities.PersonEntity", b =>
                 {
                     b.Navigation("AttributeValues");
+
+                    b.Navigation("OrderPersons");
                 });
 
             modelBuilder.Entity("DeliveryProject.DataAccess.Entities.RoleEntity", b =>

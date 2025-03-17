@@ -4,6 +4,6 @@ namespace DeliveryProject.DataAccess.Interfaces
 {
     public interface ICustomerRepository
     {
-        Task<PersonEntity?> GetCustomerByIdAsync(Guid personId);
+        Task<CustomerEntity?> GetCustomerByIdAsync(Guid personId);
     }
 }

@@ -12,6 +12,7 @@ namespace DeliveryProject.DataAccess.Entities
             get => this.GetAttributeValue(AttributeKey.LastName);
             set => this.SetAttributeValue(AttributeKey.LastName, value);
         }
+
         [NotMapped]
         public Sex Sex
         {

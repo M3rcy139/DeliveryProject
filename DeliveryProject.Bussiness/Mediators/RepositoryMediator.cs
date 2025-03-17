@@ -40,7 +40,7 @@ namespace DeliveryProject.Bussiness.Mediators
             return orderEntity;
         }
 
-        public async Task<OrderEntity?> GetOrderByIdAsync(Guid orderId)
+        public async Task<OrderEntity> GetOrderByIdAsync(Guid orderId)
         {
             var order = await GetAndValidateOrderById(orderId);
 
@@ -82,7 +82,7 @@ namespace DeliveryProject.Bussiness.Mediators
             return orders.IsNullOrEmpty() ? new List<OrderEntity>() : orders;
         }
 
-        public async Task<PersonEntity?> GetAndValidateCustomerAsync(Guid personId)
+        public async Task<CustomerEntity> GetAndValidateCustomerAsync(Guid personId)
         {
             var customer = await _customerRepository.GetCustomerByIdAsync(personId);
             customer.ValidateEntity(ErrorMessages.CustomerNotFound, ErrorCodes.CustomerNotFound);
@@ -90,7 +90,7 @@ namespace DeliveryProject.Bussiness.Mediators
             return customer;
         }
 
-        public async Task<List<ProductEntity?>> GetAndValidateProductsAsync(List<Guid> productIds)
+        public async Task<List<ProductEntity>> GetAndValidateProductsAsync(List<Guid> productIds)
         {
             var products = await _productRepository.GetProductsByIdAsync(productIds);
             products.ValidateEntities(ErrorMessages.ProductNotFound, ErrorCodes.ProductNotFound);

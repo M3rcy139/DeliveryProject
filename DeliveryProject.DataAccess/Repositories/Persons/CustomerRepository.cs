@@ -11,11 +11,15 @@ namespace DeliveryProject.DataAccess.Repositories.Persons
 
         public CustomerRepository(IDbContextFactory<DeliveryDbContext> contextFactory) => _contextFactory = contextFactory;
 
-        public async Task<PersonEntity?> GetCustomerByIdAsync(Guid personId)
+        public async Task<CustomerEntity?> GetCustomerByIdAsync(Guid personId)
         {
             await using var dbContext = await _contextFactory.CreateDbContextAsync();
             return await dbContext.Persons
-                .FirstOrDefaultAsync(p => p.Id == personId && p.Role.RoleType == RoleType.Customer);
+                .OfType<CustomerEntity>() 
+                .Include(c => c.AttributeValues)
+                .ThenInclude(av => av.Attribute)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(p => p.Id == personId);
         }
     }
 }

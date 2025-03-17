@@ -468,7 +468,7 @@ namespace DeliveryProject.Migrations.Migrations
                         .IsRequired();
 
                     b.HasOne("DeliveryProject.DataAccess.Entities.PersonEntity", "Person")
-                        .WithMany()
+                        .WithMany("OrderPersons")
                         .HasForeignKey("PersonId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -599,6 +599,8 @@ namespace DeliveryProject.Migrations.Migrations
             modelBuilder.Entity("DeliveryProject.DataAccess.Entities.PersonEntity", b =>
                 {
                     b.Navigation("AttributeValues");
+
+                    b.Navigation("OrderPersons");
                 });
 
             modelBuilder.Entity("DeliveryProject.DataAccess.Entities.RoleEntity", b =>

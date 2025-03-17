@@ -6,6 +6,7 @@ namespace DeliveryProject.Core.Models
 {
     public class DeliveryPerson : Person
     {
+        [NotMapped]
         public double Rating
         {
             get => double.TryParse(this.GetAttributeValue(AttributeKey.Rating), out var rating) ? rating : 0;

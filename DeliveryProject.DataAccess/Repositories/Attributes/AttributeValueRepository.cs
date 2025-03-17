@@ -3,7 +3,7 @@ using DeliveryProject.DataAccess.Entities;
 using DeliveryProject.DataAccess.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
-namespace DeliveryProject.DataAccess.Repositories.Common
+namespace DeliveryProject.DataAccess.Repositories.Attributes
 {
     public class AttributeValueRepository : IAttributeValueRepository
     {

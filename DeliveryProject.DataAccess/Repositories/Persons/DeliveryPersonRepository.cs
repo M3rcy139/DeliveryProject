@@ -1,4 +1,5 @@
-﻿using DeliveryProject.Core.Enums;
+﻿using System.Runtime.Intrinsics.Arm;
+using DeliveryProject.Core.Enums;
 using DeliveryProject.DataAccess.Entities;
 using DeliveryProject.DataAccess.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -11,10 +12,14 @@ namespace DeliveryProject.DataAccess.Repositories.Persons
 
         public DeliveryPersonRepository(IDbContextFactory<DeliveryDbContext> contextFactory) => _contextFactory = contextFactory;
 
-        public async Task<PersonEntity?> GetAvailableDeliveryPersonAsync(DateTime deliveryTime)
+        public async Task<DeliveryPersonEntity?> GetAvailableDeliveryPersonAsync(DateTime deliveryTime)
         {
             await using var dbContext = await _contextFactory.CreateDbContextAsync();
             return await dbContext.Persons
+                .OfType<DeliveryPersonEntity>()
+                .Include(dp => dp.AttributeValues)
+                .ThenInclude(av => av.Attribute)
+                .AsNoTracking()
                 .Where(p => p.RoleId == (int)RoleType.DeliveryPerson)
                 .Join(dbContext.DeliverySlots,
                       person => person.Id,
