@@ -25,7 +25,7 @@ namespace DeliveryProject.Bussiness.Services
 
         public async Task<Order> AddOrder(Order order, List<ProductDto> products)
         {
-            var customer = await _repositoryMediator.GetAndValidateCustomerAsync(order.OrderPersons.First().PersonId);
+            var customer = await _repositoryMediator.GetCustomerById(order.OrderPersons.First().PersonId);
             
             var orderProducts = await GetOrderProducts(order, products);
 
@@ -44,7 +44,7 @@ namespace DeliveryProject.Bussiness.Services
                 Invoice = invoice
             };
 
-            var createdOrderEntity = await _repositoryMediator.AddOrderAsync(orderEntity);
+            var createdOrderEntity = await _repositoryMediator.AddOrder(orderEntity);
 
             _logger.LogInformation(InfoMessages.AddedOrder, order.Id);
 
@@ -53,7 +53,7 @@ namespace DeliveryProject.Bussiness.Services
 
         public async Task<Order> GetOrderById(Guid orderId)
         {
-            var orderEntity = await _repositoryMediator.GetOrderByIdAsync(orderId);
+            var orderEntity = await _repositoryMediator.GetOrderById(orderId);
             return _mapper.Map<Order>(orderEntity);
         }
 
@@ -63,14 +63,14 @@ namespace DeliveryProject.Bussiness.Services
 
             decimal amount = await CalculateOrderAmount(orderProducts);
 
-            await _repositoryMediator.UpdateOrderAsync(order.Id, orderProducts, amount);
+            await _repositoryMediator.UpdateOrder(order.Id, orderProducts, amount);
 
             _logger.LogInformation(InfoMessages.UpdatedOrder, order.Id);
         }
 
         public async Task DeleteOrder(Guid orderId)
         {
-            await _repositoryMediator.DeleteOrderAsync(orderId);
+            await _repositoryMediator.DeleteOrder(orderId);
             _logger.LogInformation(InfoMessages.DeletedOrder, orderId);
         }
 
@@ -78,7 +78,7 @@ namespace DeliveryProject.Bussiness.Services
         {
             return Task.Factory.StartNew(async () =>
             {
-                var orders = await _repositoryMediator.GetAllOrdersImmediate();
+                var orders = await _repositoryMediator.GetAllOrders();
 
                 if (sortBy != null)
                 {
@@ -94,7 +94,7 @@ namespace DeliveryProject.Bussiness.Services
 
         private async Task<List<OrderProductEntity>> GetOrderProducts(Order order, List<ProductDto> products)
         {
-            var productEntities = await _repositoryMediator.GetAndValidateProductsAsync(
+            var productEntities = await _repositoryMediator.GetProductsByIds(
                 products.Select(p => p.ProductId).Distinct().ToList());
 
             var orderProducts = products

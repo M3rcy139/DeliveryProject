@@ -10,7 +10,7 @@ namespace DeliveryProject.DataAccess.Repositories.Common
 
         public ProductRepository(IDbContextFactory<DeliveryDbContext> contextFactory) => _contextFactory = contextFactory;
 
-        public async Task<List<ProductEntity?>> GetProductsByIdAsync(List<Guid> productIds)
+        public async Task<List<ProductEntity?>> GetProductsById(List<Guid> productIds)
         {
             await using var dbContext = await _contextFactory.CreateDbContextAsync();
 

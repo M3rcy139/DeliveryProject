@@ -10,7 +10,7 @@ namespace DeliveryProject.DataAccess.Repositories.Persons
 
         public CustomerRepository(IDbContextFactory<DeliveryDbContext> contextFactory) => _contextFactory = contextFactory;
 
-        public async Task<CustomerEntity?> GetCustomerByIdAsync(Guid personId)
+        public async Task<CustomerEntity?> GetCustomerById(Guid personId)
         {
             await using var dbContext = await _contextFactory.CreateDbContextAsync();
             return await dbContext.Persons

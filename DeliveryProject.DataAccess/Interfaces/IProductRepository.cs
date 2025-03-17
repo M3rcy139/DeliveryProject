@@ -4,6 +4,6 @@ namespace DeliveryProject.DataAccess.Interfaces
 {
     public interface IProductRepository
     {
-        Task<List<ProductEntity?>> GetProductsByIdAsync(List<Guid> productIds);
+        Task<List<ProductEntity?>> GetProductsById(List<Guid> productIds);
     }
 }

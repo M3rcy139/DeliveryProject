@@ -12,7 +12,7 @@ namespace DeliveryProject.DataAccess.Repositories.Persons
 
         public DeliveryPersonRepository(IDbContextFactory<DeliveryDbContext> contextFactory) => _contextFactory = contextFactory;
 
-        public async Task<DeliveryPersonEntity?> GetDeliveryPersonByTimeAsync(DateTime deliveryTime)
+        public async Task<DeliveryPersonEntity?> GetDeliveryPersonByTime(DateTime deliveryTime)
         {
             await using var dbContext = await _contextFactory.CreateDbContextAsync();
             return await dbContext.Persons
@@ -30,7 +30,7 @@ namespace DeliveryProject.DataAccess.Repositories.Persons
                 .FirstOrDefaultAsync();
         }
 
-        public async Task AddSlotAsync(DeliverySlotEntity slot)
+        public async Task AddSlot(DeliverySlotEntity slot)
         {
             await using var dbContext = await _contextFactory.CreateDbContextAsync();
             await dbContext.DeliverySlots.AddAsync(slot);

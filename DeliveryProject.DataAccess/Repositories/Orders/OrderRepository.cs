@@ -79,7 +79,7 @@ namespace DeliveryProject.DataAccess.Repositories.Orders
             _orderCache.Remove(id, out _);
         }
 
-        public async Task<List<OrderEntity>> GetAllOrdersImmediate()
+        public async Task<List<OrderEntity>> GetAllOrders()
         {
             await using var dbContext = await _contextFactory.CreateDbContextAsync();
             var orders = await dbContext.Orders
