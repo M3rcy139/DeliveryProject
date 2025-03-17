@@ -1,5 +1,6 @@
 ﻿using DeliveryProject.DataAccess.Entities;
 using DeliveryProject.Core.Models;
+using DeliveryProject.Bussiness.Extensions;
 using AutoMapper;
 
 namespace DeliveryProject.Bussiness.Mappings
@@ -29,7 +30,7 @@ namespace DeliveryProject.Bussiness.Mappings
             CreateMap<RoleAttributeEntity, RoleAttribute>();
 
             CreateMap<OrderPersonEntity, OrderPerson>()
-                .ForMember(dest => dest.Person, opt => opt.MapFrom(src => MapPerson(src.Person)));
+                .ForMember(dest => dest.Person, opt => opt.MapFrom(src => src.Person.ToPerson()));
 
             CreateMap<OrderEntity, Order>()
                 .AfterMap((src, dest) =>
@@ -39,25 +40,10 @@ namespace DeliveryProject.Bussiness.Mappings
                         {
                             OrderId = op.OrderId,
                             PersonId = op.PersonId,
-                            Person = MapPerson(op.Person)
+                            Person = op.Person.ToPerson()
                         })
                         .ToList();
                 });
-        }
-
-        private Person MapPerson(PersonEntity person)
-        {
-            switch (person)
-            {
-                case CustomerEntity customer:
-                    return new Customer();  
-                case DeliveryPersonEntity deliveryPerson:
-                    return new DeliveryPerson();  
-                case SupplierEntity supplier:
-                    return new Supplier();  
-                default:
-                    throw new InvalidOperationException($"Unknown person type: {person.GetType()}");
-            }
         }
     }
 }

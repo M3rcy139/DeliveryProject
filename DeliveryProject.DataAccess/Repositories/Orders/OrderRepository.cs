@@ -14,19 +14,9 @@ namespace DeliveryProject.DataAccess.Repositories.Orders
         public async Task AddOrder(OrderEntity orderEntity)
         {
             await using var dbContext = await _contextFactory.CreateDbContextAsync();
-            foreach (var orderPerson in orderEntity.OrderPersons)
-            {
-                var person = orderPerson.Person;
-
-                dbContext.Entry(person).State = EntityState.Unchanged;
-            }
-
-            foreach (var orderProduct in orderEntity.OrderProducts)
-            {
-                var product = orderProduct.Product;
-
-                dbContext.Entry(product).State = EntityState.Unchanged;
-            }
+            
+            AttachExistingOrderPersons(dbContext, orderEntity);
+            AttachExistingOrderProducts(dbContext, orderEntity);
 
             await dbContext.Orders.AddAsync(orderEntity);
             await dbContext.SaveChangesAsync();
@@ -74,6 +64,7 @@ namespace DeliveryProject.DataAccess.Repositories.Orders
             await orderUpdater.UpdateOrder(existingEntity, orderEntity);
 
             await dbContext.SaveChangesAsync();
+
             _orderCache[orderEntity.Id] = orderEntity;
         }
 
@@ -100,6 +91,24 @@ namespace DeliveryProject.DataAccess.Repositories.Orders
                 .ToListAsync();
 
             return new List<OrderEntity>(orders);
+        }
+
+        private void AttachExistingOrderPersons(DbContext dbContext, OrderEntity orderEntity)
+        {
+            foreach (var orderPerson in orderEntity.OrderPersons)
+            {
+                var person = orderPerson.Person;
+                dbContext.Entry(person).State = EntityState.Unchanged;
+            }
+        }
+
+        private void AttachExistingOrderProducts(DbContext dbContext, OrderEntity orderEntity)
+        {
+            foreach (var orderProduct in orderEntity.OrderProducts)
+            {
+                var product = orderProduct.Product;
+                dbContext.Entry(product).State = EntityState.Unchanged;
+            }
         }
     }
 }

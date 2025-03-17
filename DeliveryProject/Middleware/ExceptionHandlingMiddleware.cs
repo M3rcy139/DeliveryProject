@@ -37,6 +37,12 @@ namespace DeliveryProject.Middleware
 
                 await HandleExceptionResponseAsync(context, ex, HttpStatusCode.BadRequest);
             }
+            catch (InvalidOperationException ex)
+            {
+                _logger.LogError(ErrorMessages.InvalidOperationException, ex.Message);
+
+                await HandleExceptionResponseAsync (context, ex, HttpStatusCode.BadRequest);
+            }
             catch (Exception ex)
             {
                 _logger.LogError(ErrorMessages.UnexpectedError, ex.Message);

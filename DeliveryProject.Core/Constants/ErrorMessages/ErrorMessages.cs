@@ -17,9 +17,12 @@
 
         public const string BusinessLogicalException = "Business logical exception: {0}";
         public const string ArgumentativeException = "An argumentative exception: {0}";
+        public const string InvalidOperationException = "An invalid operation exception: {0}";
 
         public const string UnexpectedError = "Unexpected error: {0}";
 
         public const string JsonEmpty = "A JSON string cannot be empty or null.";
+
+        public const string UnknownPersonType = "Unknown person type: {0}";
     }
 }
