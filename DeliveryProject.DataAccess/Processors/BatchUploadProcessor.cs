@@ -125,14 +125,28 @@ namespace DeliveryProject.DataAccess.Processors
         {
             if (!validRecords.Any()) return;
 
-            var tempDeliveryPersons = validRecords.Select(dto => new TempDeliveryPerson
+            var tempDeliveryPersons = GenerateTempDeliveryPersons(validRecords);
+            var tempAttributeValues = GenerateTempAttributeValues(validRecords, tempDeliveryPersons);
+            var tempDeliverySlots = GenerateTempDeliverySlots(validRecords, tempDeliveryPersons);
+
+            await _batchUploadRepository.InsertIntoTempTableAsync(tempDeliveryPersons, x => x);
+            await _batchUploadRepository.InsertIntoTempTableAsync(tempAttributeValues, x => x);
+            await _batchUploadRepository.InsertIntoTempTableAsync(tempDeliverySlots, x => x);
+        }
+
+        private List<TempDeliveryPerson> GenerateTempDeliveryPersons(List<DeliveryPersonDto> validRecords)
+        {
+            return validRecords.Select(dto => new TempDeliveryPerson
             {
                 Id = Guid.NewGuid(),
                 RegionId = dto.RegionId,
                 RoleId = (int)RoleType.DeliveryPerson
             }).ToList();
+        }
 
-            var tempAttributeValues = validRecords
+        private List<TempAttributeValue> GenerateTempAttributeValues(List<DeliveryPersonDto> validRecords, List<TempDeliveryPerson> tempDeliveryPersons)
+        {
+            return validRecords
                 .SelectMany(dto => dto.Attributes
                     .Where(a => _attributeIds.ContainsKey((AttributeKey)a.AttributeId))
                     .Select(a => new TempAttributeValue
@@ -140,25 +154,22 @@ namespace DeliveryProject.DataAccess.Processors
                         Id = Guid.NewGuid(),
                         AttributeId = a.AttributeId,
                         Value = a.Value,
-                        DeliveryPersonId = tempDeliveryPersons
-                            .FirstOrDefault(dp => dp.RegionId == dto.RegionId).Id 
+                        DeliveryPersonId = tempDeliveryPersons.First(dp => dp.RegionId == dto.RegionId).Id 
                     }))
                 .ToList();
+        }
 
-            var tempDeliverySlots = validRecords
+        private List<TempDeliverySlot> GenerateTempDeliverySlots(List<DeliveryPersonDto> validRecords, List<TempDeliveryPerson> tempDeliveryPersons)
+        {
+            return validRecords
                 .SelectMany(dto => dto.DeliverySlots
                     .Select(slot => new TempDeliverySlot
                     {
                         Id = Guid.NewGuid(),
                         SlotTime = DateTime.SpecifyKind(slot.SlotTime, DateTimeKind.Utc),
-                        DeliveryPersonId = tempDeliveryPersons
-                            .FirstOrDefault(dp => dp.RegionId == dto.RegionId).Id 
+                        DeliveryPersonId = tempDeliveryPersons.First(dp => dp.RegionId == dto.RegionId).Id
                     }))
                 .ToList();
-
-            await _batchUploadRepository.InsertIntoTempTableAsync(tempDeliveryPersons, x => x);
-            await _batchUploadRepository.InsertIntoTempTableAsync(tempAttributeValues, x => x);
-            await _batchUploadRepository.InsertIntoTempTableAsync(tempDeliverySlots, x => x);
         }
 
         private async Task SaveErrorRecordsAsync(List<ValidationRecordsError> errorRecords, Guid batchUploadId)
