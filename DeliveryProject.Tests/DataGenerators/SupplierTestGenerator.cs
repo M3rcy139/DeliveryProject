@@ -2,10 +2,11 @@
 using DeliveryProject.DataAccess;
 using Microsoft.EntityFrameworkCore;
 using DeliveryProject.Core.Enums;
+using DeliveryProject.Tests.Helpers;
 
-namespace DeliveryProject.Tests.Helpers
+namespace DeliveryProject.Tests.DataGenerators
 {
-    public static class SupplierTestHelper
+    public static class SupplierTestGenerator
     {
         public static async Task GenerateSuppliers(this DeliveryDbContext context, int count)
         {
@@ -26,7 +27,7 @@ namespace DeliveryProject.Tests.Helpers
                     RoleId = supplierRole.Id,
                     Name = $"Supplier {i}",
                     PhoneNumber = $"{random.Next(100, 999)}-{random.Next(1000, 9999)}",
-                    Rating = Math.Round(4.0 + (i % 5) * 0.2, 1),
+                    Rating = Math.Round(4.0 + i % 5 * 0.2, 1),
                     Email = $"supplier{i}@email.com"
                 };
                 suppliers.Add(supplier);
@@ -45,7 +46,7 @@ namespace DeliveryProject.Tests.Helpers
                 }
             }
 
-            await TransactionHelper.ExecuteInTransactionAsync(context, async () =>
+            await TransactionTestHelper.ExecuteInTransactionAsync(context, async () =>
             {
                 await context.Persons.AddRangeAsync(suppliers);
                 await context.Products.AddRangeAsync(products);

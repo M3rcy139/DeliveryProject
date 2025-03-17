@@ -3,9 +3,9 @@ using DeliveryProject.DataAccess;
 using Microsoft.EntityFrameworkCore;
 using DeliveryProject.Core.Enums;
 
-namespace DeliveryProject.Tests.Helpers
+namespace DeliveryProject.Tests.DataGenerators
 {
-    public static class OrderTestHelper
+    public static class OrderTestGenerator
     {
         public static async Task GenerateOrders(this DeliveryDbContext context, int count)
         {
@@ -27,7 +27,7 @@ namespace DeliveryProject.Tests.Helpers
                 var customer = customers[random.Next(customers.Count)];
                 var deliveryPerson = deliveryPersons[random.Next(deliveryPersons.Count)];
 
-                var orderProducts = GenerateOrderProducts(products, random);
+                var orderProducts = OrderProductGenerator.Generate(products, random);
                 var amount = orderProducts.Sum(op => op.Quantity * products.First(p => p.Id == op.ProductId).Price);
 
                 var order = new OrderEntity
@@ -57,25 +57,6 @@ namespace DeliveryProject.Tests.Helpers
 
             await context.Orders.AddRangeAsync(orders);
             await context.SaveChangesAsync();
-        }
-
-        private static List<OrderProductEntity> GenerateOrderProducts(List<ProductEntity> products, Random random)
-        {
-            var orderProducts = new List<OrderProductEntity>();
-
-            int productCount = random.Next(1, 5);
-            var selectedProducts = products.OrderBy(_ => random.Next()).Take(productCount).ToList();
-
-            foreach (var product in selectedProducts)
-            {
-                orderProducts.Add(new OrderProductEntity
-                {
-                    ProductId = product.Id,
-                    Quantity = random.Next(1, 5)
-                });
-            }
-
-            return orderProducts;
         }
     }
 }

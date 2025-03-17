@@ -2,10 +2,11 @@
 using DeliveryProject.DataAccess.Entities;
 using DeliveryProject.DataAccess;
 using Microsoft.EntityFrameworkCore;
+using DeliveryProject.Tests.Helpers;
 
-namespace DeliveryProject.Tests.Helpers
+namespace DeliveryProject.Tests.DataGenerators
 {
-    public static class CustomerTestHelper
+    public static class CustomerTestGenerator
     {
         public static async Task GenerateCustomers(this DeliveryDbContext context, int count)
         {
@@ -34,7 +35,7 @@ namespace DeliveryProject.Tests.Helpers
                 customers.Add(customer);
             }
 
-            await TransactionHelper.ExecuteInTransactionAsync(context, async () =>
+            await TransactionTestHelper.ExecuteInTransactionAsync(context, async () =>
             {
                 await context.Persons.AddRangeAsync(customers);
                 await context.SaveChangesAsync();

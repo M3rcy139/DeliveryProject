@@ -2,7 +2,7 @@
 
 namespace DeliveryProject.Tests.Helpers
 {
-    public static class TransactionHelper
+    public static class TransactionTestHelper
     {
         public static async Task ExecuteInTransactionAsync(DeliveryDbContext context, Func<Task> action)
         {

@@ -1,9 +1,9 @@
 ﻿using DeliveryProject.DataAccess;
 using DeliveryProject.DataAccess.Entities;
 
-namespace DeliveryProject.Tests.Helpers
+namespace DeliveryProject.Tests.DataGenerators
 {
-    public static class RegionTestHelper
+    public static class RegionTestGenerator
     {
         public static async Task GenerateRegions(this DeliveryDbContext context, int count)
         {

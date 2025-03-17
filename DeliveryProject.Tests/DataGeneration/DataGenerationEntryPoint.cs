@@ -2,7 +2,7 @@
 using DeliveryProject.Tests.DataGeneration;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using DeliveryProject.Tests.Helpers;
+using DeliveryProject.Tests.DataGenerators;
 
 public class DataGenerationEntryPoint
 {
