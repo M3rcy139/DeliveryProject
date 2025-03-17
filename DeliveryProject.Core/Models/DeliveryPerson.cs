@@ -7,7 +7,7 @@ namespace DeliveryProject.Core.Models
     public class DeliveryPerson : Person
     {
         [NotMapped]
-        protected double Rating
+        public double Rating
         {
             get => double.TryParse(this.GetAttributeValue(AttributeKey.Rating), out var rating) ? rating : 0;
             set => this.SetAttributeValue(AttributeKey.Rating, value.ToString());

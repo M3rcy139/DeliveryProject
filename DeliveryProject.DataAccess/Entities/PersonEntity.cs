@@ -17,21 +17,21 @@ namespace DeliveryProject.DataAccess.Entities
             = new List<AttributeValueEntity>();
 
         [NotMapped]
-        protected string? Name
+        public string? Name
         {
             get => this.GetAttributeValue(AttributeKey.Name);
             set => this.SetAttributeValue(AttributeKey.Name, value);
         }
         
         [NotMapped]
-        protected string? PhoneNumber
+        public string? PhoneNumber
         {
             get => this.GetAttributeValue(AttributeKey.PhoneNumber);
             set => this.SetAttributeValue(AttributeKey.PhoneNumber, value);
         }
         
         [NotMapped]
-        protected string? Email
+        public string? Email
         {
             get => this.GetAttributeValue(AttributeKey.Email);
             set => this.SetAttributeValue(AttributeKey.Email, value);
