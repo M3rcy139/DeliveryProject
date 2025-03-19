@@ -1,6 +1,7 @@
 using NLog;
 using DeliveryProject.ServiceCollection;
 using DeliveryProject.Bussiness.Mappings;
+using DeliveryProject.BackgroundServices;
 
 var builder = WebApplication.CreateBuilder(args);
 var services = builder.Services;
@@ -12,30 +13,33 @@ try
 {
     builder.Host.ConfigureLogging(configuration);
 
-    logger.Info("Инициализация приложения");
+    logger.Info("Initializing the application.");
+
 
     services.AddDbServices(configuration);
     
     services.AddFluentValidationServices();
 
-    services.AddRouting();
-    services.AddControllers();
-    services.AddEndpointsApiExplorer();
-    services.AddSwaggerGen();
+    services.AddControllersAndSwagger();
 
-    services.AddDependencyInjection();
+    services.AddServices();
+    services.AddProcessors();
+    services.AddRepositories();
+
+    services.AddHostedService<BatchUploadService>();
 
     services.AddAutoMapper(typeof(DataBaseMappings));
 
-    var app = builder.Build();
 
+    var app = builder.Build();
+    
     app.ConfigureMiddleware(builder.Environment);
 
     app.Run();
 }
 catch (Exception ex)
 {
-    logger.Error(ex, "Приложение остановлено из-за исключения.");
+    logger.Error(ex, "The application is stopped due to an exception.");
     throw;
 }
 finally
