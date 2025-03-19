@@ -1,11 +1,15 @@
-﻿ using DeliveryProject.Core.Models;
+﻿using DeliveryProject.Core.Dto;
+using DeliveryProject.Core.Enums;
+using DeliveryProject.Core.Models;
 
 namespace DeliveryProject.Bussiness.Interfaces.Services
 {
     public interface IOrderService
     {
-        Task<int> AddOrder(Order order);
-        Task<List<Order>> FilterOrders(string regionName);
-        Task<List<Order>> GetAllOrders();
+        Task<Order> AddOrder(Order order, List<ProductDto> products);
+        Task<Order> GetOrderById(Guid id);
+        Task UpdateOrder(Order order, List<ProductDto> products);
+        Task DeleteOrder(Guid id);
+        Task<List<Order>> GetAllOrders(OrderSortField? sortBy, bool descending);
     }
 }

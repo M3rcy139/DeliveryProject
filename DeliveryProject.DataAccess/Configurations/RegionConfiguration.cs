@@ -13,10 +13,6 @@ namespace DeliveryProject.DataAccess.Configurations
             builder.Property(r => r.Name)
                 .IsRequired()
                 .HasMaxLength(120);
-
-            builder.HasMany(r => r.Orders)
-                .WithOne(o => o.Region)
-                .HasForeignKey(o => o.RegionId);
         }
     }
 }

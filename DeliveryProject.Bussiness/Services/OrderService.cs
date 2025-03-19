@@ -1,100 +1,133 @@
 ﻿using DeliveryProject.Bussiness.Interfaces.Services;
-using DeliveryProject.DataAccess.Interfaces;
 using DeliveryProject.Core.Models;
-using FluentValidation;
 using Microsoft.Extensions.Logging;
-using DeliveryProject.Bussiness.Extensions;
-using DeliveryProject.Core.Exceptions;
 using AutoMapper;
 using DeliveryProject.DataAccess.Entities;
+using DeliveryProject.Core.Enums;
+using DeliveryProject.Bussiness.Mediators;
+using DeliveryProject.Core.Constants.InfoMessages;
+using DeliveryProject.Core.Dto;
 
 namespace DeliveryProject.Bussiness.Services
 {
-    public class OrderService : IOrderService
+    public class OrderService : BaseService, IOrderService
     {
-        private readonly IOrderRepository _orderRepository;
+        private readonly RepositoryMediator _repositoryMediator;
         private readonly ILogger<OrderService> _logger;
-        private readonly IValidator<Order> _addOrderValidator;
         private readonly IMapper _mapper;
 
-        public OrderService(IOrderRepository orderRepository, ILogger<OrderService> logger
-            , IValidator<Order> addOrderValidator, IMapper mapper)
+        public OrderService(RepositoryMediator repositoryMediator, ILogger<OrderService> logger, IMapper mapper)
         {
-            _orderRepository = orderRepository;
+            _repositoryMediator = repositoryMediator;
             _logger = logger;
-            _addOrderValidator = addOrderValidator;
             _mapper = mapper;
         }
 
-        public async Task<int> AddOrder(Order order)
+        public async Task<Order> AddOrder(Order order, List<ProductDto> products)
         {
-            var (isValid, errors) = await _addOrderValidator.TryValidateAsync(order);
+            var customer = await _repositoryMediator.GetCustomerById(order.OrderPersons.First().PersonId);
+            
+            var orderProducts = await GetOrderProducts(order, products);
 
-            if (!isValid)
-            {
-                var errorMessages = errors.Select(e => e.ErrorMessage).ToList();
-                throw new ValidationException("Ошибка валидации", errors);
-            }
+            var invoice = await GetInvoice(order, orderProducts);
 
             var orderEntity = new OrderEntity()
             {
                 Id = order.Id,
-                Weight = order.Weight,
-                RegionId = order.RegionId,
-                DeliveryTime = order.DeliveryTime,
+                CreatedTime = DateTime.UtcNow,
+                Status = OrderStatus.Active,
+                OrderPersons = new List<OrderPersonEntity>
+                {
+                    new OrderPersonEntity { Person = customer }
+                },
+                OrderProducts = orderProducts,
+                Invoice = invoice
             };
 
-            var result = await _orderRepository.AddOrder(orderEntity);
+            var createdOrderEntity = await _repositoryMediator.AddOrder(orderEntity);
 
-            _logger.LogInformation($"Добавлен заказ с ID: {order.Id}");
+            _logger.LogInformation(InfoMessages.AddedOrder, order.Id);
 
-            return result;
+            return _mapper.Map<Order>(createdOrderEntity);
         }
 
-        public async Task<List<Order>> FilterOrders(string regionName)
+        public async Task<Order> GetOrderById(Guid orderId)
         {
-            var region = await _orderRepository.GetRegionByName(regionName);
-            if (region == null)
-            {
-                throw new BussinessArgumentException($"Регион с названием {regionName} не найден.");
-            }
-
-            var regionId = region.Id;
-
-            var hasOrders = await _orderRepository.HasOrders(regionId);
-            if (!hasOrders)
-            {
-                throw new BussinessArgumentException($"Заказов в данном районе({regionId}) не найдено");
-            }
-
-            var firstOrderTime = await _orderRepository.GetFirstOrderTime(regionId);
-            var timeRangeEnd = firstOrderTime.AddMinutes(30);
-
-            var filteredOrders = await _orderRepository.GetOrdersWithinTimeRange(regionId, firstOrderTime, timeRangeEnd);
-            if (filteredOrders == null || filteredOrders.Count == 0)
-            {
-                throw new BussinessArgumentException(
-                    $"Заказы не найдены для района {regionId} в диапазоне времени с {firstOrderTime} по {timeRangeEnd}");
-            }
-
-            _logger.LogInformation(
-                $"Найдено {filteredOrders.Count} заказов для района {regionId} в диапазоне от {firstOrderTime} до {timeRangeEnd}");
-
-            return _mapper.Map<List<Order>>(filteredOrders);
+            var orderEntity = await _repositoryMediator.GetOrderById(orderId);
+            return _mapper.Map<Order>(orderEntity);
         }
 
-        public async Task<List<Order>> GetAllOrders()
+        public async Task UpdateOrder(Order order, List<ProductDto> products)
         {
-            var orders = await _orderRepository.GetAllOrders();
+            var orderProducts = await GetOrderProducts(order, products);
 
-            if (orders == null || orders.Count == 0)
+            decimal amount = await CalculateOrderAmount(orderProducts);
+
+            await _repositoryMediator.UpdateOrder(order.Id, orderProducts, amount);
+
+            _logger.LogInformation(InfoMessages.UpdatedOrder, order.Id);
+        }
+
+        public async Task DeleteOrder(Guid orderId)
+        {
+            await _repositoryMediator.DeleteOrder(orderId);
+            _logger.LogInformation(InfoMessages.DeletedOrder, orderId);
+        }
+
+        public Task<List<Order>> GetAllOrders(OrderSortField? sortBy, bool descending)
+        {
+            return Task.Factory.StartNew(async () =>
             {
-                throw new BussinessArgumentException("Заказы не найдены");
-            }
+                var orders = await _repositoryMediator.GetAllOrders();
 
-            _logger.LogInformation($"Получено {orders.Count} заказов");
+                if (sortBy != null)
+                {
+                    var sortedOrders = GetSortDelegate(sortBy, descending);
+                    orders = sortedOrders?.Invoke(orders) ?? orders;
+                }
 
-            return _mapper.Map<List<Order>>(orders);
+                _logger.LogInformation(InfoMessages.AllOrdersReceived, orders.Count);
+
+                return _mapper.Map<List<Order>>(orders);
+            }, TaskCreationOptions.LongRunning).Unwrap();
+        }
+
+        private async Task<List<OrderProductEntity>> GetOrderProducts(Order order, List<ProductDto> products)
+        {
+            var productEntities = await _repositoryMediator.GetProductsByIds(
+                products.Select(p => p.ProductId).Distinct().ToList());
+
+            var orderProducts = products
+                .Select(p => new OrderProductEntity
+                {
+                    OrderId = order.Id,
+                    ProductId = p.ProductId,
+                    Product = productEntities.First(pe => pe.Id == p.ProductId),
+                    Quantity = p.Quantity
+                }).ToList();
+
+            return orderProducts;
+        }
+
+        private async Task<InvoiceEntity> GetInvoice(Order order, List<OrderProductEntity> orderProducts)
+        {
+            decimal amount = await CalculateOrderAmount(orderProducts);
+
+            var deliveryTime = _repositoryMediator.CalculateDeliveryTime();
+
+            return new InvoiceEntity
+            {
+                Id = Guid.NewGuid(),
+                OrderId = order.Id,
+                Amount = amount,
+                DeliveryTime = deliveryTime.ToUniversalTime(),
+                IsExecuted = false
+            };
+        }
+
+        private async Task<decimal> CalculateOrderAmount(List<OrderProductEntity> orderProducts)
+        {
+            return orderProducts.Sum(op => op.Product.Price * op.Quantity);
         }
     }
 }

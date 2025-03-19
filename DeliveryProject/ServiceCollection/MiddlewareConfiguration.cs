@@ -1,6 +1,4 @@
-﻿using DeliveryProject.API.Middleware;
-
-namespace DeliveryProject.ServiceCollection
+﻿namespace DeliveryProject.ServiceCollection
 {
     public static class MiddlewareConfiguration
     {
@@ -17,16 +15,16 @@ namespace DeliveryProject.ServiceCollection
                 app.UseExceptionHandler("/error");
                 app.UseHsts();
             }
-
-            app.UseMiddleware<ExceptionHandlingMiddleware>();
+            
+            app.UseHttpsRedirection();
             app.UseRouting();
+
+            app.ConfigureCustomMiddleware();
 
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
             });
-
-            app.UseHttpsRedirection();
 
             return app;
         }

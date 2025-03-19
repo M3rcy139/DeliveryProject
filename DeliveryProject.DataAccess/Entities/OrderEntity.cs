@@ -1,12 +1,15 @@
-﻿namespace DeliveryProject.DataAccess.Entities
+﻿using DeliveryProject.Core.Enums;
+
+namespace DeliveryProject.DataAccess.Entities
 {
     public class OrderEntity
     {
         public Guid Id { get; set; }
-        public double Weight { get; set; }
-        public int RegionId { get; set; }
-        public DateTime DeliveryTime { get; set; }
+        public DateTime CreatedTime { get; set; }
+        public OrderStatus Status { get; set; }
 
-        public RegionEntity Region { get; set; }
+        public ICollection<OrderPersonEntity> OrderPersons { get; set; } = new List<OrderPersonEntity>();
+        public ICollection<OrderProductEntity> OrderProducts { get; set; } = new List<OrderProductEntity>();
+        public InvoiceEntity Invoice { get; set; }
     }
 }
