@@ -2,7 +2,7 @@
 using DeliveryProject.Tests.DataGeneration;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using DeliveryProject.Tests.Helpers;
+using DeliveryProject.Tests.DataGenerators;
 
 public class DataGenerationEntryPoint
 {
@@ -29,6 +29,9 @@ public class DataGenerationEntryPoint
             await context.GenerateRoles();
             await context.GenerateRegions(dataSettings.RegionsCount);
 
+            await context.SaveChangesAsync();
+
+            await context.GenerateAttributes();
             await context.SaveChangesAsync();
 
             await context.GenerateDeliveryPersons(dataSettings.DeliveryPersonsCount);

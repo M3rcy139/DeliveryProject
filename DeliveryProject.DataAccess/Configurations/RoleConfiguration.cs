@@ -1,19 +1,25 @@
-﻿using DeliveryProject.DataAccess.Entities;
+﻿using DeliveryProject.Core.Enums;
+using DeliveryProject.DataAccess.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace DeliveryProject.DataAccess.Configurations
 {
-    internal class RoleConfiguration : IEntityTypeConfiguration<RoleEntity>
+    public class RoleConfiguration : IEntityTypeConfiguration<RoleEntity>
     {
         public void Configure(EntityTypeBuilder<RoleEntity> builder)
         {
-            builder.Property(r => r.Role).IsRequired();
+            builder.Property(r => r.RoleType).IsRequired();
 
             builder
-                .HasMany(r => r.Persons)
+                .HasMany(r => r.RoleAttributes)
                 .WithOne(p => p.Role)
                 .HasForeignKey(p => p.RoleId);
+
+            builder
+                .Property(r => r.RoleType)
+                .HasConversion(new EnumToStringConverter<RoleType>());
         }
     }
 }

@@ -17,9 +17,6 @@ namespace DeliveryProject.Tests.Mocks
         {
             var mock = new Mock<IOrderService>();
 
-            mock.Setup(service => service.FilterOrders(It.IsAny<string>()))
-                .ReturnsAsync(new List<Order>());
-
             mock.Setup(service => service.GetAllOrders(It.IsAny<OrderSortField?>(), It.IsAny<bool>()))
                 .ReturnsAsync(new List<Order>());
 
@@ -40,15 +37,12 @@ namespace DeliveryProject.Tests.Mocks
 
         public static void SetupGetAllOrdersWithNull(Mock<IOrderRepository> mock)
         {
-            mock.Setup(service => service.GetAllOrdersImmediate())
+            mock.Setup(service => service.GetAllOrders())
                 .ReturnsAsync((List<OrderEntity>)null);
         }
 
         public static void SetupBussinessArgumentException(Mock<IOrderService> mock, string message)
         {
-            mock.Setup(service => service.FilterOrders(It.IsAny<string>()))
-                .ThrowsAsync(new BussinessArgumentException(message));
-
             mock.Setup(service => service.GetAllOrders(It.IsAny<OrderSortField?>(), It.IsAny<bool>()))
                 .ThrowsAsync(new BussinessArgumentException(message));
         }

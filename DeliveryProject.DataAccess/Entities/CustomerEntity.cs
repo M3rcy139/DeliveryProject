@@ -1,10 +1,23 @@
-﻿using DeliveryProject.Core.Enums;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using DeliveryProject.Core.Enums;
+
 
 namespace DeliveryProject.DataAccess.Entities
 {
     public class CustomerEntity : PersonEntity
     {
-        public string LastName { get; set; }
-        public Gender Gender { get; set; }
+        [NotMapped]
+        public string? LastName
+        {
+            get => GetAttributeValue(AttributeKey.LastName);
+            set => SetAttributeValue(AttributeKey.LastName, value);
+        }
+
+        [NotMapped]
+        public Sex Sex
+        {
+            get => Enum.Parse<Sex>(GetAttributeValue(AttributeKey.Sex));
+            set => SetAttributeValue(AttributeKey.Name, value.ToString());
+        }
     }
 }

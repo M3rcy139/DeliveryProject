@@ -1,9 +1,17 @@
-﻿namespace DeliveryProject.DataAccess.Entities
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using DeliveryProject.Core.Enums;
+
+
+namespace DeliveryProject.DataAccess.Entities
 {
     public class SupplierEntity : PersonEntity
     {
-        public double Rating { get; set; }
-        public ICollection<ProductEntity> Products { get; set; } = new List<ProductEntity>();
+        [NotMapped]
+        public double Rating
+        {
+            get => double.TryParse(GetAttributeValue(AttributeKey.Rating), out var rating) ? rating : 0;
+            set => SetAttributeValue(AttributeKey.Rating, value.ToString());
+        }
     }
 }
 

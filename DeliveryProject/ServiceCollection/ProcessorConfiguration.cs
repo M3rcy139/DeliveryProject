@@ -1,5 +1,6 @@
 ﻿using DeliveryProject.DataAccess.Processors;
 using DeliveryProject.DataAccess.Interfaces;
+using DeliveryProject.DataAccess.Interfaces.BatchUploads;
 
 namespace DeliveryProject.ServiceCollection
 {

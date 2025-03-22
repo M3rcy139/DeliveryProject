@@ -12,23 +12,27 @@ using CsvHelper.Configuration;
 using DeliveryProject.Core.Constants.InfoMessages;
 using Microsoft.Extensions.Configuration;
 using DeliveryProject.Core.Validators;
-using Microsoft.EntityFrameworkCore;
 using DeliveryProject.DataAccess.Mappings;
+using DeliveryProject.Core.Enums;
+using DeliveryProject.DataAccess.Interfaces.BatchUploads;
 
 namespace DeliveryProject.DataAccess.Processors
 {
     public class BatchUploadProcessor : IBatchUploadProcessor
     {
         private readonly IBatchUploadRepository _batchUploadRepository;
+        private readonly IAttributeRepository _attributeRepository;
         private readonly ILogger<BatchUploadProcessor> _logger;
         private readonly int _batchSize;
+        private Dictionary<AttributeKey, int> _attributeIds;
 
         public BatchUploadProcessor(IBatchUploadRepository batchUploadRepository, ILogger<BatchUploadProcessor> logger,
-            IConfiguration configuration)
+            IConfiguration configuration, IAttributeRepository attributeRepository)
         {
             _batchUploadRepository = batchUploadRepository;
             _logger = logger;
             _batchSize = configuration.GetValue<int>("BatchProcessing:BatchSize");
+            _attributeRepository = attributeRepository;
         }
 
         public async Task ProcessUploadAsync(BatchUpload upload)
@@ -38,6 +42,7 @@ namespace DeliveryProject.DataAccess.Processors
 
             try
             {
+                await GetAttributeIds();
                 await ProcessBatchUploadAsync(upload);
                 upload.Status = UploadStatus.Completed;
             }
@@ -51,6 +56,12 @@ namespace DeliveryProject.DataAccess.Processors
             _logger.LogInformation(BatchUploadInfoMessages.ProcessIsCompleted);
         }
 
+        private async Task GetAttributeIds()
+        {
+            _attributeIds = await _attributeRepository.GetAttributeIdsByKeys(
+                new[] { AttributeKey.Name, AttributeKey.PhoneNumber, AttributeKey.Email, AttributeKey.Rating });
+        }
+
         private async Task ProcessBatchUploadAsync(BatchUpload upload)
         {
             var existingPhoneNumbers = new HashSet<string>();
@@ -58,11 +69,12 @@ namespace DeliveryProject.DataAccess.Processors
             await foreach (var batch in ReadCsvFileInBatchesAsync(upload.FilePath, _batchSize))
             {
                 var allPhoneNumbers = batch
-                    .SelectMany(r => r.Contacts.Select(c => c.PhoneNumber))
+                    .SelectMany(r => r.Attributes
+                        .Where(a => a.AttributeId == (int)AttributeKey.PhoneNumber)
+                        .Select(a => a.Value))
                     .ToList();
 
-                var newPhoneNumbers = await _batchUploadRepository.GetExistingPhoneNumbersAsync(allPhoneNumbers);
-
+                var newPhoneNumbers = await _batchUploadRepository.GetExistingPhoneNumbersAsync<DeliveryPersonEntity>(allPhoneNumbers);
                 existingPhoneNumbers.UnionWith(newPhoneNumbers);
 
                 var batchValidator = new BatchValidator<DeliveryPersonDto>(
@@ -76,7 +88,7 @@ namespace DeliveryProject.DataAccess.Processors
                 await SaveValidRecordsAsync(validationResult.ValidRecords);
             }
 
-            await _batchUploadRepository.ExecuteMergeProcedureAsync(nameof(DeliveryPerson) + 's');
+            await _batchUploadRepository.ExecuteMergeProcedureAsync("DeliveryPersons");
         }
 
         private async IAsyncEnumerable<List<DeliveryPersonDto>> ReadCsvFileInBatchesAsync(string filePath, int batchSize)
@@ -113,44 +125,51 @@ namespace DeliveryProject.DataAccess.Processors
         {
             if (!validRecords.Any()) return;
 
-            var tempDeliveryPersons = validRecords.Select(dto => new TempDeliveryPerson
-            {
-                Id = Guid.NewGuid(),
-                Name = dto.Name,
-                Rating = dto.Rating
-            }).ToList();
+            var tempDeliveryPersons = GenerateTempDeliveryPersons(validRecords);
+            var tempAttributeValues = GenerateTempAttributeValues(validRecords, tempDeliveryPersons);
+            var tempDeliverySlots = GenerateTempDeliverySlots(validRecords, tempDeliveryPersons);
 
             await _batchUploadRepository.InsertIntoTempTableAsync(tempDeliveryPersons, x => x);
+            await _batchUploadRepository.InsertIntoTempTableAsync(tempAttributeValues, x => x);
+            await _batchUploadRepository.InsertIntoTempTableAsync(tempDeliverySlots, x => x);
+        }
 
-            var tempContacts = validRecords
-                .SelectMany((dto, index) => dto.Contacts.Select(contact => new TempPersonContact
-                {
-                    Id = Guid.NewGuid(),
-                    PhoneNumber = contact.PhoneNumber,
-                    Email = contact.Email,
-                    RegionId = contact.RegionId,
-                    DeliveryPersonId = tempDeliveryPersons[index].Id 
-                }))
-                .ToList();
-
-            if (tempContacts.Any())
+        private List<TempDeliveryPerson> GenerateTempDeliveryPersons(List<DeliveryPersonDto> validRecords)
+        {
+            return validRecords.Select(dto => new TempDeliveryPerson
             {
-                await _batchUploadRepository.InsertIntoTempTableAsync(tempContacts, x => x);
-            }
+                Id = Guid.NewGuid(),
+                RegionId = dto.RegionId,
+                RoleId = (int)RoleType.DeliveryPerson
+            }).ToList();
+        }
 
-            var tempSlots = validRecords
-                .SelectMany((dto, index) => dto.DeliverySlots.Select(slot => new TempDeliverySlot
-                {
-                    Id = Guid.NewGuid(),
-                    SlotTime = DateTime.SpecifyKind(slot.SlotTime, DateTimeKind.Utc),
-                    DeliveryPersonId = tempDeliveryPersons[index].Id 
-                }))
+        private List<TempAttributeValue> GenerateTempAttributeValues(List<DeliveryPersonDto> validRecords, List<TempDeliveryPerson> tempDeliveryPersons)
+        {
+            return validRecords
+                .SelectMany(dto => dto.Attributes
+                    .Where(a => _attributeIds.ContainsKey((AttributeKey)a.AttributeId))
+                    .Select(a => new TempAttributeValue
+                    {
+                        Id = Guid.NewGuid(),
+                        AttributeId = a.AttributeId,
+                        Value = a.Value,
+                        DeliveryPersonId = tempDeliveryPersons.First(dp => dp.RegionId == dto.RegionId).Id 
+                    }))
                 .ToList();
+        }
 
-            if (tempSlots.Any())
-            {
-                await _batchUploadRepository.InsertIntoTempTableAsync(tempSlots, x => x);
-            }
+        private List<TempDeliverySlot> GenerateTempDeliverySlots(List<DeliveryPersonDto> validRecords, List<TempDeliveryPerson> tempDeliveryPersons)
+        {
+            return validRecords
+                .SelectMany(dto => dto.DeliverySlots
+                    .Select(slot => new TempDeliverySlot
+                    {
+                        Id = Guid.NewGuid(),
+                        SlotTime = DateTime.SpecifyKind(slot.SlotTime, DateTimeKind.Utc),
+                        DeliveryPersonId = tempDeliveryPersons.First(dp => dp.RegionId == dto.RegionId).Id
+                    }))
+                .ToList();
         }
 
         private async Task SaveErrorRecordsAsync(List<ValidationRecordsError> errorRecords, Guid batchUploadId)

@@ -2,8 +2,8 @@
 {
     public enum RoleType
     {
-        Supplier,
-        Customer,
-        DeliveryPerson
+        Customer = 1,
+        Supplier = 2,
+        DeliveryPerson = 3, 
     }
 }

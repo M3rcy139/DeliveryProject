@@ -19,16 +19,15 @@ namespace DeliveryProject.Controllers
         }
 
         [HttpPost("Order/Add")]
-        public async Task<IActionResult> AddOrder([FromBody] OrderViewModel model)
+        public async Task<IActionResult> AddOrder([FromBody] OrderRequest model)
         {
             var order = new Order()
             {
                 Id = Guid.NewGuid(),
-                Persons = new List<Person> 
+                OrderPersons = new List<OrderPerson> 
                 {
-                    new Customer { Id = model.CustomerId }
+                    new OrderPerson { PersonId = model.CustomerId }
                 },
-                DeliveryTime = model.DeliveryTime
             };
 
             var result = await _orderService.AddOrder(order, model.Products);
@@ -49,12 +48,11 @@ namespace DeliveryProject.Controllers
         }
 
         [HttpPut("Order/Update")]
-        public async Task<IActionResult> UpdateOrder([FromBody] OrderViewModel model)
+        public async Task<IActionResult> UpdateOrder([FromBody] OrderRequest model)
         {
             var order = new Order()
             {
                 Id = model.OrderId.Value,
-                DeliveryTime = model.DeliveryTime,
             };
 
             await _orderService.UpdateOrder(order, model.Products);
@@ -68,14 +66,6 @@ namespace DeliveryProject.Controllers
             await _orderService.DeleteOrder(orderId);
 
             return Ok(new { message = string.Format(InfoMessages.DeletedOrder, orderId) });
-        }
-
-        [HttpGet("Orders/Filter")]
-        public async Task<IActionResult> FilterOrders(string? regionName)
-        {
-            var filteredOrders = await _orderService.FilterOrders(regionName);
-
-            return Ok(filteredOrders);
         }
 
         [HttpGet("Orders/GetAll")]
