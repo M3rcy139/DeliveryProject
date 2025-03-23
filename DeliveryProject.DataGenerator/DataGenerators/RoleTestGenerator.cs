@@ -1,7 +1,7 @@
 ﻿using DeliveryProject.DataAccess;
-using DeliveryProject.Tests.Helpers;
+using DeliveryProject.DataGenerator.Helpers;
 
-namespace DeliveryProject.Tests.DataGenerators
+namespace DeliveryProject.DataGenerator.DataGenerators
 {
     public static class RoleTestGenerator
     {

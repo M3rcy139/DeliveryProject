@@ -1,10 +1,10 @@
 ﻿using DeliveryProject.Core.Enums;
 using DeliveryProject.DataAccess.Entities;
 using DeliveryProject.DataAccess;
+using DeliveryProject.DataGenerator.Helpers;
 using Microsoft.EntityFrameworkCore;
-using DeliveryProject.Tests.Helpers;
 
-namespace DeliveryProject.Tests.DataGenerators
+namespace DeliveryProject.DataGenerator.DataGenerators
 {
     public static class CustomerTestGenerator
     {

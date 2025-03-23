@@ -1,7 +1,7 @@
 ﻿using DeliveryProject.Core.Enums;
 using DeliveryProject.DataAccess.Entities;
 
-namespace DeliveryProject.Tests.Helpers
+namespace DeliveryProject.DataGenerator.Helpers
 {
     public readonly struct AttributeTestDataHelper
     {

@@ -1,8 +1,8 @@
 ﻿using DeliveryProject.DataAccess;
-using DeliveryProject.Tests.Helpers;
+using DeliveryProject.DataGenerator.Helpers;
 using Microsoft.EntityFrameworkCore;
 
-namespace DeliveryProject.Tests.DataGenerators
+namespace DeliveryProject.DataGenerator.DataGenerators
 {
     public static class AttributeTestGenerator
     {

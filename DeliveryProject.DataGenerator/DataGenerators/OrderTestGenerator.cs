@@ -3,7 +3,7 @@ using DeliveryProject.DataAccess;
 using Microsoft.EntityFrameworkCore;
 using DeliveryProject.Core.Enums;
 
-namespace DeliveryProject.Tests.DataGenerators
+namespace DeliveryProject.DataGenerator.DataGenerators
 {
     public static class OrderTestGenerator
     {

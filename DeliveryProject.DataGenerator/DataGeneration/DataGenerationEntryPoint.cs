@@ -1,8 +1,9 @@
 ﻿using DeliveryProject.DataAccess;
-using DeliveryProject.Tests.DataGeneration;
+using DeliveryProject.DataGenerator.DataGenerators;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using DeliveryProject.Tests.DataGenerators;
+
+namespace DeliveryProject.DataGenerator.DataGeneration;
 
 public class DataGenerationEntryPoint
 {
@@ -27,7 +28,7 @@ public class DataGenerationEntryPoint
             var dataSettings = configuration.GetSection("DataGenerationSettings").Get<DataGenerationSettings>();
 
             /* Удалю закоменнтированные строки и все связанные классы, если все нормально
-             со статическим заполнением данных */
+         со статическим заполнением данных */
             //await context.GenerateRoles();
             await context.GenerateRegions(dataSettings.RegionsCount);
             
