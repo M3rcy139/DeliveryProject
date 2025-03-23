@@ -26,6 +26,8 @@ public class DataGenerationEntryPoint
 
             var dataSettings = configuration.GetSection("DataGenerationSettings").Get<DataGenerationSettings>();
 
+            /* Удалю закоменнтированные строки и все связанные классы, если все нормально
+             со статическим заполнением данных */
             //await context.GenerateRoles();
             await context.GenerateRegions(dataSettings.RegionsCount);
             

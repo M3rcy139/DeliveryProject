@@ -1,5 +1,4 @@
-﻿using DeliveryProject.Core.Models;
-using FluentValidation;
+﻿using FluentValidation;
 using DeliveryProject.Core.Extensions;
 using System.Net;
 using DeliveryProject.Core.Constants.ErrorMessages;
@@ -7,17 +6,16 @@ using DeliveryProject.Core.Constants.InfoMessages;
 
 namespace DeliveryProject.Middleware
 {
-    public class ValidationMiddleware : ExceptionHandlingBaseMiddleware
+    public class ValidationMiddleware<T> : ExceptionHandlingBaseMiddleware
     {
-        public ValidationMiddleware(RequestDelegate next, ILogger<ValidationMiddleware> logger,
-            IWebHostEnvironment environment) : base (next, logger, environment)
+        public ValidationMiddleware(RequestDelegate next, ILogger<ValidationMiddleware<T>> logger,
+            IWebHostEnvironment environment) : base(next, logger, environment)
         {
         }
 
-        public async Task InvokeAsync(HttpContext context, IValidator<Order> orderValidator)
+        public async Task InvokeAsync(HttpContext context, IValidator<T> validator)
         {
-            if (context.Request.Path.StartsWithSegments("/api/order") &&
-                (context.Request.Method == HttpMethods.Post || context.Request.Method == HttpMethods.Put))
+            if (context.Request.Method == HttpMethods.Post || context.Request.Method == HttpMethods.Put)
             {
                 try
                 {
@@ -30,9 +28,9 @@ namespace DeliveryProject.Middleware
                         context.Request.Body.Position = 0; 
                     }
 
-                    var order = body.DeserializeValue<Order>();
+                    var dto = body.DeserializeValue<T>();
 
-                    var isValid = await orderValidator.TryValidateAsync(order);
+                    var isValid = await validator!.TryValidateAsync(dto);
 
                     if (!isValid)
                     {
