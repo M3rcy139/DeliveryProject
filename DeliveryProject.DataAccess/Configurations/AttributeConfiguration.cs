@@ -2,8 +2,8 @@
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore;
 using DeliveryProject.Core.Enums;
+using DeliveryProject.DataAccess.SeedData;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using System.Reflection.Emit;
 
 namespace DeliveryProject.DataAccess.Configurations
 {
@@ -17,7 +17,7 @@ namespace DeliveryProject.DataAccess.Configurations
                 .HasMany(a => a.AttributeValues)
                 .WithOne(pa => pa.Attribute)
                 .HasForeignKey(pa => pa.AttributeId);
-
+            
             builder
                 .HasMany(a => a.RoleAttributes)
                 .WithOne(pa => pa.Attribute)
@@ -30,6 +30,8 @@ namespace DeliveryProject.DataAccess.Configurations
             builder
                 .Property(a => a.Type)
                 .HasConversion(new EnumToStringConverter<AttributeType>());
+
+            builder.HasData(SeedDataAttributesProvider.GetAttributes());
         }
     }
 }

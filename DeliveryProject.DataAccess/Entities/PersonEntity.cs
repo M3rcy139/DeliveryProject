@@ -13,7 +13,7 @@ namespace DeliveryProject.DataAccess.Entities
 
         public RegionEntity Region { get; set; }
         protected virtual RoleEntity Role { get; set; }
-        protected virtual ICollection<AttributeValueEntity> AttributeValues { get; set; } 
+        public ICollection<AttributeValueEntity> AttributeValues { get; set; } 
             = new List<AttributeValueEntity>();
 
         [NotMapped]
