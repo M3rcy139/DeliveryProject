@@ -27,17 +27,12 @@ public class Program
             await using var context = new DeliveryDbContext(optionsBuilder.Options);
 
             var dataSettings = configuration.GetSection("DataGenerationSettings").Get<DataGenerationSettings>();
-
-            /* Удалю закоменнтированные строки и все связанные классы, если все нормально
-         со статическим заполнением данных */
-            //await context.GenerateRoles();
+            
+            
             await context.GenerateRegions(dataSettings.RegionsCount);
             
             await context.SaveChangesAsync();
-
-            // await context.GenerateAttributes();
-            // await context.SaveChangesAsync();
-
+            
             await context.GenerateDeliveryPersons(dataSettings.DeliveryPersonsCount);
             await context.GenerateSuppliers(dataSettings.SuppliersCount);
             await context.GenerateCustomers(dataSettings.CustomersCount);
