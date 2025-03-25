@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore;
 using DeliveryProject.Core.Enums;
-using DeliveryProject.DataAccess.SeedData;
+using DeliveryProject.DataAccess.DataProviders;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace DeliveryProject.DataAccess.Configurations
@@ -31,7 +31,7 @@ namespace DeliveryProject.DataAccess.Configurations
                 .Property(a => a.Type)
                 .HasConversion(new EnumToStringConverter<AttributeType>());
 
-            builder.HasData(SeedDataAttributesProvider.GetAttributes());
+            builder.HasData(AttributesDataProvider.GetAttributes());
         }
     }
 }

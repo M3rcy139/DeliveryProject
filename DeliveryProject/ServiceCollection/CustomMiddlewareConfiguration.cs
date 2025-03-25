@@ -8,7 +8,7 @@ namespace DeliveryProject.ServiceCollection
         public static IApplicationBuilder ConfigureCustomMiddleware(this IApplicationBuilder app)
         {
             app.UseMiddleware<ExceptionHandlingMiddleware>();
-            app.UseMiddleware<ValidationMiddleware<OrderRequest>>();
+            //app.UseMiddleware<ValidationMiddleware<OrderRequest>>();
 
             return app;
         }

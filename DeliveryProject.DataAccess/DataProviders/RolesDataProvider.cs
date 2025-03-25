@@ -1,10 +1,9 @@
 using DeliveryProject.Core.Enums;
-using DeliveryProject.Core.Models;
 using DeliveryProject.DataAccess.Entities;
 
-namespace DeliveryProject.DataAccess.SeedData;
+namespace DeliveryProject.DataAccess.DataProviders;
 
-public static class SeedDataRolesProvider
+public static class RolesDataProvider
 {
     public static List<RoleEntity> GetRoles()
     {

@@ -1,9 +1,9 @@
 using DeliveryProject.Core.Enums;
 using DeliveryProject.DataAccess.Entities;
 
-namespace DeliveryProject.DataAccess.SeedData;
+namespace DeliveryProject.DataAccess.DataProviders;
 
-public static class SeedDataAttributesProvider
+public static class AttributesDataProvider
 {
     public static List<AttributeEntity> GetAttributes()
     {
