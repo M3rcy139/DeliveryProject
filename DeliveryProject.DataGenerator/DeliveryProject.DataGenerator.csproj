@@ -12,4 +12,9 @@
       <ProjectReference Include="..\DeliveryProject\DeliveryProject.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <None Remove="Resources\regions.json" />
+      <EmbeddedResource Include="Resources\regions.json" />
+    </ItemGroup>
+
 </Project>
