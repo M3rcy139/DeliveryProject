@@ -76,7 +76,8 @@ namespace DeliveryProject.Bussiness.Mediators
 
         public async Task DeleteOrder(Guid orderId)
         {
-            await GetOrderById(orderId);
+            var order = await _orderRepository.GetOrderById(orderId);
+            order.ValidateEntity(ErrorMessages.OrderNotFound, ErrorCodes.NoOrdersFound);
 
             await _orderRepository.DeleteOrder(orderId); 
         }
