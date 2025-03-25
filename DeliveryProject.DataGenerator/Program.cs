@@ -1,11 +1,12 @@
 ﻿using DeliveryProject.DataAccess;
+using DeliveryProject.DataGenerator.DataGeneration;
 using DeliveryProject.DataGenerator.DataGenerators;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 
-namespace DeliveryProject.DataGenerator.DataGeneration;
+namespace DeliveryProject.DataGenerator;
 
-public class DataGenerationEntryPoint
+public class Program
 {
     static async Task Main(string[] args)
     {
