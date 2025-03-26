@@ -8,7 +8,6 @@
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
 	  <OutputEncoding>utf-8</OutputEncoding>
-	  <StartupObject>DataGenerationEntryPoint</StartupObject>
   </PropertyGroup>
 
   <ItemGroup>
