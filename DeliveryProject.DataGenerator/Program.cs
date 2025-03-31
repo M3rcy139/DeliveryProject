@@ -29,7 +29,7 @@ public class Program
             var dataSettings = configuration.GetSection("DataGenerationSettings").Get<DataGenerationSettings>();
             
             
-            await context.GenerateRegions(dataSettings.RegionsCount);
+            await context.GenerateRegions();
             
             await context.SaveChangesAsync();
             

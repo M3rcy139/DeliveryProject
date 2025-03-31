@@ -1,29 +1,20 @@
 ﻿using System.Reflection;
-using System.Text.Json;
 using DeliveryProject.DataAccess;
 using DeliveryProject.DataAccess.Entities;
+using DeliveryProject.DataGenerator.Helpers;
+
 
 namespace DeliveryProject.DataGenerator.DataGenerators
 {
     public static class RegionTestGenerator
     {
-        public static async Task GenerateRegions(this DeliveryDbContext context, int count)
-        {
-            var regions = LoadRegionsFromJson();
-            await context.Regions.AddRangeAsync(regions);
-        }
-        
-        private static List<RegionEntity> LoadRegionsFromJson()
-        {
-            var assembly = Assembly.GetExecutingAssembly();
-            var resourceName = "DeliveryProject.DataGenerator.Resources.regions.json";
+        private const string ResourcePath = "DeliveryProject.DataGenerator.Resources.regions.json";
+        private static readonly Assembly Assembly = Assembly.GetExecutingAssembly();
 
-            using (var stream = assembly.GetManifestResourceStream(resourceName))
-            using (var reader = new StreamReader(stream!))
-            {
-                var json = reader.ReadToEnd();
-                return JsonSerializer.Deserialize<List<RegionEntity>>(json)!;
-            }
+        public static async Task GenerateRegions(this DeliveryDbContext context)
+        {
+            var regions = Assembly.LoadFromResourceJson<RegionEntity>(ResourcePath);
+            await context.Regions.AddRangeAsync(regions);
         }
     }
 }
