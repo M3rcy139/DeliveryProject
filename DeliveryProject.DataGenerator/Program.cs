@@ -1,6 +1,6 @@
 ﻿using DeliveryProject.DataAccess;
-using DeliveryProject.DataGenerator.DataGeneration;
-using DeliveryProject.DataGenerator.DataGenerators;
+using DeliveryProject.DataGenerator.Configurations;
+using DeliveryProject.DataGenerator.Settings;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 
@@ -27,19 +27,8 @@ public class Program
             await using var context = new DeliveryDbContext(optionsBuilder.Options);
 
             var dataSettings = configuration.GetSection("DataGenerationSettings").Get<DataGenerationSettings>();
-            
-            
-            await context.GenerateRegions();
-            
-            await context.SaveChangesAsync();
-            
-            await context.GenerateDeliveryPersons(dataSettings.DeliveryPersonsCount);
-            await context.GenerateSuppliers(dataSettings.SuppliersCount);
-            await context.GenerateCustomers(dataSettings.CustomersCount);
 
-            await context.GenerateOrders(dataSettings.OrdersCount);
-
-            await context.SaveChangesAsync();
+            await context.GenerateAllData(dataSettings);
 
             Console.WriteLine("Data generation completed and applied to the database.");
         }
