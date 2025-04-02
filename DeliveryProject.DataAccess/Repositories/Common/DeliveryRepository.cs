@@ -26,6 +26,18 @@ public class DeliveryRepository : IDeliveryRepository
 
         return invoice;
     }
+
+    public async Task UpdateInvoice(InvoiceEntity invoiceEntity)
+    {
+        await using var dbContext = await _contextFactory.CreateDbContextAsync();
+        
+        var existingInvoice = await dbContext.Invoices.FindAsync(invoiceEntity.Id);
+
+        existingInvoice!.Amount = invoiceEntity.Amount;
+        dbContext.Entry(existingInvoice).Property(i => i.Amount).IsModified = true;
+
+        await dbContext.SaveChangesAsync();
+    }
     
     public async Task DeleteInvoice(Guid invoiceId)
     {

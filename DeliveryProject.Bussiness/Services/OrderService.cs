@@ -29,19 +29,16 @@ namespace DeliveryProject.Bussiness.Services
             
             var orderProducts = await GetOrderProducts(order, products);
 
-            var invoice = await GetInvoice(order, orderProducts);
-
             var orderEntity = new OrderEntity()
             {
                 Id = order.Id,
                 CreatedTime = DateTime.UtcNow,
-                Status = OrderStatus.Active,
+                Status = OrderStatus.Pending,
                 OrderPersons = new List<OrderPersonEntity>
                 {
                     new OrderPersonEntity { Person = customer }
                 },
                 OrderProducts = orderProducts,
-                Invoice = invoice
             };
 
             var createdOrderEntity = await _repositoryMediator.AddOrder(orderEntity);
@@ -61,9 +58,7 @@ namespace DeliveryProject.Bussiness.Services
         {
             var orderProducts = await GetOrderProducts(order, products);
 
-            decimal amount = await CalculateOrderAmount(orderProducts);
-
-            await _repositoryMediator.UpdateOrder(order.Id, orderProducts, amount);
+            await _repositoryMediator.UpdateOrder(order.Id, orderProducts);
 
             _logger.LogInformation(InfoMessages.UpdatedOrder, order.Id);
         }
@@ -107,27 +102,6 @@ namespace DeliveryProject.Bussiness.Services
                 }).ToList();
 
             return orderProducts;
-        }
-
-        private async Task<InvoiceEntity> GetInvoice(Order order, List<OrderProductEntity> orderProducts)
-        {
-            decimal amount = await CalculateOrderAmount(orderProducts);
-
-            var deliveryTime = _repositoryMediator.CalculateDeliveryTime();
-
-            return new InvoiceEntity
-            {
-                Id = Guid.NewGuid(),
-                OrderId = order.Id,
-                Amount = amount,
-                DeliveryTime = deliveryTime.ToUniversalTime(),
-                IsExecuted = false
-            };
-        }
-
-        private async Task<decimal> CalculateOrderAmount(List<OrderProductEntity> orderProducts)
-        {
-            return orderProducts.Sum(op => op.Product.Price * op.Quantity);
         }
     }
 }
