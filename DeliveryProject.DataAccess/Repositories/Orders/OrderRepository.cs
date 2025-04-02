@@ -64,7 +64,7 @@ namespace DeliveryProject.DataAccess.Repositories.Orders
 
             _orderCache[orderEntity.Id] = orderEntity;
         }
-
+        
         public async Task DeleteOrder(Guid id)
         {
             await using var dbContext = await _contextFactory.CreateDbContextAsync();

@@ -14,14 +14,12 @@ namespace DeliveryProject.Bussiness.Services
     public class OrderService : BaseService, IOrderService
     {
         private readonly RepositoryMediator _repositoryMediator;
-        private readonly IDeliveryService _deliveryService;
         private readonly ILogger<OrderService> _logger;
         private readonly IMapper _mapper;
 
-        public OrderService(RepositoryMediator repositoryMediator, IDeliveryService deliveryService ,ILogger<OrderService> logger, IMapper mapper)
+        public OrderService(RepositoryMediator repositoryMediator, ILogger<OrderService> logger, IMapper mapper)
         {
             _repositoryMediator = repositoryMediator;
-            _deliveryService = deliveryService;
             _logger = logger;
             _mapper = mapper;
         }
@@ -71,9 +69,19 @@ namespace DeliveryProject.Bussiness.Services
             _logger.LogInformation(InfoMessages.UpdatedOrder, order.Id);
         }
 
+        public async Task UpdateOrderStatus(Guid orderId)
+        {
+            var order = await _repositoryMediator.GetOrderById(orderId);
+            
+            order.Status = OrderStatus.Active;
+            
+            await _repositoryMediator.UpdateOrder(order.Id, order.OrderProducts.ToList(), order.Amount);
+            
+            _logger.LogInformation(InfoMessages.UpdatedOrderStatus, order.Id);
+        }
+
         public async Task DeleteOrder(Guid orderId)
         {
-            await _deliveryService.DeleteInvoice(orderId);
             await _repositoryMediator.DeleteOrder(orderId);
             _logger.LogInformation(InfoMessages.DeletedOrder, orderId);
         }
