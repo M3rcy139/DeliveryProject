@@ -1,6 +1,6 @@
 ﻿using DeliveryProject.DataAccess;
 
-namespace DeliveryProject.Tests.Helpers
+namespace DeliveryProject.DataGenerator.Helpers
 {
     public static class TransactionTestHelper
     {

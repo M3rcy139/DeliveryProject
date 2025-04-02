@@ -3,7 +3,6 @@ using DeliveryProject.DataAccess.Interfaces;
 using DeliveryProject.Core.Constants.ErrorMessages;
 using DeliveryProject.Core.Constants;
 using DeliveryProject.Core.Extensions;
-using DeliveryProject.Core.Enums;
 
 namespace DeliveryProject.Bussiness.Mediators
 {
@@ -77,7 +76,8 @@ namespace DeliveryProject.Bussiness.Mediators
 
         public async Task DeleteOrder(Guid orderId)
         {
-            var order = await GetOrderById(orderId);
+            var order = await _orderRepository.GetOrderById(orderId);
+            order.ValidateEntity(ErrorMessages.OrderNotFound, ErrorCodes.NoOrdersFound);
 
             await _orderRepository.DeleteOrder(orderId); 
         }

@@ -1,10 +1,12 @@
 ﻿using DeliveryProject.DataAccess;
-using DeliveryProject.Tests.DataGeneration;
+using DeliveryProject.DataGenerator.Configurations;
+using DeliveryProject.DataGenerator.Settings;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using DeliveryProject.Tests.DataGenerators;
 
-public class DataGenerationEntryPoint
+namespace DeliveryProject.DataGenerator;
+
+public class Program
 {
     static async Task Main(string[] args)
     {
@@ -26,21 +28,7 @@ public class DataGenerationEntryPoint
 
             var dataSettings = configuration.GetSection("DataGenerationSettings").Get<DataGenerationSettings>();
 
-            await context.GenerateRoles();
-            await context.GenerateRegions(dataSettings.RegionsCount);
-
-            await context.SaveChangesAsync();
-
-            await context.GenerateAttributes();
-            await context.SaveChangesAsync();
-
-            await context.GenerateDeliveryPersons(dataSettings.DeliveryPersonsCount);
-            await context.GenerateSuppliers(dataSettings.SuppliersCount);
-            await context.GenerateCustomers(dataSettings.CustomersCount);
-
-            await context.GenerateOrders(dataSettings.OrdersCount);
-
-            await context.SaveChangesAsync();
+            await context.GenerateAllData(dataSettings);
 
             Console.WriteLine("Data generation completed and applied to the database.");
         }

@@ -21,7 +21,7 @@ namespace DeliveryProject.Core.Extensions
         }
 
         public static void ValidateEntity<T>(this T entity, string errorMessage, string errorCode)
-        where T : class
+        where T : class?
         {
             if (entity == null)
             {

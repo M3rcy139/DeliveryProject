@@ -14,7 +14,7 @@ namespace DeliveryProject.DataAccess.Configurations
 
             builder
                 .HasOne(av => av.Person)
-                .WithMany()
+                .WithMany(p => p.AttributeValues)
                 .HasForeignKey(av => av.PersonId);
 
             builder

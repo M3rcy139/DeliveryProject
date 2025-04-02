@@ -1,7 +1,6 @@
 ﻿using DeliveryProject.DataAccess.Entities;
 using DeliveryProject.Core.Dto;
 using DeliveryProject.Core.Common;
-using DeliveryProject.Core.Models;
 using DeliveryProject.DataAccess.Interfaces;
 using DeliveryProject.DataAccess.Enums;
 using DeliveryProject.DataAccess.Validation;
@@ -11,7 +10,6 @@ using CsvHelper;
 using CsvHelper.Configuration;
 using DeliveryProject.Core.Constants.InfoMessages;
 using Microsoft.Extensions.Configuration;
-using DeliveryProject.Core.Validators;
 using DeliveryProject.DataAccess.Mappings;
 using DeliveryProject.Core.Enums;
 using DeliveryProject.DataAccess.Interfaces.BatchUploads;

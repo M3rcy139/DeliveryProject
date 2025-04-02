@@ -13,7 +13,7 @@ namespace DeliveryProject.Core.Models
 
         public Region Region { get; set; }
         protected virtual Role Role { get; set; }
-        protected virtual ICollection<AttributeValue> AttributeValues { get; set; }
+        public ICollection<AttributeValue> AttributeValues { get; set; }
             = new List<AttributeValue>();
 
         [NotMapped]

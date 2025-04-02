@@ -1,10 +1,10 @@
-﻿using DeliveryProject.Core.Constants.ErrorMessages;
+﻿using System.Globalization;
+using DeliveryProject.Core.Constants.ErrorMessages;
 using DeliveryProject.Core.Dto;
 using DeliveryProject.Core.Enums;
 using FluentValidation;
-using System.Globalization;
 
-namespace DeliveryProject.Core.Validators
+namespace DeliveryProject.DataAccess.Validation
 {
     public class DeliveryPersonDtoValidator : AbstractValidator<DeliveryPersonDto>
     {

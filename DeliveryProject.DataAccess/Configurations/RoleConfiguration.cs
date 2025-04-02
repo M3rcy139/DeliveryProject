@@ -1,4 +1,5 @@
 ﻿using DeliveryProject.Core.Enums;
+using DeliveryProject.DataAccess.DataProviders;
 using DeliveryProject.DataAccess.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -20,6 +21,8 @@ namespace DeliveryProject.DataAccess.Configurations
             builder
                 .Property(r => r.RoleType)
                 .HasConversion(new EnumToStringConverter<RoleType>());
+            
+            builder.HasData(RolesDataProvider.GetRoles());
         }
     }
 }

@@ -4,6 +4,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
+#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
+
 namespace DeliveryProject.Migrations.Migrations
 {
     /// <inheritdoc />
@@ -131,12 +133,6 @@ namespace DeliveryProject.Migrations.Migrations
                         name: "FK_Persons_Regions_RegionId",
                         column: x => x.RegionId,
                         principalTable: "Regions",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Persons_Roles_RoleId",
-                        column: x => x.RoleId,
-                        principalTable: "Roles",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -347,6 +343,49 @@ namespace DeliveryProject.Migrations.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.InsertData(
+                table: "Attributes",
+                columns: new[] { "Id", "Key", "Type" },
+                values: new object[,]
+                {
+                    { 1, "Name", "String" },
+                    { 2, "LastName", "String" },
+                    { 3, "Sex", "String" },
+                    { 4, "PhoneNumber", "String" },
+                    { 5, "Email", "String" },
+                    { 6, "Rating", "Double" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "Roles",
+                columns: new[] { "Id", "RoleType" },
+                values: new object[,]
+                {
+                    { 1, "Customer" },
+                    { 2, "Supplier" },
+                    { 3, "DeliveryPerson" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "RoleAttributes",
+                columns: new[] { "AttributeId", "RoleId" },
+                values: new object[,]
+                {
+                    { 1, 1 },
+                    { 2, 1 },
+                    { 3, 1 },
+                    { 4, 1 },
+                    { 5, 1 },
+                    { 1, 2 },
+                    { 4, 2 },
+                    { 5, 2 },
+                    { 6, 2 },
+                    { 1, 3 },
+                    { 4, 3 },
+                    { 5, 3 },
+                    { 6, 3 }
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_AttributeValues_AttributeId",
                 table: "AttributeValues",
@@ -387,11 +426,6 @@ namespace DeliveryProject.Migrations.Migrations
                 name: "IX_Persons_RegionId",
                 table: "Persons",
                 column: "RegionId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Persons_RoleId",
-                table: "Persons",
-                column: "RoleId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Products_SupplierId",
@@ -459,6 +493,9 @@ namespace DeliveryProject.Migrations.Migrations
                 name: "Attributes");
 
             migrationBuilder.DropTable(
+                name: "Roles");
+
+            migrationBuilder.DropTable(
                 name: "TempDeliveryPersons");
 
             migrationBuilder.DropTable(
@@ -469,9 +506,6 @@ namespace DeliveryProject.Migrations.Migrations
 
             migrationBuilder.DropTable(
                 name: "Regions");
-
-            migrationBuilder.DropTable(
-                name: "Roles");
         }
     }
 }

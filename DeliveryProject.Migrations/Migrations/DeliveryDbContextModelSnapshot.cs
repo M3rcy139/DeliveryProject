@@ -41,6 +41,44 @@ namespace DeliveryProject.Migrations.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Attributes");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Key = "Name",
+                            Type = "String"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Key = "LastName",
+                            Type = "String"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Key = "Sex",
+                            Type = "String"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Key = "PhoneNumber",
+                            Type = "String"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Key = "Email",
+                            Type = "String"
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Key = "Rating",
+                            Type = "Double"
+                        });
                 });
 
             modelBuilder.Entity("DeliveryProject.DataAccess.Entities.AttributeValueEntity", b =>
@@ -282,6 +320,73 @@ namespace DeliveryProject.Migrations.Migrations
                     b.HasIndex("AttributeId");
 
                     b.ToTable("RoleAttributes");
+
+                    b.HasData(
+                        new
+                        {
+                            RoleId = 1,
+                            AttributeId = 1
+                        },
+                        new
+                        {
+                            RoleId = 1,
+                            AttributeId = 4
+                        },
+                        new
+                        {
+                            RoleId = 1,
+                            AttributeId = 5
+                        },
+                        new
+                        {
+                            RoleId = 1,
+                            AttributeId = 2
+                        },
+                        new
+                        {
+                            RoleId = 1,
+                            AttributeId = 3
+                        },
+                        new
+                        {
+                            RoleId = 2,
+                            AttributeId = 1
+                        },
+                        new
+                        {
+                            RoleId = 2,
+                            AttributeId = 4
+                        },
+                        new
+                        {
+                            RoleId = 2,
+                            AttributeId = 5
+                        },
+                        new
+                        {
+                            RoleId = 2,
+                            AttributeId = 6
+                        },
+                        new
+                        {
+                            RoleId = 3,
+                            AttributeId = 1
+                        },
+                        new
+                        {
+                            RoleId = 3,
+                            AttributeId = 4
+                        },
+                        new
+                        {
+                            RoleId = 3,
+                            AttributeId = 5
+                        },
+                        new
+                        {
+                            RoleId = 3,
+                            AttributeId = 6
+                        });
                 });
 
             modelBuilder.Entity("DeliveryProject.DataAccess.Entities.RoleEntity", b =>
@@ -299,6 +404,23 @@ namespace DeliveryProject.Migrations.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Roles");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            RoleType = "Customer"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            RoleType = "Supplier"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            RoleType = "DeliveryPerson"
+                        });
                 });
 
             modelBuilder.Entity("DeliveryProject.DataAccess.Entities.TempAttributeValue", b =>

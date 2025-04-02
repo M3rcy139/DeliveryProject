@@ -1,6 +1,6 @@
 ﻿using DeliveryProject.DataAccess.Entities;
 
-namespace DeliveryProject.Tests.DataGenerators
+namespace DeliveryProject.DataGenerator.DataGenerators
 {
     public static class OrderProductGenerator
     {

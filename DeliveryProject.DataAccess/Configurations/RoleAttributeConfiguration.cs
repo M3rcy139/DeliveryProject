@@ -1,4 +1,5 @@
-﻿using DeliveryProject.DataAccess.Entities;
+﻿using DeliveryProject.DataAccess.DataProviders;
+using DeliveryProject.DataAccess.Entities;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore;
 
@@ -19,6 +20,8 @@ namespace DeliveryProject.DataAccess.Configurations
                 .HasOne(rpa => rpa.Role)
                 .WithMany(r => r.RoleAttributes)
                 .HasForeignKey(rpa => rpa.RoleId);
+
+            builder.HasData(RoleAttributesDataProvider.GetRoleAttributes());
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace DeliveryProject.Tests.DataGeneration
+﻿namespace DeliveryProject.DataGenerator.Settings
 {
     public class DataGenerationSettings
     {

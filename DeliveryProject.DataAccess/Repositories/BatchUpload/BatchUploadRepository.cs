@@ -7,7 +7,6 @@ using EFCore.BulkExtensions;
 using Microsoft.Extensions.Logging;
 using DeliveryProject.Core.Enums;
 using DeliveryProject.DataAccess.Interfaces.BatchUploads;
-using DeliveryProject.Core.Models;
 
 namespace DeliveryProject.DataAccess.Repositories.BatchUpload
 {
