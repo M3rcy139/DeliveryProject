@@ -2,6 +2,7 @@
 using DeliveryProject.Core.Models;
 using Microsoft.Extensions.Logging;
 using AutoMapper;
+using DeliveryProject.Bussiness.Helpers;
 using DeliveryProject.DataAccess.Entities;
 using DeliveryProject.Core.Enums;
 using DeliveryProject.Bussiness.Mediators;
@@ -30,12 +31,15 @@ namespace DeliveryProject.Bussiness.Services
             var customer = await _repositoryMediator.GetCustomerById(order.OrderPersons.First().PersonId);
             
             var orderProducts = await GetOrderProducts(order, products);
-
+            
+            var amount = OrderAmountCalculator.CalculateOrderAmount(orderProducts);
+            
             var orderEntity = new OrderEntity()
             {
                 Id = order.Id,
                 CreatedTime = DateTime.UtcNow,
                 Status = OrderStatus.Pending,
+                Amount = amount,
                 OrderPersons = new List<OrderPersonEntity>
                 {
                     new OrderPersonEntity { Person = customer }
@@ -58,11 +62,11 @@ namespace DeliveryProject.Bussiness.Services
 
         public async Task UpdateOrder(Order order, List<ProductDto> products)
         {
-            var orderProductsEntity = await GetOrderProducts(order, products);
+            var orderProducts = await GetOrderProducts(order, products);
             
-            var orderProducts = _mapper.Map<List<OrderProduct>>(orderProductsEntity);
+            decimal amount = OrderAmountCalculator.CalculateOrderAmount(orderProducts);
             
-            await _repositoryMediator.UpdateOrder(order.Id, orderProductsEntity);
+            await _repositoryMediator.UpdateOrder(order.Id, orderProducts, amount);
 
             _logger.LogInformation(InfoMessages.UpdatedOrder, order.Id);
         }

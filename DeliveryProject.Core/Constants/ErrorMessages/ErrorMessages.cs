@@ -4,6 +4,8 @@
     {
         public const string OrderNotFound = "No orders found.";
 
+        public const string InvoiceNotFound = "Invoice not found.";
+        
         public const string RegionMustNotBeEmpty = "The regionName field must not be empty.";
         public const string RegionNotFound = "The region was not found.";
 

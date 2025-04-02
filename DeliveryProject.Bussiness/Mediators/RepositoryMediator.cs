@@ -40,28 +40,14 @@ namespace DeliveryProject.Bussiness.Mediators
             var order = await _orderRepository.GetOrderById(orderId);
             order.ValidateEntity(ErrorMessages.OrderNotFound, ErrorCodes.NoOrdersFound);
 
-            return order;
+            return order!;
         }
 
-        public async Task UpdateOrder(Guid orderId, List<OrderProductEntity> orderProducts)
+        public async Task UpdateOrder(Guid orderId, List<OrderProductEntity> orderProducts, decimal amount)
         {
             var order = await GetOrderById(orderId);
 
-            //НУЖНО ЛИ?
-            
-            var customer = order.OrderPersons
-                .Select(op => op.Person)
-                .OfType<CustomerEntity>()
-                .First();
-
-            var deliveryPerson = order.OrderPersons
-                .Select(op => op.Person)
-                .OfType<DeliveryPersonEntity>()
-                .First();
-
-            order.OrderPersons.Clear();
-            order.OrderPersons.Add(new OrderPersonEntity { PersonId = customer.Id });
-            order.OrderPersons.Add(new OrderPersonEntity { PersonId = deliveryPerson.Id });
+            order.Amount = amount;
 
             order.OrderProducts.Clear();
             order.OrderProducts.AddRange(orderProducts
@@ -91,7 +77,7 @@ namespace DeliveryProject.Bussiness.Mediators
             var customer = await _customerRepository.GetCustomerById(personId);
             customer.ValidateEntity(ErrorMessages.CustomerNotFound, ErrorCodes.CustomerNotFound);
 
-            return customer;
+            return customer!;
         }
 
         public async Task<List<ProductEntity>> GetProductsByIds(List<Guid> productIds)
@@ -115,7 +101,7 @@ namespace DeliveryProject.Bussiness.Mediators
         public async Task<InvoiceEntity> GetInvoiceByOrderId(Guid orderId)
         {
             var invoice = await _deliveryRepository.GetInvoiceByOrderId(orderId);
-            invoice.ValidateEntity("", "");
+            invoice.ValidateEntity(ErrorMessages.InvoiceNotFound, ErrorCodes.InvoiceNotFound);
 
             return invoice!;
         }

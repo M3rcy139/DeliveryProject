@@ -23,8 +23,6 @@ public class DeliveryService : IDeliveryService
     
     public async Task AddInvoice(Order order)
     {
-        decimal amount = OrderAmountCalculator.CalculateOrderAmount(order.OrderProducts.ToList());
-
         var deliveryTime = _deliveryTimeCalculatorService.CalculateDeliveryTime();
 
         var invoice =  new InvoiceEntity
