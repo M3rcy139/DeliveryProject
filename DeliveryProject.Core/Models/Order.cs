@@ -10,7 +10,6 @@ namespace DeliveryProject.Core.Models
 
         public ICollection<OrderPerson> OrderPersons { get; set; } = new List<OrderPerson>();
         public ICollection<OrderProduct> OrderProducts { get; set; } = new List<OrderProduct>();
-        public Invoice Invoice { get; set; }
     }
 }
 

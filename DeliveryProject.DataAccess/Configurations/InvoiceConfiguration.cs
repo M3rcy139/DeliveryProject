@@ -16,7 +16,7 @@ namespace DeliveryProject.DataAccess.Configurations
 
             builder
                 .HasOne(i => i.Order)
-                .WithOne(o => o.Invoice)
+                .WithOne()
                 .HasForeignKey<InvoiceEntity>(i => i.OrderId);
 
             builder

@@ -13,17 +13,9 @@ namespace DeliveryProject.DataAccess.Repositories.Orders
 
         public async Task UpdateOrder(OrderEntity existingEntity, OrderEntity newEntity)
         {
-            UpdateInvoice(existingEntity, newEntity);
             await UpdateOrderRelationships(existingEntity, newEntity);
         }
-
-        private void UpdateInvoice(OrderEntity existingEntity, OrderEntity newEntity)
-        {
-            if (existingEntity.Invoice != null && newEntity.Invoice != null)
-            {
-                existingEntity.Invoice.Amount = newEntity.Invoice.Amount;
-            }
-        }
+        
 
         private async Task UpdateOrderRelationships(OrderEntity existingEntity, OrderEntity newEntity)
         {

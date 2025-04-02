@@ -27,11 +27,7 @@ namespace DeliveryProject.DataAccess.Configurations
                 .HasMany(o => o.OrderProducts)
                 .WithOne(op => op.Order)
                 .HasForeignKey(op => op.OrderId);
-
-            builder
-                .HasOne(o => o.Invoice)
-                .WithOne(i => i.Order)
-                .HasForeignKey<InvoiceEntity>(i => i.OrderId);
+            
 
             builder
                 .Property(o => o.Status)

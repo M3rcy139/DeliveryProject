@@ -10,6 +10,5 @@ namespace DeliveryProject.DataAccess.Entities
 
         public ICollection<OrderPersonEntity> OrderPersons { get; set; } = new List<OrderPersonEntity>();
         public ICollection<OrderProductEntity> OrderProducts { get; set; } = new List<OrderProductEntity>();
-        public InvoiceEntity Invoice { get; set; }
     }
 }
