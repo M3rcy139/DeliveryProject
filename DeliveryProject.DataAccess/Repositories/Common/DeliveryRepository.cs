@@ -18,11 +18,11 @@ public class DeliveryRepository : IDeliveryRepository
         await dbContext.SaveChangesAsync();
     }
     
-    public async Task<InvoiceEntity?> GetInvoice(Guid invoiceId)
+    public async Task<InvoiceEntity?> GetInvoiceByOrderId(Guid orderId)
     {
         await using var dbContext = await _contextFactory.CreateDbContextAsync();
         
-        var invoice = await dbContext.Invoices.FirstOrDefaultAsync(i => i.Id == invoiceId);
+        var invoice = await dbContext.Invoices.FirstOrDefaultAsync(i => i.OrderId == orderId);
 
         return invoice;
     }
@@ -30,11 +30,8 @@ public class DeliveryRepository : IDeliveryRepository
     public async Task UpdateInvoice(InvoiceEntity invoiceEntity)
     {
         await using var dbContext = await _contextFactory.CreateDbContextAsync();
-        
-        var existingInvoice = await dbContext.Invoices.FindAsync(invoiceEntity.Id);
 
-        existingInvoice!.Amount = invoiceEntity.Amount;
-        dbContext.Entry(existingInvoice).Property(i => i.Amount).IsModified = true;
+        dbContext.Invoices.Update(invoiceEntity);
 
         await dbContext.SaveChangesAsync();
     }

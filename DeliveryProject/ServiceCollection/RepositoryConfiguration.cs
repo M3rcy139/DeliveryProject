@@ -13,6 +13,7 @@ namespace DeliveryProject.ServiceCollection
         public static void AddRepositories(this IServiceCollection services)
         {
             services.AddSingleton<IOrderRepository, OrderRepository>();
+            services.AddSingleton<IDeliveryRepository, DeliveryRepository>();
             services.AddSingleton<ISupplierRepository, SupplierRepository>();
             services.AddSingleton<IDeliveryPersonRepository, DeliveryPersonRepository>();
             services.AddSingleton<IProductRepository, ProductRepository>();

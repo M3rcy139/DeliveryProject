@@ -12,11 +12,9 @@ namespace DeliveryProject.DataAccess.Configurations
         {
             builder.HasKey(o => o.Id);
 
-            builder.Property(o => o.CreatedTime)
-                .IsRequired();
-
-            builder.Property(o => o.Status)
-                .IsRequired();
+            builder.Property(o => o.Amount).IsRequired();
+            builder.Property(o => o.CreatedTime).IsRequired();
+            builder.Property(o => o.Status).IsRequired();
 
             builder
                 .HasMany(o => o.OrderPersons)

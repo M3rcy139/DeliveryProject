@@ -9,17 +9,20 @@ namespace DeliveryProject.Bussiness.Mediators
     public class RepositoryMediator
     {
         private readonly IOrderRepository _orderRepository;
+        private readonly IDeliveryRepository _deliveryRepository;
         private readonly IDeliveryPersonRepository _deliveryPersonRepository;
         private readonly ICustomerRepository _customerRepository;
         private readonly IProductRepository _productRepository;
 
         public RepositoryMediator(
             IOrderRepository orderRepository,
+            IDeliveryRepository deliveryRepository,
             IDeliveryPersonRepository deliveryPersonRepository,
             ICustomerRepository customerRepository,
             IProductRepository productRepository)
         {
             _orderRepository = orderRepository;
+            _deliveryRepository = deliveryRepository;
             _deliveryPersonRepository = deliveryPersonRepository;
             _customerRepository = customerRepository;
             _productRepository = productRepository;
@@ -27,15 +30,8 @@ namespace DeliveryProject.Bussiness.Mediators
 
         public async Task<OrderEntity> AddOrder(OrderEntity orderEntity)
         {
-            var availableDeliveryPerson = await GetDeliveryPersonByTime(orderEntity);
-            orderEntity.OrderPersons.Add(new OrderPersonEntity { Person = availableDeliveryPerson });
-
-            orderEntity.Invoice.DeliveryPersonId = availableDeliveryPerson.Id;
-
             await _orderRepository.AddOrder(orderEntity);
-
-            AddDeliverySlot(availableDeliveryPerson.Id, orderEntity.Invoice.DeliveryTime);
-
+            
             return orderEntity;
         }
 
@@ -47,12 +43,12 @@ namespace DeliveryProject.Bussiness.Mediators
             return order;
         }
 
-        public async Task UpdateOrder(Guid orderId, List<OrderProductEntity> orderProducts, decimal amount)
+        public async Task UpdateOrder(Guid orderId, List<OrderProductEntity> orderProducts)
         {
             var order = await GetOrderById(orderId);
 
-            order.Invoice.Amount = amount;
-
+            //НУЖНО ЛИ?
+            
             var customer = order.OrderPersons
                 .Select(op => op.Person)
                 .OfType<CustomerEntity>()
@@ -102,25 +98,44 @@ namespace DeliveryProject.Bussiness.Mediators
         {
             var products = await _productRepository.GetProductsById(productIds);
             products.ValidateEntities(ErrorMessages.ProductNotFound, ErrorCodes.ProductNotFound);
-            return products;
+            return products!;
         }
 
-        private async Task<PersonEntity> GetDeliveryPersonByTime(OrderEntity orderEntity)
+        public async Task AddInvoice(InvoiceEntity invoiceEntity)
+        {
+            var availableDeliveryPerson = await GetDeliveryPersonByTime(invoiceEntity);
+
+            invoiceEntity.DeliveryPersonId = availableDeliveryPerson.Id;
+
+            await _deliveryRepository.AddInvoice(invoiceEntity);
+
+            AddDeliverySlot(availableDeliveryPerson.Id, invoiceEntity.DeliveryTime);
+        }
+        
+        public async Task<InvoiceEntity> GetInvoiceByOrderId(Guid orderId)
+        {
+            var invoice = await _deliveryRepository.GetInvoiceByOrderId(orderId);
+            invoice.ValidateEntity("", "");
+
+            return invoice!;
+        }
+
+        public async Task DeleteInvoice(Guid orderId)
+        {
+            var invoice  = await GetInvoiceByOrderId(orderId);
+
+            await _deliveryRepository.DeleteInvoice(invoice.Id); 
+        }
+        
+        private async Task<PersonEntity> GetDeliveryPersonByTime(InvoiceEntity invoiceEntity)
         {
             var availableDeliveryPerson = await _deliveryPersonRepository
-                .GetDeliveryPersonByTime(orderEntity.Invoice.DeliveryTime);
+                .GetDeliveryPersonByTime(invoiceEntity.DeliveryTime);
 
             availableDeliveryPerson.ValidateEntity(ErrorMessages.NoAvailableDeliveryPersons,
                     ErrorCodes.NoAvailableDeliveryPersons);
 
-            return availableDeliveryPerson;
-        }
-
-        public DateTime CalculateDeliveryTime()
-        {
-            var random = new Random();
-
-            return new DateTime(2027, 5, 5, random.Next(0, 24), random.Next(0, 60), 0);
+            return availableDeliveryPerson!;
         }
 
         private async void AddDeliverySlot(Guid deliveryPersonId, DateTime deliveryTime)

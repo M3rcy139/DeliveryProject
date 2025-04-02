@@ -35,21 +35,22 @@ namespace DeliveryProject.DataGenerator.DataGenerators
                     Id = Guid.NewGuid(),
                     CreatedTime = DateTime.UtcNow,
                     Status = OrderStatus.Active,
+                    Amount = amount,
                     OrderPersons = new List<OrderPersonEntity>
                 {
                     new OrderPersonEntity { PersonId = customer.Id },
                     new OrderPersonEntity { PersonId = deliveryPerson.Id },
                 },
                     OrderProducts = orderProducts,
-                    Invoice = new InvoiceEntity
-                    {
-                        Id = Guid.NewGuid(),
-                        OrderId = Guid.NewGuid(),
-                        DeliveryPersonId = deliveryPerson.Id,
-                        Amount = amount,
-                        DeliveryTime = new DateTime(2027, 10, 21, random.Next(8, 11), random.Next(0, 60), 0, DateTimeKind.Utc),
-                        IsExecuted = false
-                    }
+                    // Invoice = new InvoiceEntity
+                    // {
+                    //     Id = Guid.NewGuid(),
+                    //     OrderId = Guid.NewGuid(),
+                    //     DeliveryPersonId = deliveryPerson.Id,
+                    //     Amount = amount,
+                    //     DeliveryTime = new DateTime(2027, 10, 21, random.Next(8, 11), random.Next(0, 60), 0, DateTimeKind.Utc),
+                    //     IsExecuted = false
+                    // }
                 };
 
                 orders.Add(order);

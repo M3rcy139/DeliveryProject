@@ -10,6 +10,8 @@ namespace DeliveryProject.ServiceCollection
         public static void AddServices(this IServiceCollection services)
         {
             services.AddSingleton<IOrderService, OrderService>();
+            services.AddSingleton<IDeliveryService, DeliveryService>();
+            services.AddSingleton<IDeliveryTimeCalculatorService, DeliveryTimeCalculatorService>();
             services.AddSingleton<RepositoryMediator>();
         }
     }
