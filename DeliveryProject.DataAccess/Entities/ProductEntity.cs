@@ -8,6 +8,6 @@
         public decimal Price { get; set; }
         public Guid SupplierId { get; set; }
 
-        public PersonEntity Supplier { get; set; }
+
     }
 }

@@ -284,8 +284,6 @@ namespace DeliveryProject.Migrations.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("SupplierId");
-
                     b.ToTable("Products");
                 });
 
@@ -539,7 +537,7 @@ namespace DeliveryProject.Migrations.Migrations
                         .IsRequired();
 
                     b.HasOne("DeliveryProject.DataAccess.Entities.PersonEntity", "Person")
-                        .WithMany()
+                        .WithMany("AttributeValues")
                         .HasForeignKey("PersonId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -628,17 +626,6 @@ namespace DeliveryProject.Migrations.Migrations
                     b.Navigation("Region");
                 });
 
-            modelBuilder.Entity("DeliveryProject.DataAccess.Entities.ProductEntity", b =>
-                {
-                    b.HasOne("DeliveryProject.DataAccess.Entities.PersonEntity", "Supplier")
-                        .WithMany()
-                        .HasForeignKey("SupplierId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Supplier");
-                });
-
             modelBuilder.Entity("DeliveryProject.DataAccess.Entities.RoleAttributeEntity", b =>
                 {
                     b.HasOne("DeliveryProject.DataAccess.Entities.AttributeEntity", "Attribute")
@@ -706,6 +693,11 @@ namespace DeliveryProject.Migrations.Migrations
                     b.Navigation("OrderPersons");
 
                     b.Navigation("OrderProducts");
+                });
+
+            modelBuilder.Entity("DeliveryProject.DataAccess.Entities.PersonEntity", b =>
+                {
+                    b.Navigation("AttributeValues");
                 });
 
             modelBuilder.Entity("DeliveryProject.DataAccess.Entities.RoleEntity", b =>

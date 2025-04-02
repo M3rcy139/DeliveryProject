@@ -23,7 +23,7 @@ namespace DeliveryProject.DataAccess.Repositories.Persons
             await using var dbContext = await _contextFactory.CreateDbContextAsync();
             return await dbContext.Products
                 .Where(p => productIds.Contains(p.Id))
-                .Select(p => p.Supplier)
+                .Select(p => p.SupplierId)
                 .OfType<SupplierEntity>()
                 .Distinct()
                 .ToListAsync();
