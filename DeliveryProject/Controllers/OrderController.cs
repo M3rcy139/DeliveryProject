@@ -57,7 +57,7 @@ namespace DeliveryProject.Controllers
                 Id = model.OrderId.Value,
             };
 
-            await _orderService.UpdateOrder(order, model.Products);
+            await _orderService.UpdateOrderProducts(order, model.Products);
 
             return Ok(new { message = string.Format(InfoMessages.UpdatedOrder, order.Id) });
         }

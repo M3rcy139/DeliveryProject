@@ -22,7 +22,7 @@ namespace DeliveryProject.Controllers
         public async Task<IActionResult> AddOrder(Guid orderId)
         {
             await _deliveryService.AddInvoice(orderId);
-            await _orderService.UpdateOrderStatus(orderId);
+            await _orderService.UpdateOrderStatus(orderId, OrderStatus.Active);
 
             return Ok(new
             {

@@ -58,24 +58,24 @@ namespace DeliveryProject.Bussiness.Services
             return _mapper.Map<Order>(orderEntity);
         }
 
-        public async Task UpdateOrder(Order order, List<ProductDto> products)
+        public async Task UpdateOrderProducts(Order order, List<ProductDto> products)
         {
             var orderProducts = await GetOrderProducts(order, products);
             
             decimal amount = OrderAmountCalculator.CalculateOrderAmount(orderProducts);
             
-            await _repositoryMediator.UpdateOrder(order.Id, orderProducts, amount);
+            await _repositoryMediator.UpdateOrderProducts(order.Id, orderProducts, amount);
 
             _logger.LogInformation(InfoMessages.UpdatedOrder, order.Id);
         }
 
-        public async Task UpdateOrderStatus(Guid orderId)
+        public async Task UpdateOrderStatus(Guid orderId, OrderStatus status)
         {
             var order = await _repositoryMediator.GetOrderById(orderId);
             
-            order.Status = OrderStatus.Active;
+            order.Status = status;
             
-            await _repositoryMediator.UpdateOrder(order.Id, order.OrderProducts.ToList(), order.Amount);
+            await _repositoryMediator.UpdateOrderStatus(order);
             
             _logger.LogInformation(InfoMessages.UpdatedOrderStatus, order.Id);
         }

@@ -45,7 +45,7 @@ namespace DeliveryProject.DataAccess.Repositories.Orders
             return order;
         }
 
-        public async Task UpdateOrder(OrderEntity orderEntity)
+        public async Task UpdateOrderProdutcs(OrderEntity orderEntity)
         {
             await using var dbContext = await _contextFactory.CreateDbContextAsync();
 
@@ -63,6 +63,16 @@ namespace DeliveryProject.DataAccess.Repositories.Orders
             await dbContext.SaveChangesAsync();
 
             _orderCache[orderEntity.Id] = orderEntity;
+        }
+
+        public async Task UpdateOrderStatus(OrderEntity orderEntity)
+        {
+            await using var dbContext = await _contextFactory.CreateDbContextAsync();
+
+            dbContext.Orders.Attach(orderEntity); 
+            dbContext.Entry(orderEntity).Property(o => o.Status).IsModified = true;
+
+            await dbContext.SaveChangesAsync();
         }
         
         public async Task DeleteOrder(Guid id)

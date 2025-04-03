@@ -43,7 +43,7 @@ namespace DeliveryProject.Bussiness.Mediators
             return order!;
         }
 
-        public async Task UpdateOrder(Guid orderId, List<OrderProductEntity> orderProducts, decimal amount)
+        public async Task UpdateOrderProducts(Guid orderId, List<OrderProductEntity> orderProducts, decimal amount)
         {
             var order = await GetOrderById(orderId);
 
@@ -53,7 +53,12 @@ namespace DeliveryProject.Bussiness.Mediators
             order.OrderProducts.AddRange(orderProducts
                 .Select(op => new OrderProductEntity { ProductId = op.ProductId, OrderId = op.OrderId, Quantity = op.Quantity }));
 
-            await _orderRepository.UpdateOrder(order);
+            await _orderRepository.UpdateOrderProdutcs(order);
+        }
+
+        public async Task UpdateOrderStatus(OrderEntity orderEntity)
+        {
+            await _orderRepository.UpdateOrderStatus(orderEntity);
         }
 
         public async Task DeleteOrder(Guid orderId)
