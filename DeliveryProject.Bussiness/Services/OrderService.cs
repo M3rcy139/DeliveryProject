@@ -55,7 +55,7 @@ namespace DeliveryProject.Bussiness.Services
                 OrderProducts = orderProducts,
             };
             
-            await _orderMediator.AddOrder(orderEntity);
+            await _orderMediator.AddEntity(orderEntity);
 
             _logger.LogInformation(InfoMessages.AddedOrder, order.Id);
 

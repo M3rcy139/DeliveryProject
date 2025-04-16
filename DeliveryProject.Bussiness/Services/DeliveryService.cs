@@ -33,7 +33,7 @@ public class DeliveryService : IDeliveryService
             IsExecuted = false
         };
         
-        await _invoiceMediator.AddInvoice(invoice);
+        await _invoiceMediator.AddEntity(invoice);
     }
 
     public async Task<Invoice> GetInvoice(Guid orderId)

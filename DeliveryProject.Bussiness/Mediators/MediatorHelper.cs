@@ -75,11 +75,6 @@ namespace DeliveryProject.Bussiness.Mediators
             return products!;
         }
 
-        public async Task AddOrder(OrderEntity orderEntity)
-        {
-            await _orderRepository.AddOrder(orderEntity);
-        }
-
         public async Task<List<OrderEntity>> GetAllOrders()
         {
             var orders = (await _orderRepository.GetAllOrders()).ToList();
@@ -96,7 +91,12 @@ namespace DeliveryProject.Bussiness.Mediators
             await _orderRepository.UpdateOrderStatus(order);
         }
 
-        public async Task AddInvoice(InvoiceEntity invoiceEntity)
+        private async Task AddOrder(OrderEntity orderEntity)
+        {
+            await _orderRepository.AddOrder(orderEntity);
+        }
+
+        private async Task AddInvoice(InvoiceEntity invoiceEntity)
         {
             var availableDeliveryPerson = await _deliveryPersonRepository
                 .GetDeliveryPersonByTime(invoiceEntity.DeliveryTime);
