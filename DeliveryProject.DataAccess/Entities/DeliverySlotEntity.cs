@@ -1,8 +1,7 @@
 ﻿namespace DeliveryProject.DataAccess.Entities
 {
-    public class DeliverySlotEntity
+    public class DeliverySlotEntity : BaseEntity
     {
-        public Guid Id { get; set; }
         public DateTime SlotTime { get; set; }
 
         public Guid DeliveryPersonId { get; set; }

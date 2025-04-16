@@ -1,8 +1,7 @@
 ﻿namespace DeliveryProject.Core.Models
 {
-    public class Invoice
+    public class Invoice : Base
     {
-        public Guid Id { get; set; }
         public Guid OrderId { get; set; }
         public Guid DeliveryPersonId { get; set; }
         public DateTime DeliveryTime { get; set; }

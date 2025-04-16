@@ -2,9 +2,8 @@
 
 namespace DeliveryProject.DataAccess.Entities
 {
-    public class OrderEntity
+    public class OrderEntity : BaseEntity
     {
-        public Guid Id { get; set; }
         public DateTime CreatedTime { get; set; }
         public OrderStatus Status { get; set; }
         public decimal Amount { get; set; }

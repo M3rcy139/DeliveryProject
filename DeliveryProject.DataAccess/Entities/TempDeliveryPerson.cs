@@ -1,8 +1,7 @@
 ﻿namespace DeliveryProject.DataAccess.Entities
 {
-    public class TempDeliveryPerson
+    public class TempDeliveryPerson : BaseEntity
     {
-        public Guid Id { get; set; }
         public int RegionId { get; set; }
         public int RoleId { get; set; }
 

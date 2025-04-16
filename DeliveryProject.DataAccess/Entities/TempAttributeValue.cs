@@ -1,8 +1,7 @@
 ﻿namespace DeliveryProject.DataAccess.Entities
 {
-    public class TempAttributeValue
+    public class TempAttributeValue : BaseEntity
     {
-        public Guid Id { get; set; }
         public Guid DeliveryPersonId { get; set; }
         public int AttributeId { get; set; }
         public string Value { get; set; }

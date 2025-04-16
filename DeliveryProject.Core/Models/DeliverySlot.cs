@@ -1,8 +1,7 @@
 ﻿namespace DeliveryProject.Core.Models
 {
-    public class DeliverySlot
+    public class DeliverySlot : Base
     {
-        public Guid Id { get; set; }
         public DateTime SlotTime { get; set; }
 
         public Guid DeliveryPersonId { get; set; }
