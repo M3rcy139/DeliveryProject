@@ -17,6 +17,8 @@
 
         public const string ProductNotFound = "The product was not found";
 
+        public const string NotSupportedEntityType = "Unsupported entity type: {0}";
+
         public const string BusinessLogicalException = "Business logical exception: {0}";
         public const string ArgumentativeException = "An argumentative exception: {0}";
         public const string InvalidOperationException = "An invalid operation exception: {0}";

@@ -12,7 +12,7 @@ namespace DeliveryProject.ServiceCollection
             services.AddSingleton<IOrderService, OrderService>();
             services.AddSingleton<IDeliveryService, DeliveryService>();
             services.AddSingleton<IDeliveryTimeCalculatorService, DeliveryTimeCalculatorService>();
-            services.AddSingleton<RepositoryMediator>();
+            services.AddSingleton(typeof(MediatorHelper<>));
         }
     }
 }
