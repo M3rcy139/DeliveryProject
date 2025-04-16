@@ -34,9 +34,9 @@ namespace DeliveryProject.Bussiness.Mediators
             await (typeof(TEntity) switch
             {
                 var t when t == typeof(OrderEntity) =>
-                    AddOrder(entity as OrderEntity),
+                    AddOrder((entity as OrderEntity)!),
                 var t when t == typeof(InvoiceEntity) =>
-                    AddInvoice(entity as InvoiceEntity),
+                    AddInvoice((entity as InvoiceEntity)!),
                 _ => throw new ArgumentException(ErrorMessages.NotSupportedEntityType, typeof(TEntity).Name)
             });
         }
@@ -162,7 +162,7 @@ namespace DeliveryProject.Bussiness.Mediators
         {
             var invoice = await _deliveryRepository.GetInvoiceByOrderId(orderId);
             invoice.ValidateEntity(ErrorMessages.InvoiceNotFound, ErrorCodes.InvoiceNotFound);
-            await _deliveryRepository.DeleteInvoice(invoice.Id);
+            await _deliveryRepository.DeleteInvoice(invoice!.Id);
         }
     }
 }
