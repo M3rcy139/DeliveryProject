@@ -98,22 +98,34 @@ namespace DeliveryProject.Bussiness.Mediators
 
         private async Task AddInvoice(InvoiceEntity invoiceEntity)
         {
+            var availableDeliveryPerson = await GetDeliveryPersonByTime(invoiceEntity);
+
+            invoiceEntity.DeliveryPersonId = availableDeliveryPerson.Id;
+
+            await _deliveryRepository.AddInvoice(invoiceEntity);
+            await AddDeliverySlot(availableDeliveryPerson.Id, invoiceEntity.DeliveryTime);
+        }
+
+        private async Task<PersonEntity> GetDeliveryPersonByTime(InvoiceEntity invoiceEntity)
+        {
             var availableDeliveryPerson = await _deliveryPersonRepository
                 .GetDeliveryPersonByTime(invoiceEntity.DeliveryTime);
 
             availableDeliveryPerson.ValidateEntity(ErrorMessages.NoAvailableDeliveryPersons,
                 ErrorCodes.NoAvailableDeliveryPersons);
 
-            invoiceEntity.DeliveryPersonId = availableDeliveryPerson.Id;
-
-            await _deliveryRepository.AddInvoice(invoiceEntity);
+            return availableDeliveryPerson!;
+        }
+        
+        private async Task AddDeliverySlot(Guid deliveryPersonId, DateTime deliveryTime)
+        {
             await _deliveryPersonRepository.AddSlot(new DeliverySlotEntity
             {
-                DeliveryPersonId = availableDeliveryPerson.Id,
-                SlotTime = invoiceEntity.DeliveryTime
+                DeliveryPersonId = deliveryPersonId,
+                SlotTime = deliveryTime
             });
         }
-
+        
         private async Task<OrderEntity> GetOrderById(Guid orderId)
         {
             var order = await _orderRepository.GetOrderById(orderId);
