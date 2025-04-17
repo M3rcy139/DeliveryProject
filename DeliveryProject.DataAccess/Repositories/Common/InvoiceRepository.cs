@@ -4,11 +4,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DeliveryProject.DataAccess.Repositories.Common;
 
-public class DeliveryRepository : IDeliveryRepository
+public class InvoiceRepository : IInvoiceRepository
 {
     private readonly IDbContextFactory<DeliveryDbContext> _contextFactory;
     
-    public DeliveryRepository(IDbContextFactory<DeliveryDbContext> contextFactory) => _contextFactory = contextFactory;
+    public InvoiceRepository(IDbContextFactory<DeliveryDbContext> contextFactory) => _contextFactory = contextFactory;
     
     public async Task AddInvoice(InvoiceEntity invoiceEntity)
     {

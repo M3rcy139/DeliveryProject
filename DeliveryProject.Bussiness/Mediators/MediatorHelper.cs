@@ -10,20 +10,20 @@ namespace DeliveryProject.Bussiness.Mediators
     public class MediatorHelper<TEntity> where TEntity : class
     {
         private readonly IOrderRepository _orderRepository;
-        private readonly IDeliveryRepository _deliveryRepository;
+        private readonly IInvoiceRepository _invoiceRepository;
         private readonly IDeliveryPersonRepository _deliveryPersonRepository;
         private readonly ICustomerRepository _customerRepository;
         private readonly IProductRepository _productRepository;
 
         public MediatorHelper(
             IOrderRepository orderRepository,
-            IDeliveryRepository deliveryRepository,
+            IInvoiceRepository invoiceRepository,
             IDeliveryPersonRepository deliveryPersonRepository,
             ICustomerRepository customerRepository,
             IProductRepository productRepository)
         {
             _orderRepository = orderRepository;
-            _deliveryRepository = deliveryRepository;
+            _invoiceRepository = invoiceRepository;
             _deliveryPersonRepository = deliveryPersonRepository;
             _customerRepository = customerRepository;
             _productRepository = productRepository;
@@ -102,7 +102,7 @@ namespace DeliveryProject.Bussiness.Mediators
 
             invoiceEntity.DeliveryPersonId = availableDeliveryPerson.Id;
 
-            await _deliveryRepository.AddInvoice(invoiceEntity);
+            await _invoiceRepository.AddInvoice(invoiceEntity);
             await AddDeliverySlot(availableDeliveryPerson.Id, invoiceEntity.DeliveryTime);
         }
 
@@ -144,7 +144,7 @@ namespace DeliveryProject.Bussiness.Mediators
 
         private async Task<InvoiceEntity> GetInvoiceById(Guid orderId)
         {
-            var invoice = await _deliveryRepository.GetInvoiceByOrderId(orderId);
+            var invoice = await _invoiceRepository.GetInvoiceByOrderId(orderId);
             invoice.ValidateEntity(ErrorMessages.InvoiceNotFound, ErrorCodes.InvoiceNotFound);
             
             return invoice!;
@@ -160,9 +160,9 @@ namespace DeliveryProject.Bussiness.Mediators
 
         private async Task DeleteInvoice(Guid orderId)
         {
-            var invoice = await _deliveryRepository.GetInvoiceByOrderId(orderId);
+            var invoice = await _invoiceRepository.GetInvoiceByOrderId(orderId);
             invoice.ValidateEntity(ErrorMessages.InvoiceNotFound, ErrorCodes.InvoiceNotFound);
-            await _deliveryRepository.DeleteInvoice(invoice!.Id);
+            await _invoiceRepository.DeleteInvoice(invoice!.Id);
         }
     }
 }

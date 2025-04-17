@@ -2,7 +2,7 @@ using DeliveryProject.DataAccess.Entities;
 
 namespace DeliveryProject.DataAccess.Interfaces;
 
-public interface IDeliveryRepository
+public interface IInvoiceRepository
 {
     Task AddInvoice(InvoiceEntity invoiceEntity);
     Task<InvoiceEntity?> GetInvoiceByOrderId(Guid orderId);
