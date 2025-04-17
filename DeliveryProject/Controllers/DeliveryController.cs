@@ -19,7 +19,7 @@ namespace DeliveryProject.Controllers
         }
         
         [HttpPost("Invoice/Add")]
-        public async Task<IActionResult> AddOrder(Guid orderId)
+        public async Task<IActionResult> AddInvoice(Guid orderId)
         {
             await _deliveryService.AddInvoice(orderId);
             await _orderService.UpdateOrderStatus(orderId, OrderStatus.Active);
