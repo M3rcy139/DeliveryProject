@@ -59,9 +59,10 @@ namespace DeliveryProject.DataAccess.Repositories.Orders
         private void RemoveOldProducts(OrderEntity existingEntity, OrderEntity newEntity)
         {
             var existingProducts = existingEntity.OrderProducts.ToList();
+            
             foreach (var existingProduct in existingProducts)
             {
-                if (!newEntity.OrderProducts.Any(np => np.ProductId == existingProduct.ProductId))
+                if (newEntity.OrderProducts.All(np => np.ProductId != existingProduct.ProductId))
                 {
                     _dbContext.Remove(existingProduct);
                 }
