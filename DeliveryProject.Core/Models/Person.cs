@@ -4,7 +4,7 @@ using DeliveryProject.Core.Enums;
 
 namespace DeliveryProject.Core.Models
 {
-    public abstract class Person : Base
+    public abstract class Person : BaseModel
     {
         public PersonStatus Status { get; set; }
         public int RegionId { get; set; }

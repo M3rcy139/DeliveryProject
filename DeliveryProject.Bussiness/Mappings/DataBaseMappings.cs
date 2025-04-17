@@ -9,35 +9,35 @@ namespace DeliveryProject.Bussiness.Mappings
     {
         public DataBaseMappings()
         {
-            CreateMap<BaseEntity, Base>();
+            CreateMap<BaseEntity, BaseModel>();
 
 
             CreateMap<PersonEntity, Person>()
                 .Include<CustomerEntity, Customer>()
                 .Include<DeliveryPersonEntity, DeliveryPerson>()
                 .Include<SupplierEntity, Supplier>()
-                .IncludeBase<BaseEntity, Base>();
+                .IncludeBase<BaseEntity, BaseModel>();
             
             CreateMap<CustomerEntity, Customer>()
-                .IncludeBase<BaseEntity, Base>();
+                .IncludeBase<BaseEntity, BaseModel>();
             CreateMap<DeliveryPersonEntity, DeliveryPerson>()
-                .IncludeBase<BaseEntity, Base>();
+                .IncludeBase<BaseEntity, BaseModel>();
             CreateMap<SupplierEntity, Supplier>()
-                .IncludeBase<BaseEntity, Base>();
+                .IncludeBase<BaseEntity, BaseModel>();
 
             CreateMap<AttributeEntity, Core.Models.Attribute>();
             CreateMap<RegionEntity, Region>();
             CreateMap<RoleEntity, Role>();
 
             CreateMap<DeliverySlotEntity, DeliverySlot>()
-                .IncludeBase<BaseEntity, Base>();
+                .IncludeBase<BaseEntity, BaseModel>();
             CreateMap<InvoiceEntity, Invoice>()
-                .IncludeBase<BaseEntity, Base>();
+                .IncludeBase<BaseEntity, BaseModel>();
             
             CreateMap<AttributeValueEntity, AttributeValue>()
-                .IncludeBase<BaseEntity, Base>();
+                .IncludeBase<BaseEntity, BaseModel>();
             CreateMap<ProductEntity, Product>()
-                .IncludeBase<BaseEntity, Base>();
+                .IncludeBase<BaseEntity, BaseModel>();
 
             CreateMap<RoleAttributeEntity, RoleAttribute>();
             CreateMap<OrderPersonEntity, OrderPerson>()
@@ -46,7 +46,7 @@ namespace DeliveryProject.Bussiness.Mappings
             CreateMap<OrderProductEntity, OrderProduct>();
             
             CreateMap<OrderEntity, Order>()
-                .IncludeBase<BaseEntity, Base>()
+                .IncludeBase<BaseEntity, BaseModel>()
                 .AfterMap((src, dest) =>
                 {
                     dest.OrderPersons = src.OrderPersons

@@ -1,6 +1,6 @@
 ﻿namespace DeliveryProject.Core.Models
 {
-    public class AttributeValue : Base
+    public class AttributeValue : BaseModel
     {
         public string Value { get; set; }
         public Guid PersonId { get; set; }

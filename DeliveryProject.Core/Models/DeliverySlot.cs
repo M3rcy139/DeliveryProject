@@ -1,6 +1,6 @@
 ﻿namespace DeliveryProject.Core.Models
 {
-    public class DeliverySlot : Base
+    public class DeliverySlot : BaseModel
     {
         public DateTime SlotTime { get; set; }
 

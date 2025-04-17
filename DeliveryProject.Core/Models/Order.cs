@@ -2,7 +2,7 @@
 
 namespace DeliveryProject.Core.Models
 {
-    public class Order : Base
+    public class Order : BaseModel
     {
         public DateTime CreatedTime { get; set; }
         public OrderStatus Status { get; set; }

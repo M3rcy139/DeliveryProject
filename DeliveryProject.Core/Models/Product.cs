@@ -1,6 +1,6 @@
 ﻿namespace DeliveryProject.Core.Models
 {
-    public class Product : Base
+    public class Product : BaseModel
     {
         public string Name { get; set; }
         public double Weight { get; set; }
