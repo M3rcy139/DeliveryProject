@@ -16,20 +16,17 @@ namespace DeliveryProject.Bussiness.Services
     {
         private readonly MediatorHelper<OrderEntity> _orderMediator;
         private readonly MediatorHelper<CustomerEntity> _customerMediator;
-        private readonly MediatorHelper<ProductEntity> _productMediator;
         private readonly ILogger<OrderService> _logger;
         private readonly IMapper _mapper;
 
         public OrderService(
             MediatorHelper<OrderEntity> orderMediator,
             MediatorHelper<CustomerEntity> customerMediator,
-            MediatorHelper<ProductEntity> productMediator,
             ILogger<OrderService> logger,
             IMapper mapper)
         {
             _orderMediator = orderMediator;
             _customerMediator = customerMediator;
-            _productMediator = productMediator;
             _logger = logger;
             _mapper = mapper;
         }
