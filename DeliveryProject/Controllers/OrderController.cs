@@ -12,10 +12,12 @@ namespace DeliveryProject.Controllers
     public class OrderController : ControllerBase
     {
         private readonly IOrderService _orderService;
+        private readonly IDeliveryService _deliveryService;
 
-        public OrderController(IOrderService orderService)
+        public OrderController(IOrderService orderService, IDeliveryService deliveryService)
         {
             _orderService = orderService;
+            _deliveryService = deliveryService;
         }
 
         [HttpPost("Order/Add")]
@@ -55,7 +57,7 @@ namespace DeliveryProject.Controllers
                 Id = model.OrderId.Value,
             };
 
-            await _orderService.UpdateOrder(order, model.Products);
+            await _orderService.UpdateOrderProducts(order, model.Products);
 
             return Ok(new { message = string.Format(InfoMessages.UpdatedOrder, order.Id) });
         }
@@ -63,8 +65,9 @@ namespace DeliveryProject.Controllers
         [HttpDelete("Order/Delete/{orderId}")]
         public async Task<IActionResult> DeleteOrder(Guid orderId)
         {
+            await _deliveryService.DeleteInvoice(orderId);
             await _orderService.DeleteOrder(orderId);
-
+            
             return Ok(new { message = string.Format(InfoMessages.DeletedOrder, orderId) });
         }
 

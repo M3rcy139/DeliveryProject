@@ -4,6 +4,8 @@
     {
         public const string NoOrdersFound = "NO_ORDERS_FOUND";
         public const string OrdersInTimeRangeNotFound = "ORDERS_IN_TIME_RANGE_NOT_FOUND";
+        
+        public const string InvoiceNotFound = "INVOICE_NOT_FOUND";
 
         public const string MustNotBeEmpty = "REGION_MUST_NOT_BE_EMPTY";
         public const string RegionNotFound = "REGION_NOT_FOUND";

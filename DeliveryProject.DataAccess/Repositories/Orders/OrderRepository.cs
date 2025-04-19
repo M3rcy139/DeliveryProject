@@ -23,7 +23,7 @@ namespace DeliveryProject.DataAccess.Repositories.Orders
             _orderCache[orderEntity.Id] = orderEntity;
         }
 
-        public async Task<OrderEntity> GetOrderById(Guid id)
+        public async Task<OrderEntity?> GetOrderById(Guid id)
         {
             if (_orderCache.TryGetValue(id, out var cachedOrder))
             {
@@ -37,15 +37,15 @@ namespace DeliveryProject.DataAccess.Repositories.Orders
                     .ThenInclude(op => op.Person)
                 .Include(o => o.OrderProducts)
                     .ThenInclude(op => op.Product)
-                .Include(o => o.Invoice)
-                .FirstAsync(o => o.Id == id);
+                .FirstOrDefaultAsync(o => o.Id == id);
 
-            _orderCache[id] = order;
+            if(order != null)
+                _orderCache[id] = order;
 
             return order;
         }
 
-        public async Task UpdateOrder(OrderEntity orderEntity)
+        public async Task UpdateOrderProdutcs(OrderEntity orderEntity)
         {
             await using var dbContext = await _contextFactory.CreateDbContextAsync();
 
@@ -53,7 +53,6 @@ namespace DeliveryProject.DataAccess.Repositories.Orders
                 .Include(o => o.OrderPersons)
                     .ThenInclude(op => op.Person)
                 .Include(o => o.OrderProducts)
-                .Include(o => o.Invoice)
                 .FirstAsync(o => o.Id == orderEntity.Id);
 
             dbContext.Entry(existingEntity).CurrentValues.SetValues(orderEntity);
@@ -66,12 +65,22 @@ namespace DeliveryProject.DataAccess.Repositories.Orders
             _orderCache[orderEntity.Id] = orderEntity;
         }
 
+        public async Task UpdateOrderStatus(OrderEntity orderEntity)
+        {
+            await using var dbContext = await _contextFactory.CreateDbContextAsync();
+
+            dbContext.Orders.Attach(orderEntity); 
+            dbContext.Entry(orderEntity).Property(o => o.Status).IsModified = true;
+
+            await dbContext.SaveChangesAsync();
+        }
+        
         public async Task DeleteOrder(Guid id)
         {
             await using var dbContext = await _contextFactory.CreateDbContextAsync();
             var order = await dbContext.Orders.FindAsync(id);
             
-            dbContext.Orders.Remove(order);
+            dbContext.Orders.Remove(order!);
             await dbContext.SaveChangesAsync();
 
             _orderCache.Remove(id, out _);

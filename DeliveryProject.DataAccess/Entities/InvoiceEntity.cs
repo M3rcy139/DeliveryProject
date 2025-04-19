@@ -1,9 +1,7 @@
 ﻿namespace DeliveryProject.DataAccess.Entities
 {
-    public class InvoiceEntity
+    public class InvoiceEntity : BaseEntity
     {
-        public Guid Id { get; set; }
-        public decimal Amount { get; set; }
         public Guid OrderId { get; set; }
         public Guid DeliveryPersonId { get; set; }
         public DateTime DeliveryTime { get; set; }

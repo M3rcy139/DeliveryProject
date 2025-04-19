@@ -1,8 +1,7 @@
 ﻿namespace DeliveryProject.DataAccess.Entities
 {
-    public class AttributeValueEntity
+    public class AttributeValueEntity : BaseEntity
     {
-        public Guid Id { get; set; }
         public string Value { get; set; }
         public Guid PersonId { get; set; }
         public int AttributeId { get; set; }

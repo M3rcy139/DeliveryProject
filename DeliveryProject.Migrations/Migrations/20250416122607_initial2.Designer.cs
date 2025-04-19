@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DeliveryProject.Migrations.Migrations
 {
     [DbContext(typeof(DeliveryDbContext))]
-    [Migration("20250323092633_initial")]
-    partial class initial
+    [Migration("20250416122607_initial2")]
+    partial class initial2
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -162,9 +162,6 @@ namespace DeliveryProject.Migrations.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<decimal>("Amount")
-                        .HasColumnType("numeric");
-
                     b.Property<Guid>("DeliveryPersonId")
                         .HasColumnType("uuid");
 
@@ -192,6 +189,9 @@ namespace DeliveryProject.Migrations.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("numeric");
 
                     b.Property<DateTime>("CreatedTime")
                         .HasColumnType("timestamp with time zone");
@@ -286,8 +286,6 @@ namespace DeliveryProject.Migrations.Migrations
                         .HasColumnType("double precision");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("SupplierId");
 
                     b.ToTable("Products");
                 });
@@ -542,7 +540,7 @@ namespace DeliveryProject.Migrations.Migrations
                         .IsRequired();
 
                     b.HasOne("DeliveryProject.DataAccess.Entities.PersonEntity", "Person")
-                        .WithMany()
+                        .WithMany("AttributeValues")
                         .HasForeignKey("PersonId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -572,7 +570,7 @@ namespace DeliveryProject.Migrations.Migrations
                         .IsRequired();
 
                     b.HasOne("DeliveryProject.DataAccess.Entities.OrderEntity", "Order")
-                        .WithOne("Invoice")
+                        .WithOne()
                         .HasForeignKey("DeliveryProject.DataAccess.Entities.InvoiceEntity", "OrderId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -629,17 +627,6 @@ namespace DeliveryProject.Migrations.Migrations
                         .IsRequired();
 
                     b.Navigation("Region");
-                });
-
-            modelBuilder.Entity("DeliveryProject.DataAccess.Entities.ProductEntity", b =>
-                {
-                    b.HasOne("DeliveryProject.DataAccess.Entities.PersonEntity", "Supplier")
-                        .WithMany()
-                        .HasForeignKey("SupplierId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Supplier");
                 });
 
             modelBuilder.Entity("DeliveryProject.DataAccess.Entities.RoleAttributeEntity", b =>
@@ -703,12 +690,14 @@ namespace DeliveryProject.Migrations.Migrations
 
             modelBuilder.Entity("DeliveryProject.DataAccess.Entities.OrderEntity", b =>
                 {
-                    b.Navigation("Invoice")
-                        .IsRequired();
-
                     b.Navigation("OrderPersons");
 
                     b.Navigation("OrderProducts");
+                });
+
+            modelBuilder.Entity("DeliveryProject.DataAccess.Entities.PersonEntity", b =>
+                {
+                    b.Navigation("AttributeValues");
                 });
 
             modelBuilder.Entity("DeliveryProject.DataAccess.Entities.RoleEntity", b =>

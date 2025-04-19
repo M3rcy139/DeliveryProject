@@ -19,10 +19,6 @@ namespace DeliveryProject.DataAccess.Configurations
 
             builder.Property(p => p.Price)
                 .IsRequired();
-
-            builder
-                .HasOne(p => p.Supplier)
-                .WithMany();
         }
     }
 }

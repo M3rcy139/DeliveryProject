@@ -9,14 +9,13 @@ namespace DeliveryProject.DataAccess.Configurations
         public void Configure(EntityTypeBuilder<InvoiceEntity> builder)
         {
             builder.HasKey(i => i.Id);
-
-            builder.Property(i => i.Amount).IsRequired();
+            
             builder.Property(i => i.DeliveryTime).IsRequired();
             builder.Property(i => i.IsExecuted).IsRequired();
 
             builder
                 .HasOne(i => i.Order)
-                .WithOne(o => o.Invoice)
+                .WithOne()
                 .HasForeignKey<InvoiceEntity>(i => i.OrderId);
 
             builder
