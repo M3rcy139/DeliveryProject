@@ -1,17 +1,19 @@
-using Serilog;
+using Microsoft.Extensions.Logging;
 using System.Diagnostics;
 using System.Text;
-
+using DeliveryProject.Bussiness.Helpers;
 
 namespace DeliveryProject.Middleware
 {
     public class CentralizedHttpLoggingMiddleware
     {
         private readonly RequestDelegate _next;
+        private readonly ILogger<CentralizedHttpLoggingMiddleware> _logger;
 
-        public CentralizedHttpLoggingMiddleware(RequestDelegate next)
+        public CentralizedHttpLoggingMiddleware(RequestDelegate next, ILogger<CentralizedHttpLoggingMiddleware> logger)
         {
             _next = next;
+            _logger = logger;
         }
 
         public async Task InvokeAsync(HttpContext context)
@@ -21,19 +23,12 @@ namespace DeliveryProject.Middleware
 
             var stopwatch = Stopwatch.StartNew();
 
-            var requestBody = await ReadRequestBodyAsync(context.Request);
-            var requestLog = new
-            {
-                Type = "Request",
-                RequestId = requestId,
-                Timestamp = DateTime.UtcNow,
-                Method = context.Request.Method,
-                Url = context.Request.Path,
-                Headers = context.Request.Headers.ToDictionary(k => k.Key, v => v.Value.ToString()),
-                Body = requestBody
-            };
-
-            Log.Information("HTTP Request: {@Request}", requestLog);
+            string requestBody = await HttpBodyReader.ReadRequestBodyAsync(context.Request);
+            _logger.LogInformation("HTTP Request: {RequestId} {Method} {Path} Body: {Body}",
+                requestId,
+                context.Request.Method,
+                context.Request.Path,
+                BodyTruncator.Truncate(requestBody));
 
             var originalBodyStream = context.Response.Body;
             await using var responseBody = new MemoryStream();
@@ -46,41 +41,23 @@ namespace DeliveryProject.Middleware
             catch (Exception ex)
             {
                 context.Response.StatusCode = 500;
-
-                Log.Error(ex, "Unhandled exception occurred during HTTP request: {RequestId}", requestId);
-
+                _logger.LogError(ex, "Unhandled exception during HTTP request {RequestId}", requestId);
                 await context.Response.WriteAsync("An unexpected error occurred.");
             }
 
             stopwatch.Stop();
+
             context.Response.Body.Seek(0, SeekOrigin.Begin);
-            var responseBodyText = await new StreamReader(context.Response.Body).ReadToEndAsync();
+            var responseText = await new StreamReader(context.Response.Body).ReadToEndAsync();
             context.Response.Body.Seek(0, SeekOrigin.Begin);
 
-            var responseLog = new
-            {
-                Type = "Response",
-                RequestId = requestId,
-                Timestamp = DateTime.UtcNow,
-                StatusCode = context.Response.StatusCode,
-                Duration = stopwatch.ElapsedMilliseconds,
-                Headers = context.Response.Headers.ToDictionary(k => k.Key, v => v.Value.ToString()),
-                Body = responseBodyText
-            };
-
-            Log.Information("HTTP Response: {@Response}", responseLog);
+            _logger.LogInformation("HTTP Response: {RequestId} {StatusCode} Duration: {Duration}ms Body: {Body}",
+                requestId,
+                context.Response.StatusCode,
+                stopwatch.ElapsedMilliseconds,
+                BodyTruncator.Truncate(responseText));
 
             await responseBody.CopyToAsync(originalBodyStream);
-        }
-
-        private async Task<string> ReadRequestBodyAsync(HttpRequest request)
-        {
-            request.EnableBuffering();
-            var buffer = new byte[Convert.ToInt32(request.ContentLength ?? 0)];
-            await request.Body.ReadAsync(buffer, 0, buffer.Length);
-            request.Body.Position = 0;
-
-            return Encoding.UTF8.GetString(buffer);
         }
     }
 }
