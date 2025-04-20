@@ -62,6 +62,7 @@ namespace DeliveryProject.Bussiness.Services
         public async Task<Order> GetOrderById(Guid orderId)
         {
             var orderEntity = await _orderMediator.GetEntityById(orderId);
+            
             return _mapper.Map<Order>(orderEntity);
         }
 
@@ -102,6 +103,7 @@ namespace DeliveryProject.Bussiness.Services
         public async Task DeleteOrder(Guid orderId)
         {
             await _orderMediator.DeleteEntityById(orderId);
+            
             _logger.LogInformation(InfoMessages.DeletedOrder, orderId);
         }
 

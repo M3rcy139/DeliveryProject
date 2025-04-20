@@ -9,6 +9,7 @@
         public const string UpdatedOrder = "Updated an order with an ID: {0}.";
         public const string UpdatedOrderStatus ="Updated an order status with an ID: {0}.";
         public const string DeletedOrder = "Deleted an order with an ID: {0}.";
+        public const string DeletedInvoice = "Deleted an invoice with for Order with ID: {0}.";
 
         public const string ProcessingStarted = "Started processing region data for {0}.";
 
