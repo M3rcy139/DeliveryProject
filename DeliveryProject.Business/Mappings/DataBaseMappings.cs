@@ -1,9 +1,9 @@
 ﻿using DeliveryProject.DataAccess.Entities;
 using DeliveryProject.Core.Models;
-using DeliveryProject.Bussiness.Extensions;
+using DeliveryProject.Business.Extensions;
 using AutoMapper;
 
-namespace DeliveryProject.Bussiness.Mappings
+namespace DeliveryProject.Business.Mappings
 {
     public class DataBaseMappings : Profile
     {

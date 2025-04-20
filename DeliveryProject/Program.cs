@@ -1,5 +1,5 @@
 using DeliveryProject.ServiceCollection;
-using DeliveryProject.Bussiness.Mappings;
+using DeliveryProject.Business.Mappings;
 using DeliveryProject.BackgroundServices;
 using Serilog;
 

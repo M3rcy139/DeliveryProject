@@ -1,6 +1,6 @@
-﻿using DeliveryProject.Bussiness.Mediators;
-using DeliveryProject.Bussiness.Interfaces.Services;
-using DeliveryProject.Bussiness.Services;
+﻿using DeliveryProject.Business.Mediators;
+using DeliveryProject.Business.Interfaces.Services;
+using DeliveryProject.Business.Services;
 
 namespace DeliveryProject.ServiceCollection
 {

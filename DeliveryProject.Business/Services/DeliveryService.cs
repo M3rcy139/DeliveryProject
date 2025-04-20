@@ -1,12 +1,12 @@
 using AutoMapper;
-using DeliveryProject.Bussiness.Interfaces.Services;
-using DeliveryProject.Bussiness.Mediators;
+using DeliveryProject.Business.Interfaces.Services;
+using DeliveryProject.Business.Mediators;
 using DeliveryProject.Core.Constants.InfoMessages;
 using DeliveryProject.Core.Models;
 using DeliveryProject.DataAccess.Entities;
 using Microsoft.Extensions.Logging;
 
-namespace DeliveryProject.Bussiness.Services;
+namespace DeliveryProject.Business.Services;
 
 public class DeliveryService : IDeliveryService
 {

@@ -2,7 +2,7 @@
 using DeliveryProject.Core.Models;
 using DeliveryProject.DataAccess.Entities;
 
-namespace DeliveryProject.Bussiness.Extensions
+namespace DeliveryProject.Business.Extensions
 {
     public static class MappingExtensions
     {

@@ -1,7 +1,7 @@
 ﻿using DeliveryProject.Core.Enums;
 using DeliveryProject.DataAccess.Entities;
 
-namespace DeliveryProject.Bussiness.Services
+namespace DeliveryProject.Business.Services
 {
     public abstract class BaseService
     {

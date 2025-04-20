@@ -1,16 +1,16 @@
-﻿using DeliveryProject.Bussiness.Interfaces.Services;
-using DeliveryProject.Core.Models;
+﻿using DeliveryProject.Core.Models;
 using Microsoft.Extensions.Logging;
 using AutoMapper;
-using DeliveryProject.Bussiness.Helpers;
+using DeliveryProject.Business.Helpers;
+using DeliveryProject.Business.Interfaces.Services;
+using DeliveryProject.Business.Mediators;
 using DeliveryProject.DataAccess.Entities;
 using DeliveryProject.Core.Enums;
-using DeliveryProject.Bussiness.Mediators;
 using DeliveryProject.Core.Constants.InfoMessages;
 using DeliveryProject.Core.Dto;
 using DeliveryProject.Core.Extensions;
 
-namespace DeliveryProject.Bussiness.Services
+namespace DeliveryProject.Business.Services
 {
     public class OrderService : BaseService, IOrderService
     {

@@ -1,7 +1,7 @@
 using System.Text;
 using Microsoft.AspNetCore.Http;
 
-namespace DeliveryProject.Bussiness.Helpers;
+namespace DeliveryProject.Business.Helpers;
 
 public static class HttpBodyReader
 {

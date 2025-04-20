@@ -2,7 +2,7 @@
 using DeliveryProject.Core.Enums;
 using DeliveryProject.Core.Models;
 
-namespace DeliveryProject.Bussiness.Interfaces.Services
+namespace DeliveryProject.Business.Interfaces.Services
 {
     public interface IOrderService
     {

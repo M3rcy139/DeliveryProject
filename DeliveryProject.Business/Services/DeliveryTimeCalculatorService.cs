@@ -1,6 +1,6 @@
-using DeliveryProject.Bussiness.Interfaces.Services;
+using DeliveryProject.Business.Interfaces.Services;
 
-namespace DeliveryProject.Bussiness.Services;
+namespace DeliveryProject.Business.Services;
 
 public class DeliveryTimeCalculatorService : IDeliveryTimeCalculatorService
 {

@@ -4,7 +4,7 @@ using DeliveryProject.DataAccess.Entities;
 using DeliveryProject.Core.Extensions;
 using DeliveryProject.DataAccess.Interfaces;
 
-namespace DeliveryProject.Bussiness.Mediators
+namespace DeliveryProject.Business.Mediators
 {
     public class MediatorHelper<TEntity> where TEntity : class
     {

@@ -33,7 +33,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\DeliveryProject.Bussiness\DeliveryProject.Bussiness.csproj" />
+    <ProjectReference Include="..\DeliveryProject.Business\DeliveryProject.Business.csproj" />
     <ProjectReference Include="..\DeliveryProject.Core\DeliveryProject.Core.csproj" />
     <ProjectReference Include="..\DeliveryProject.DataAccess\DeliveryProject.DataAccess.csproj" />
     <ProjectReference Include="..\DeliveryProject.Migrations\DeliveryProject.Migrations.csproj" />
