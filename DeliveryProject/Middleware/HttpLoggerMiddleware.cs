@@ -6,12 +6,12 @@ using Microsoft.AspNetCore.Identity.Data;
 
 namespace DeliveryProject.Middleware
 {
-    public class CentralizedHttpLoggingMiddleware
+    public class HttpLoggerMiddleware
     {
         private readonly RequestDelegate _next;
-        private readonly ILogger<CentralizedHttpLoggingMiddleware> _logger;
+        private readonly ILogger<HttpLoggerMiddleware> _logger;
 
-        public CentralizedHttpLoggingMiddleware(RequestDelegate next, ILogger<CentralizedHttpLoggingMiddleware> logger)
+        public HttpLoggerMiddleware(RequestDelegate next, ILogger<HttpLoggerMiddleware> logger)
         {
             _next = next;
             _logger = logger;
