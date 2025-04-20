@@ -15,5 +15,8 @@
         public const string RequestProcessingComplete = "Completion of request processing. Path: {Path}, Method: {Method}, StatusCode: {StatusCode}";
 
         public const string ValidationSucceeded = "Validation succeeded!";
+
+        public const string HttpRequest = "HTTP Request: {Id} {Method} {Path} Body: {Body}";
+        public const string HttpResponse = "HTTP Response: {Id} {StatusCode} Duration: {Duration}ms Body: {Body}";
     }
 }

@@ -2,6 +2,8 @@ using Microsoft.Extensions.Logging;
 using System.Diagnostics;
 using System.Text;
 using DeliveryProject.Bussiness.Helpers;
+using DeliveryProject.Core.Constants.ErrorMessages;
+using DeliveryProject.Core.Constants.InfoMessages;
 
 namespace DeliveryProject.Middleware
 {
@@ -24,7 +26,7 @@ namespace DeliveryProject.Middleware
             var stopwatch = Stopwatch.StartNew();
 
             string requestBody = await HttpBodyReader.ReadRequestBodyAsync(context.Request);
-            _logger.LogInformation("HTTP Request: {RequestId} {Method} {Path} Body: {Body}",
+            _logger.LogInformation(InfoMessages.HttpRequest,
                 requestId,
                 context.Request.Method,
                 context.Request.Path,
@@ -41,8 +43,8 @@ namespace DeliveryProject.Middleware
             catch (Exception ex)
             {
                 context.Response.StatusCode = 500;
-                _logger.LogError(ex, "Unhandled exception during HTTP request {RequestId}", requestId);
-                await context.Response.WriteAsync("An unexpected error occurred.");
+                _logger.LogError(ex, ErrorMessages.UnhandledExceptionDuringHttpRequest, requestId);
+                await context.Response.WriteAsync(ErrorMessages.UnexpectedError);
             }
 
             stopwatch.Stop();
@@ -51,7 +53,7 @@ namespace DeliveryProject.Middleware
             var responseText = await new StreamReader(context.Response.Body).ReadToEndAsync();
             context.Response.Body.Seek(0, SeekOrigin.Begin);
 
-            _logger.LogInformation("HTTP Response: {RequestId} {StatusCode} Duration: {Duration}ms Body: {Body}",
+            _logger.LogInformation(InfoMessages.HttpResponse,
                 requestId,
                 context.Response.StatusCode,
                 stopwatch.ElapsedMilliseconds,

@@ -45,7 +45,7 @@ namespace DeliveryProject.Middleware
             }
             catch (Exception ex)
             {
-                _logger.LogError(ErrorMessages.UnexpectedError, ex.Message);
+                _logger.LogError(ErrorMessages.UnexpectedErrorWithMessage, ex.Message);
 
                 await HandleExceptionResponseAsync(context, ex, HttpStatusCode.InternalServerError);
             }
