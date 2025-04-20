@@ -1,7 +1,6 @@
 ﻿using DeliveryProject.Bussiness.Mediators;
 using DeliveryProject.Bussiness.Interfaces.Services;
 using DeliveryProject.Bussiness.Services;
-using DeliveryProject.DataAccess.Factories;
 
 namespace DeliveryProject.ServiceCollection
 {

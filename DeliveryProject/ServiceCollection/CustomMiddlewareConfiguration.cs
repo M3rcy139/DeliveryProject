@@ -1,5 +1,4 @@
-﻿using DeliveryProject.Core.Dto;
-using DeliveryProject.Middleware;
+﻿using DeliveryProject.Middleware;
 
 namespace DeliveryProject.ServiceCollection
 {
