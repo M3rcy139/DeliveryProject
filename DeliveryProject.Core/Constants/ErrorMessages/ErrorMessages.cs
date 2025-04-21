@@ -23,10 +23,8 @@
         public const string ArgumentativeException = "An argumentative exception: {0}";
         public const string InvalidOperationException = "An invalid operation exception: {0}";
         
-        public const string UnhandledExceptionDuringHttpRequest = "Unhandled exception during HTTP request {0}";
 
         public const string UnexpectedErrorWithMessage = "Unexpected error: {0}";
-        public const string UnexpectedError = "An unexpected error occurred";
 
         public const string JsonEmpty = "A JSON string cannot be empty or null.";
 

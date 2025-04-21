@@ -30,16 +30,7 @@ namespace DeliveryProject.Middleware
             await using var responseBody = new MemoryStream();
             context.Response.Body = responseBody;
 
-            try
-            {
-                await _next(context);
-            }
-            catch (Exception ex)
-            {
-                context.Response.StatusCode = 500;
-                _logger.LogError(ex, ErrorMessages.UnhandledExceptionDuringHttpRequest, requestId);
-                await context.Response.WriteAsync(ErrorMessages.UnexpectedError);
-            }
+            await _next(context);
 
             stopwatch.Stop();
 
