@@ -1,4 +1,5 @@
-﻿using Serilog.Sinks.Elasticsearch;
+﻿using DeliveryProject.Settings;
+using Serilog.Sinks.Elasticsearch;
 using Serilog;
 using Serilog.Events;
 using Serilog.Formatting.Compact;
@@ -11,22 +12,25 @@ namespace DeliveryProject.ServiceCollection
         public static void ConfigureLogging(this IHostBuilder hostBuilder, IConfiguration configuration)
         {
             var elasticUri = configuration["ElasticConfiguration:Uri"];
+            var logSettings = configuration.GetSection("Logging").Get<LoggingSettings>();
             
             Log.Logger = new LoggerConfiguration()
-                .ReadFrom.Configuration(configuration)
+                .MinimumLevel.Is(logSettings!.DefaultLogLevel)
+                .MinimumLevel.Override("Microsoft.AspNetCore", logSettings.AspNetCoreLogLevel)
                 .Enrich.FromLogContext()
                 .Enrich.WithProperty("Application", "DeliveryProject")
-                .WriteTo.Console()
+                .WriteTo.Console(restrictedToMinimumLevel: logSettings.ConsoleLogLevel)
                 .WriteTo.File(
                     new RenderedCompactJsonFormatter(),
-                    $"logs/log-{DateTime.UtcNow:yyyy-MM-dd}.json",
+                    path: logSettings.FilePath,
                     rollingInterval: RollingInterval.Day,
+                    restrictedToMinimumLevel: logSettings.FileLogLevel,
                     retainedFileCountLimit: 7)
                 .WriteTo.Elasticsearch(new ElasticsearchSinkOptions(new Uri(elasticUri!))
                 {
                     AutoRegisterTemplate = true,
                     IndexFormat = $"deliveryproject-logs-{DateTime.UtcNow:yyyy-MM}",
-                    MinimumLogEventLevel = LogEventLevel.Information,
+                    MinimumLogEventLevel = logSettings.ElasticSearchLogLevel,
                     NumberOfShards = 2,
                     NumberOfReplicas = 1
                 })
