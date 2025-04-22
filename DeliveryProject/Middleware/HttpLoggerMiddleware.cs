@@ -1,8 +1,5 @@
 using System.Diagnostics;
-using DeliveryProject.Business.Helpers;
-using DeliveryProject.Core.Constants.ErrorMessages;
-using DeliveryProject.Core.Constants.InfoMessages;
-using Microsoft.AspNetCore.Identity.Data;
+using DeliveryProject.Business.Logging;
 
 namespace DeliveryProject.Middleware
 {
@@ -24,7 +21,7 @@ namespace DeliveryProject.Middleware
 
             var stopwatch = Stopwatch.StartNew();
 
-            await HttpLoggingHelper.LogRequestAsync(context, _logger, requestId);
+            await HttpLoggingHandler.LogRequestAsync(context, _logger, requestId);
 
             var originalBodyStream = context.Response.Body;
             await using var responseBody = new MemoryStream();
@@ -34,7 +31,7 @@ namespace DeliveryProject.Middleware
 
             stopwatch.Stop();
 
-            await HttpLoggingHelper.LogResponseAsync(context, _logger, requestId, stopwatch.ElapsedMilliseconds);
+            await HttpLoggingHandler.LogResponseAsync(context, _logger, requestId, stopwatch.ElapsedMilliseconds);
 
             await responseBody.CopyToAsync(originalBodyStream);
         }
