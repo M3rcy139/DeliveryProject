@@ -1,7 +1,7 @@
 ﻿using DeliveryProject.Core.Models;
 using Microsoft.Extensions.Logging;
 using AutoMapper;
-using DeliveryProject.Business.Helpers;
+using DeliveryProject.Business.Extensions;
 using DeliveryProject.Business.Interfaces.Services;
 using DeliveryProject.Business.Mediators;
 using DeliveryProject.DataAccess.Entities;
@@ -36,8 +36,8 @@ namespace DeliveryProject.Business.Services
             var customer = await _customerMediator.GetEntityById(order.OrderPersons.First().PersonId);
             
             var orderProducts = await GetOrderProducts(order, products);
-            
-            var amount = OrderAmountCalculator.CalculateOrderAmount(orderProducts);
+
+            var amount = orderProducts.CalculateOrderAmount();
             
             var orderEntity = new OrderEntity()
             {
@@ -72,7 +72,7 @@ namespace DeliveryProject.Business.Services
             
             var orderProducts = await GetOrderProducts(order, products);
             
-            decimal amount = OrderAmountCalculator.CalculateOrderAmount(orderProducts);
+            decimal amount = orderProducts.CalculateOrderAmount();
             
             updatedOrder.Amount = amount;
             updatedOrder.OrderProducts.Clear();
