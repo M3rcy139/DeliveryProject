@@ -7,6 +7,7 @@ namespace DeliveryProject.Middleware
     {
         private readonly RequestDelegate _next;
         private readonly ILogger<HttpLoggerMiddleware> _logger;
+        private const string RequestId = "RequestId";
 
         public HttpLoggerMiddleware(RequestDelegate next, ILogger<HttpLoggerMiddleware> logger)
         {
@@ -17,7 +18,7 @@ namespace DeliveryProject.Middleware
         public async Task InvokeAsync(HttpContext context)
         {
             var requestId = Guid.NewGuid().ToString();
-            context.Items["RequestId"] = requestId;
+            context.Items[RequestId] = requestId;
 
             var stopwatch = Stopwatch.StartNew();
 
