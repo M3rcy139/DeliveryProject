@@ -8,7 +8,10 @@
             {
                 app.UseDeveloperExceptionPage();
                 app.UseSwagger();
-                app.UseSwaggerUI();
+                app.UseSwaggerUI(c =>
+                {
+                    c.DisplayRequestDuration();
+                });
             }
             else
             {

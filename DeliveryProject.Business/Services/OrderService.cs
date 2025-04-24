@@ -1,35 +1,32 @@
-﻿using DeliveryProject.Bussiness.Interfaces.Services;
-using DeliveryProject.Core.Models;
+﻿using DeliveryProject.Core.Models;
 using Microsoft.Extensions.Logging;
 using AutoMapper;
-using DeliveryProject.Bussiness.Helpers;
+using DeliveryProject.Business.Extensions;
+using DeliveryProject.Business.Interfaces.Services;
+using DeliveryProject.Business.Mediators;
 using DeliveryProject.DataAccess.Entities;
 using DeliveryProject.Core.Enums;
-using DeliveryProject.Bussiness.Mediators;
 using DeliveryProject.Core.Constants.InfoMessages;
 using DeliveryProject.Core.Dto;
 using DeliveryProject.Core.Extensions;
 
-namespace DeliveryProject.Bussiness.Services
+namespace DeliveryProject.Business.Services
 {
     public class OrderService : BaseService, IOrderService
     {
         private readonly MediatorHelper<OrderEntity> _orderMediator;
         private readonly MediatorHelper<CustomerEntity> _customerMediator;
-        private readonly MediatorHelper<ProductEntity> _productMediator;
         private readonly ILogger<OrderService> _logger;
         private readonly IMapper _mapper;
 
         public OrderService(
             MediatorHelper<OrderEntity> orderMediator,
             MediatorHelper<CustomerEntity> customerMediator,
-            MediatorHelper<ProductEntity> productMediator,
             ILogger<OrderService> logger,
             IMapper mapper)
         {
             _orderMediator = orderMediator;
             _customerMediator = customerMediator;
-            _productMediator = productMediator;
             _logger = logger;
             _mapper = mapper;
         }
@@ -39,8 +36,8 @@ namespace DeliveryProject.Bussiness.Services
             var customer = await _customerMediator.GetEntityById(order.OrderPersons.First().PersonId);
             
             var orderProducts = await GetOrderProducts(order, products);
-            
-            var amount = OrderAmountCalculator.CalculateOrderAmount(orderProducts);
+
+            var amount = orderProducts.CalculateOrderAmount();
             
             var orderEntity = new OrderEntity()
             {
@@ -65,6 +62,7 @@ namespace DeliveryProject.Bussiness.Services
         public async Task<Order> GetOrderById(Guid orderId)
         {
             var orderEntity = await _orderMediator.GetEntityById(orderId);
+            
             return _mapper.Map<Order>(orderEntity);
         }
 
@@ -74,7 +72,7 @@ namespace DeliveryProject.Bussiness.Services
             
             var orderProducts = await GetOrderProducts(order, products);
             
-            decimal amount = OrderAmountCalculator.CalculateOrderAmount(orderProducts);
+            decimal amount = orderProducts.CalculateOrderAmount();
             
             updatedOrder.Amount = amount;
             updatedOrder.OrderProducts.Clear();
@@ -105,6 +103,7 @@ namespace DeliveryProject.Bussiness.Services
         public async Task DeleteOrder(Guid orderId)
         {
             await _orderMediator.DeleteEntityById(orderId);
+            
             _logger.LogInformation(InfoMessages.DeletedOrder, orderId);
         }
 

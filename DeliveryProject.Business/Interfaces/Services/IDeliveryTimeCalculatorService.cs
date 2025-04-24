@@ -1,4 +1,4 @@
-namespace DeliveryProject.Bussiness.Interfaces.Services;
+namespace DeliveryProject.Business.Interfaces.Services;
 
 public interface IDeliveryTimeCalculatorService
 {

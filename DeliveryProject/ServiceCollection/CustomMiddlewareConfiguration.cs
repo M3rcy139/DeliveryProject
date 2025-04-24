@@ -1,5 +1,4 @@
-﻿using DeliveryProject.Core.Dto;
-using DeliveryProject.Middleware;
+﻿using DeliveryProject.Middleware;
 
 namespace DeliveryProject.ServiceCollection
 {
@@ -7,6 +6,7 @@ namespace DeliveryProject.ServiceCollection
     {
         public static IApplicationBuilder ConfigureCustomMiddleware(this IApplicationBuilder app)
         {
+            app.UseMiddleware<HttpLoggerMiddleware>();
             app.UseMiddleware<ExceptionHandlingMiddleware>();
 
             return app;

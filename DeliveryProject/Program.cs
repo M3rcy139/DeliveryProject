@@ -1,19 +1,17 @@
-using NLog;
 using DeliveryProject.ServiceCollection;
-using DeliveryProject.Bussiness.Mappings;
+using DeliveryProject.Business.Mappings;
 using DeliveryProject.BackgroundServices;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 var services = builder.Services;
 var configuration = builder.Configuration;
 
-var logger = LogManager.GetCurrentClassLogger();
+builder.Host.ConfigureLogging(configuration);
 
 try
 {
-    builder.Host.ConfigureLogging(configuration);
-
-    logger.Info("Initializing the application.");
+    Log.Information("Initializing the application.");
 
 
     services.AddDbServices(configuration);
@@ -39,12 +37,12 @@ try
 }
 catch (Exception ex)
 {
-    logger.Error(ex, "The application is stopped due to an exception.");
+    Log.Fatal(ex, "The application is stopped due to an exception.");
     throw;
 }
 finally
 {
-    NLog.LogManager.Shutdown();
+    Log.CloseAndFlush();
 }
 
 public partial class Program { }

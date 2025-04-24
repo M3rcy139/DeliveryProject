@@ -2,10 +2,9 @@ using DeliveryProject.Core.Constants.ErrorMessages;
 using DeliveryProject.Core.Constants;
 using DeliveryProject.DataAccess.Entities;
 using DeliveryProject.Core.Extensions;
-using DeliveryProject.Core.Models;
 using DeliveryProject.DataAccess.Interfaces;
 
-namespace DeliveryProject.Bussiness.Mediators
+namespace DeliveryProject.Business.Mediators
 {
     public class MediatorHelper<TEntity> where TEntity : class
     {
