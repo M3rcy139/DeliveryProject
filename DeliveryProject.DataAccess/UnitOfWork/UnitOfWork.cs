@@ -11,17 +11,20 @@ public class UnitOfWork : IUnitOfWork
     public IOrderRepository Orders { get; }
     public ICustomerRepository Customers { get; }
     public IProductRepository Products { get; }
+    public IInvoiceRepository Invoices { get; }
 
     public UnitOfWork(
         DeliveryDbContext context,
         IOrderRepository orderRepository,
         ICustomerRepository customerRepository,
-        IProductRepository productRepository)
+        IProductRepository productRepository,
+        IInvoiceRepository invoiceRepository)
     {
         _context = context;
         Orders = orderRepository;
         Customers = customerRepository;
         Products = productRepository;
+        Invoices = invoiceRepository;
     }
 
     public async Task BeginTransactionAsync()
