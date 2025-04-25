@@ -8,10 +8,10 @@ namespace DeliveryProject.ServiceCollection
     {
         public static void AddServices(this IServiceCollection services)
         {
-            services.AddSingleton<IOrderService, OrderService>();
-            services.AddSingleton<IDeliveryService, DeliveryService>();
-            services.AddSingleton<IDeliveryTimeCalculatorService, DeliveryTimeCalculatorService>();
-            services.AddSingleton(typeof(MediatorHelper<>));
+            services.AddScoped<IOrderService, OrderService>();
+            services.AddScoped<IDeliveryService, DeliveryService>();
+            services.AddScoped<IDeliveryTimeCalculatorService, DeliveryTimeCalculatorService>();
+            services.AddScoped(typeof(MediatorHelper<>));
         }
     }
 }

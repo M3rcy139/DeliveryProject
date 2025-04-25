@@ -7,23 +7,25 @@ using EFCore.BulkExtensions;
 using Microsoft.Extensions.Logging;
 using DeliveryProject.Core.Enums;
 using DeliveryProject.DataAccess.Interfaces.BatchUploads;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DeliveryProject.DataAccess.Repositories.BatchUpload
 {
     public class BatchUploadRepository : IBatchUploadRepository
     {
-        private readonly IDbContextFactory<DeliveryDbContext> _dbContextFactory;
+        private readonly IServiceScopeFactory _serviceScopeFactory;
         private readonly ILogger<BatchUploadRepository> _logger;
 
-        public BatchUploadRepository(IDbContextFactory<DeliveryDbContext> dbContextFactory, ILogger<BatchUploadRepository> logger)
+        public BatchUploadRepository(IServiceScopeFactory serviceScopeFactory, ILogger<BatchUploadRepository> logger)
         {
-            _dbContextFactory = dbContextFactory;
+            _serviceScopeFactory  = serviceScopeFactory;
             _logger = logger;
         }
 
         public async Task<List<Entities.BatchUpload>> GetPendingUploadsAsync()
         {
-            await using var dbContext = await _dbContextFactory.CreateDbContextAsync();
+            using var scope = _serviceScopeFactory.CreateScope();
+            var dbContext = scope.ServiceProvider.GetRequiredService<DeliveryDbContext>();
             
             return await dbContext.BatchUploads
                 .Where(u => u.Status == UploadStatus.Pending)
@@ -32,7 +34,8 @@ namespace DeliveryProject.DataAccess.Repositories.BatchUpload
 
         public async Task AddAsync(Entities.BatchUpload batchUpload)
         {
-            await using var dbContext = await _dbContextFactory.CreateDbContextAsync();
+            using var scope = _serviceScopeFactory.CreateScope();
+            var dbContext = scope.ServiceProvider.GetRequiredService<DeliveryDbContext>();
             
             await dbContext.BatchUploads.AddAsync(batchUpload);
             await dbContext.SaveChangesAsync();
@@ -40,8 +43,9 @@ namespace DeliveryProject.DataAccess.Repositories.BatchUpload
 
         public async Task UpdateAsync(Entities.BatchUpload upload)
         {
-            await using var dbContext = await _dbContextFactory.CreateDbContextAsync();
-            
+            using var scope = _serviceScopeFactory.CreateScope();
+            var dbContext = scope.ServiceProvider.GetRequiredService<DeliveryDbContext>();
+
             dbContext.BatchUploads.Update(upload);
             await dbContext.SaveChangesAsync();
         }
@@ -50,7 +54,8 @@ namespace DeliveryProject.DataAccess.Repositories.BatchUpload
             Func<TDto, TEntity> entityMapper
         ) where TEntity : class
         {
-            await using var dbContext = await _dbContextFactory.CreateDbContextAsync();
+            using var scope = _serviceScopeFactory.CreateScope();
+            var dbContext = scope.ServiceProvider.GetRequiredService<DeliveryDbContext>();
 
             var entities = validRecords.Select(entityMapper).ToList();
 
@@ -59,15 +64,17 @@ namespace DeliveryProject.DataAccess.Repositories.BatchUpload
 
         public async Task SaveErrorsAsync(List<UploadError> errorEntities)
         {
-            await using var dbContext = await _dbContextFactory.CreateDbContextAsync();
+            using var scope = _serviceScopeFactory.CreateScope();
+            var dbContext = scope.ServiceProvider.GetRequiredService<DeliveryDbContext>();
 
             await dbContext.BulkInsertAsync(errorEntities);
         }
 
         public async Task<HashSet<string>> GetExistingPhoneNumbersAsync<TPerson>(List<string> phoneNumbers) where TPerson : PersonEntity
         {
-            await using var dbContext = await _dbContextFactory.CreateDbContextAsync();
-
+            using var scope = _serviceScopeFactory.CreateScope();
+            var dbContext = scope.ServiceProvider.GetRequiredService<DeliveryDbContext>();
+            
             var phoneNumberAttributeId = await dbContext.Attributes
                 .Where(a => a.Key == AttributeKey.PhoneNumber)
                 .Select(a => a.Id)
@@ -84,10 +91,11 @@ namespace DeliveryProject.DataAccess.Repositories.BatchUpload
 
         public async Task ExecuteMergeProcedureAsync(string tableName)
         {
-            await using var dbContext = await _dbContextFactory.CreateDbContextAsync();
-
             try
             {
+                using var scope = _serviceScopeFactory.CreateScope();
+                var dbContext = scope.ServiceProvider.GetRequiredService<DeliveryDbContext>();
+                
                 await dbContext.Database.ExecuteSqlRawAsync($"CALL Merge{tableName}();");
                 _logger.LogInformation(BatchUploadInfoMessages.MergeIsCompleted);
             }

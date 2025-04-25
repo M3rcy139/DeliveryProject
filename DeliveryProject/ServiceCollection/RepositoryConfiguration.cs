@@ -5,6 +5,7 @@ using DeliveryProject.DataAccess.Repositories.BatchUpload;
 using DeliveryProject.DataAccess.Repositories.Common;
 using DeliveryProject.DataAccess.Repositories.Orders;
 using DeliveryProject.DataAccess.Repositories.Persons;
+using DeliveryProject.DataAccess.UnitOfWork;
 
 namespace DeliveryProject.ServiceCollection
 {
@@ -12,12 +13,14 @@ namespace DeliveryProject.ServiceCollection
     {
         public static void AddRepositories(this IServiceCollection services)
         {
-            services.AddSingleton<IOrderRepository, OrderRepository>();
-            services.AddSingleton<IInvoiceRepository, InvoiceRepository>();
-            services.AddSingleton<ISupplierRepository, SupplierRepository>();
-            services.AddSingleton<IDeliveryPersonRepository, DeliveryPersonRepository>();
-            services.AddSingleton<IProductRepository, ProductRepository>();
-            services.AddSingleton<ICustomerRepository, CustomerRepository>();
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
+            
+            services.AddScoped<IOrderRepository, OrderRepository>();
+            services.AddScoped<IInvoiceRepository, InvoiceRepository>();
+            services.AddScoped<ISupplierRepository, SupplierRepository>();
+            services.AddScoped<IDeliveryPersonRepository, DeliveryPersonRepository>();
+            services.AddScoped<IProductRepository, ProductRepository>();
+            services.AddScoped<ICustomerRepository, CustomerRepository>();
             services.AddSingleton<IAttributeRepository, AttributeRepository>();
             services.AddSingleton<IAttributeValueRepository, AttributeValueRepository>();
 
