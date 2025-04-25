@@ -6,19 +6,18 @@ namespace DeliveryProject.DataAccess.Repositories.Orders
 {
     public class OrderRepository : IOrderRepository
     {
-        private readonly IDbContextFactory<DeliveryDbContext> _contextFactory;
+        private readonly DeliveryDbContext _dbContext;
         private readonly Dictionary<Guid, OrderEntity> _orderCache = new();
 
-        public OrderRepository(IDbContextFactory<DeliveryDbContext> contextFactory) => _contextFactory = contextFactory;
+        public OrderRepository(DeliveryDbContext dbContext) => _dbContext = dbContext;
 
         public async Task AddOrder(OrderEntity orderEntity)
         {
-            await using var dbContext = await _contextFactory.CreateDbContextAsync();
-            dbContext.AttachRange(orderEntity.OrderPersons.Select(op => op.Person));
-            dbContext.AttachRange(orderEntity.OrderProducts.Select(op => op.Product));
+            _dbContext.AttachRange(orderEntity.OrderPersons.Select(op => op.Person));
+            _dbContext.AttachRange(orderEntity.OrderProducts.Select(op => op.Product));
 
-            await dbContext.Orders.AddAsync(orderEntity);
-            await dbContext.SaveChangesAsync();
+            await _dbContext.Orders.AddAsync(orderEntity);
+            await _dbContext.SaveChangesAsync();
 
             _orderCache[orderEntity.Id] = orderEntity;
         }
@@ -29,9 +28,8 @@ namespace DeliveryProject.DataAccess.Repositories.Orders
             {
                 return cachedOrder;
             }
-
-            await using var dbContext = await _contextFactory.CreateDbContextAsync();
-            var order = await dbContext.Orders
+            
+            var order = await _dbContext.Orders
                 .AsNoTracking()
                 .Include(o => o.OrderPersons)
                     .ThenInclude(op => op.Person)
@@ -45,51 +43,45 @@ namespace DeliveryProject.DataAccess.Repositories.Orders
             return order;
         }
 
-        public async Task UpdateOrderProdutcs(OrderEntity orderEntity)
+        public async Task UpdateOrderProducts(OrderEntity orderEntity)
         {
-            await using var dbContext = await _contextFactory.CreateDbContextAsync();
-
-            var existingEntity = await dbContext.Orders
+            var existingEntity = await _dbContext.Orders
                 .Include(o => o.OrderPersons)
                     .ThenInclude(op => op.Person)
                 .Include(o => o.OrderProducts)
                 .FirstAsync(o => o.Id == orderEntity.Id);
 
-            dbContext.Entry(existingEntity).CurrentValues.SetValues(orderEntity);
+            _dbContext.Entry(existingEntity).CurrentValues.SetValues(orderEntity);
 
-            var orderUpdater = new OrderUpdater(dbContext);
+            var orderUpdater = new OrderUpdater(_dbContext);
             await orderUpdater.UpdateOrder(existingEntity, orderEntity);
 
-            await dbContext.SaveChangesAsync();
+            await _dbContext.SaveChangesAsync();
 
             _orderCache[orderEntity.Id] = orderEntity;
         }
 
         public async Task UpdateOrderStatus(OrderEntity orderEntity)
         {
-            await using var dbContext = await _contextFactory.CreateDbContextAsync();
+            _dbContext.Orders.Attach(orderEntity); 
+            _dbContext.Entry(orderEntity).Property(o => o.Status).IsModified = true;
 
-            dbContext.Orders.Attach(orderEntity); 
-            dbContext.Entry(orderEntity).Property(o => o.Status).IsModified = true;
-
-            await dbContext.SaveChangesAsync();
+            await _dbContext.SaveChangesAsync();
         }
         
         public async Task DeleteOrder(Guid id)
         {
-            await using var dbContext = await _contextFactory.CreateDbContextAsync();
-            var order = await dbContext.Orders.FindAsync(id);
+            var order = await _dbContext.Orders.FindAsync(id);
             
-            dbContext.Orders.Remove(order!);
-            await dbContext.SaveChangesAsync();
+            _dbContext.Orders.Remove(order!);
+            await _dbContext.SaveChangesAsync();
 
             _orderCache.Remove(id, out _);
         }
 
         public async Task<List<OrderEntity>> GetAllOrders()
         {
-            await using var dbContext = await _contextFactory.CreateDbContextAsync();
-            var orders = await dbContext.Orders
+            var orders = await _dbContext.Orders
                 .AsNoTracking()
                 .Include(o => o.OrderPersons)
                     .ThenInclude(op => op.Person)

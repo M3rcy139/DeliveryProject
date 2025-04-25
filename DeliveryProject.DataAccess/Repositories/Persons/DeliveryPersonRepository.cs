@@ -6,17 +6,16 @@ namespace DeliveryProject.DataAccess.Repositories.Persons
 {
     public class DeliveryPersonRepository : IDeliveryPersonRepository
     {
-        private readonly IDbContextFactory<DeliveryDbContext> _contextFactory;
+        private readonly DeliveryDbContext _dbContext;
 
-        public DeliveryPersonRepository(IDbContextFactory<DeliveryDbContext> contextFactory) => _contextFactory = contextFactory;
+        public DeliveryPersonRepository(DeliveryDbContext dbContext) => _dbContext = dbContext;
 
         public async Task<DeliveryPersonEntity?> GetDeliveryPersonByTime(DateTime deliveryTime)
         {
-            await using var dbContext = await _contextFactory.CreateDbContextAsync();
-            return await dbContext.Persons
+            return await _dbContext.Persons
                 .OfType<DeliveryPersonEntity>()
                 .AsNoTracking()
-                .Join(dbContext.DeliverySlots,
+                .Join(_dbContext.DeliverySlots,
                       person => person.Id,
                       slot => slot.DeliveryPersonId,
                       (person, slot) => new { person, slot })
@@ -27,9 +26,8 @@ namespace DeliveryProject.DataAccess.Repositories.Persons
 
         public async Task AddSlot(DeliverySlotEntity slot)
         {
-            await using var dbContext = await _contextFactory.CreateDbContextAsync();
-            await dbContext.DeliverySlots.AddAsync(slot);
-            await dbContext.SaveChangesAsync();
+            await _dbContext.DeliverySlots.AddAsync(slot);
+            await _dbContext.SaveChangesAsync();
         }
     }
 }

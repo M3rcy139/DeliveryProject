@@ -6,15 +6,13 @@ namespace DeliveryProject.DataAccess.Repositories.Common
 {
     public class ProductRepository : IProductRepository
     {
-        private readonly IDbContextFactory<DeliveryDbContext> _contextFactory;
+        private readonly DeliveryDbContext _dbContext;
 
-        public ProductRepository(IDbContextFactory<DeliveryDbContext> contextFactory) => _contextFactory = contextFactory;
+        public ProductRepository(DeliveryDbContext dbContext) => _dbContext = dbContext;
 
         public async Task<List<ProductEntity?>> GetProductsById(List<Guid> productIds)
         {
-            await using var dbContext = await _contextFactory.CreateDbContextAsync();
-
-            var productsDict = await dbContext.Products
+            var productsDict = await _dbContext.Products
                 .Where(p => productIds.Contains(p.Id))
                 .ToDictionaryAsync(p => p.Id);
 

@@ -29,5 +29,7 @@
         public const string JsonEmpty = "A JSON string cannot be empty or null.";
 
         public const string UnknownPersonType = "Unknown person type: {0}";
+        
+        public const string TransactionFailed = "Transaction failed.";
     }
 }

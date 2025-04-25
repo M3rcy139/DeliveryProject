@@ -82,7 +82,7 @@ namespace DeliveryProject.Business.Mediators
 
         public async Task UpdateOrderProducts(OrderEntity order)
         {
-            await _orderRepository.UpdateOrderProdutcs(order);
+            await _orderRepository.UpdateOrderProducts(order);
         }
 
         public async Task UpdateOrderStatus(OrderEntity order)
