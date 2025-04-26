@@ -31,5 +31,7 @@
         public const string UnknownPersonType = "Unknown person type: {0}";
         
         public const string TransactionFailed = "Transaction failed.";
+        
+        public const string DbContextIsNotInitialized = "The DbContext is not initialized. Call BeginTransactionAsync first.";
     }
 }

@@ -29,53 +29,23 @@ public class UnitOfWork : IUnitOfWork
 
     public async Task BeginTransactionAsync()
     {
-        if (_transaction == null)
-        {
-            _transaction = await _context.Database.BeginTransactionAsync();
-        }
+        _transaction = await _context.Database.BeginTransactionAsync();
     }
 
     public async Task CommitTransactionAsync()
     {
-        try
-        {
-            await _context.SaveChangesAsync();
-            await _transaction?.CommitAsync();
-        }
-        catch
-        {
-            await RollbackTransactionAsync();
-            throw;
-        }
-        finally
-        {
-            await DisposeTransactionAsync();
-        }
+        await _context.SaveChangesAsync();
+        await _transaction?.CommitAsync();
     }
 
     public async Task RollbackTransactionAsync()
     {
-        if (_transaction != null)
-        {
-            await _transaction.RollbackAsync();
-            await DisposeTransactionAsync();
-        }
+        await _transaction.RollbackAsync();
+        _transaction?.Dispose();
     }
-
-    private async Task DisposeTransactionAsync()
-    {
-        if (_transaction != null)
-        {
-            await _transaction.DisposeAsync();
-            _transaction = null;
-        }
-    }
-
-    public async Task<int> SaveChangesAsync() => await _context.SaveChangesAsync();
 
     public void Dispose()
     {
         _context.Dispose();
-        _transaction?.Dispose();
     }
 }
