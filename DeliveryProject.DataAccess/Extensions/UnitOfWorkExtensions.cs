@@ -2,7 +2,7 @@ using DeliveryProject.Core.Constants.ErrorMessages;
 using DeliveryProject.DataAccess.Interfaces;
 using Microsoft.Extensions.Logging;
 
-namespace DeliveryProject.Business.Extensions;
+namespace DeliveryProject.DataAccess.Extensions;
 
 public static class UnitOfWorkExtensions
 {

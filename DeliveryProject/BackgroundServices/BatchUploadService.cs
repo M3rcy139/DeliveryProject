@@ -4,24 +4,29 @@ namespace DeliveryProject.BackgroundServices
 {
     public class BatchUploadService : BackgroundService
     {
-        private readonly IBatchUploadProcessor _batchUploadService;
-        private readonly IBatchUploadRepository _batchUploadRepository;
+        private readonly IServiceProvider _serviceProvider;
 
-        public BatchUploadService(IBatchUploadProcessor batchUploadService, IBatchUploadRepository batchUploadRepository)
+        public BatchUploadService(IServiceProvider serviceProvider)
         {
-            _batchUploadService = batchUploadService;
-            _batchUploadRepository = batchUploadRepository;
+            _serviceProvider = serviceProvider;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             while (!stoppingToken.IsCancellationRequested)
             {
-                var pendingUploads = await _batchUploadRepository.GetPendingUploadsAsync();
+                using (var scope = _serviceProvider.CreateScope())
+                {
+                    var batchUploadRepository = scope.ServiceProvider.GetRequiredService<IBatchUploadRepository>();
+                    var batchUploadProcessor = scope.ServiceProvider.GetRequiredService<IBatchUploadProcessor>();
 
-                await Task.WhenAll(pendingUploads.Select(upload => _batchUploadService.ProcessUploadAsync(upload)));
 
-                await Task.Delay(TimeSpan.FromSeconds(20), stoppingToken);
+                    var pendingUploads = await batchUploadRepository.GetPendingUploadsAsync();
+
+                    await Task.WhenAll(pendingUploads.Select(upload => batchUploadProcessor.ProcessUploadAsync(upload)));
+
+                    await Task.Delay(TimeSpan.FromSeconds(20), stoppingToken);
+                }
             }
         }
     }

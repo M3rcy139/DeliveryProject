@@ -21,10 +21,10 @@ namespace DeliveryProject.ServiceCollection
             services.AddScoped<IDeliveryPersonRepository, DeliveryPersonRepository>();
             services.AddScoped<IProductRepository, ProductRepository>();
             services.AddScoped<ICustomerRepository, CustomerRepository>();
-            services.AddSingleton<IAttributeRepository, AttributeRepository>();
-            services.AddSingleton<IAttributeValueRepository, AttributeValueRepository>();
+            services.AddScoped<IAttributeRepository, AttributeRepository>();
+            services.AddScoped<IAttributeValueRepository, AttributeValueRepository>();
 
-            services.AddSingleton<IBatchUploadRepository, BatchUploadRepository>();
+            services.AddScoped<IBatchUploadRepository, BatchUploadRepository>();
         }
     }
 }

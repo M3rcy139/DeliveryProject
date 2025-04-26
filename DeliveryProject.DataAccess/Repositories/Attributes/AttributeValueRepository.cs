@@ -8,15 +8,12 @@ namespace DeliveryProject.DataAccess.Repositories.Attributes
 {
     public class AttributeValueRepository : IAttributeValueRepository
     {
-        private readonly IServiceScopeFactory _serviceScopeFactory;
+        private readonly DeliveryDbContext _dbContext;
         
-        public AttributeValueRepository(IServiceScopeFactory serviceScopeFactory) => _serviceScopeFactory = serviceScopeFactory;
+        public AttributeValueRepository(DeliveryDbContext dbContext) => _dbContext = dbContext;
 
         public async Task SetAttributeValue(Guid personId, AttributeKey attributeKey, string? value)
         {
-            using var scope = _serviceScopeFactory.CreateScope();
-            var dbContext = scope.ServiceProvider.GetRequiredService<DeliveryDbContext>();
-
             var newAttributeValue = new AttributeValueEntity
             {
                 Id = Guid.NewGuid(),
@@ -24,17 +21,14 @@ namespace DeliveryProject.DataAccess.Repositories.Attributes
                 AttributeId = (int)attributeKey,
                 Value = value
             };
-            dbContext.AttributeValues.Add(newAttributeValue);
+            _dbContext.AttributeValues.Add(newAttributeValue);
 
-            await dbContext.SaveChangesAsync();
+            await _dbContext.SaveChangesAsync();
         }
 
         public async Task<string?> GetAttributeValue(Guid personId, AttributeKey attributeKey)
         {
-            using var scope = _serviceScopeFactory.CreateScope();  
-            var dbContext = scope.ServiceProvider.GetRequiredService<DeliveryDbContext>();  
-
-            var attribute = await dbContext.AttributeValues
+            var attribute = await _dbContext.AttributeValues
                 .FirstOrDefaultAsync(av => av.PersonId == personId && av.Attribute.Key == attributeKey);
 
             return attribute?.Value;
