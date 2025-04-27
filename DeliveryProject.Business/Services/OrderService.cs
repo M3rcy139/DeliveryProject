@@ -41,18 +41,7 @@ namespace DeliveryProject.Business.Services
                 var orderProducts = await GetOrderProducts(order, products);
                 var amount = orderProducts.CalculateOrderAmount();
 
-                var orderEntity = new OrderEntity()
-                {
-                    Id = order.Id,
-                    CreatedTime = DateTime.UtcNow,
-                    Status = OrderStatus.Pending,
-                    Amount = amount,
-                    OrderPersons = new List<OrderPersonEntity>
-                    {
-                        new OrderPersonEntity { Person = customer }
-                    },
-                    OrderProducts = orderProducts,
-                };
+                var orderEntity = BuildNewOrderEntity(order, customer!, orderProducts, amount);
 
                 await _unitOfWork.Orders.AddOrder(orderEntity);
 
@@ -83,17 +72,9 @@ namespace DeliveryProject.Business.Services
                 var orderProducts = await GetOrderProducts(order, products);
                 decimal amount = orderProducts.CalculateOrderAmount();
 
-                updatedOrder!.Amount = amount;
-                updatedOrder.OrderProducts.Clear();
-                updatedOrder.OrderProducts.AddRange(orderProducts.Select(op =>
-                    new OrderProductEntity
-                    {
-                        ProductId = op.ProductId,
-                        OrderId = op.OrderId,
-                        Quantity = op.Quantity
-                    }));
+                BuildUpdatedOrderEntity(updatedOrder!, orderProducts, amount);
 
-                await _unitOfWork.Orders.UpdateOrderProducts(updatedOrder);
+                await _unitOfWork.Orders.UpdateOrderProducts(updatedOrder!);
 
                 _logger.LogInformation(InfoMessages.UpdatedOrder, updatedOrder.Id);
             }, _logger);
@@ -149,6 +130,39 @@ namespace DeliveryProject.Business.Services
             }, TaskCreationOptions.LongRunning).Unwrap();
         }
 
+        private OrderEntity BuildNewOrderEntity(Order order,
+            CustomerEntity customer,
+            List<OrderProductEntity> orderProducts,
+            decimal amount)
+        {
+            return new OrderEntity
+            {
+                Id = order.Id,
+                CreatedTime = DateTime.UtcNow,
+                Status = OrderStatus.Pending,
+                Amount = amount,
+                OrderPersons = new List<OrderPersonEntity>
+                {
+                    new OrderPersonEntity { Person = customer }
+                },
+                OrderProducts = orderProducts
+            };
+        }
+
+        private void BuildUpdatedOrderEntity(OrderEntity updatedOrder, List<OrderProductEntity> orderProducts, 
+            decimal amount)
+        {
+            updatedOrder!.Amount = amount;
+            updatedOrder.OrderProducts.Clear();
+            updatedOrder.OrderProducts.AddRange(orderProducts.Select(op =>
+                new OrderProductEntity
+                {
+                    ProductId = op.ProductId,
+                    OrderId = op.OrderId,
+                    Quantity = op.Quantity
+                }));
+        }
+        
         private async Task<List<OrderProductEntity>> GetOrderProducts(Order order, List<ProductDto> products)
         {
             var productEntities = await _unitOfWork.Products.GetProductsById(

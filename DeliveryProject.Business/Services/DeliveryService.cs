@@ -1,6 +1,9 @@
 using AutoMapper;
 using DeliveryProject.Business.Interfaces.Services;
+using DeliveryProject.Core.Constants;
+using DeliveryProject.Core.Constants.ErrorMessages;
 using DeliveryProject.Core.Constants.InfoMessages;
+using DeliveryProject.Core.Extensions;
 using DeliveryProject.Core.Models;
 using DeliveryProject.DataAccess.Entities;
 using DeliveryProject.DataAccess.Extensions;
@@ -30,16 +33,20 @@ public class DeliveryService : IDeliveryService
         await _unitOfWork.ExecuteInTransaction(async () =>
         {
             var deliveryTime = _deliveryTimeCalculatorService.CalculateDeliveryTime();
+            var deliveryPerson = await GetDeliveryPersonByTime(deliveryTime);
 
             var invoice = new InvoiceEntity
             {
                 Id = Guid.NewGuid(),
                 OrderId = orderId,
-                DeliveryTime = deliveryTime.ToUniversalTime(),
-                IsExecuted = false
+                DeliveryTime = deliveryTime,
+                IsExecuted = false,
+                DeliveryPersonId = deliveryPerson.Id,
             };
 
             await _unitOfWork.Invoices.AddInvoice(invoice);
+            
+            await AddDeliverySlot(deliveryPerson.Id, deliveryTime);
 
             _logger.LogInformation(InfoMessages.AddedInvoice, orderId);
         }, _logger);
@@ -63,5 +70,25 @@ public class DeliveryService : IDeliveryService
 
             _logger.LogInformation(InfoMessages.DeletedInvoice, orderId);
         }, _logger);
+    }
+    
+    private async Task<PersonEntity> GetDeliveryPersonByTime(DateTime deliveryTime)
+    {
+        var availableDeliveryPerson = await _unitOfWork.DeliveryPersons
+            .GetDeliveryPersonByTime(deliveryTime);
+
+        availableDeliveryPerson.ValidateEntity(ErrorMessages.NoAvailableDeliveryPersons,
+            ErrorCodes.NoAvailableDeliveryPersons);
+
+        return availableDeliveryPerson!;
+    }
+    
+    private async Task AddDeliverySlot(Guid deliveryPersonId, DateTime deliveryTime)
+    {
+        await _unitOfWork.DeliveryPersons.AddSlot(new DeliverySlotEntity
+        {
+            DeliveryPersonId = deliveryPersonId,
+            SlotTime = deliveryTime
+        });
     }
 }

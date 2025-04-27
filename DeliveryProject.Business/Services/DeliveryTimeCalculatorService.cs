@@ -8,6 +8,7 @@ public class DeliveryTimeCalculatorService : IDeliveryTimeCalculatorService
     
     public DateTime CalculateDeliveryTime()
     {
-        return new DateTime(2027, 5, 5, _random.Next(0, 24), _random.Next(0, 60), 0);
+        return new DateTime(2027, 5, 5, _random.Next(0, 24), _random.Next(0, 60), 0)
+            .ToUniversalTime();
     }
 }

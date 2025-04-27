@@ -6,6 +6,7 @@ public interface IUnitOfWork : IDisposable
     ICustomerRepository Customers { get; }
     IProductRepository Products { get; }
     IInvoiceRepository Invoices { get; }
+    IDeliveryPersonRepository DeliveryPersons { get; }
     
     
     Task BeginTransactionAsync();
