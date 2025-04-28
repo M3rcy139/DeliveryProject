@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using DeliveryProject.Attributes;
+using Microsoft.AspNetCore.Mvc;
 using DeliveryProject.Core.Models;
 using DeliveryProject.Core.Dto;
 using DeliveryProject.Business.Interfaces.Services;
@@ -20,6 +21,7 @@ namespace DeliveryProject.Controllers
             _deliveryService = deliveryService;
         }
 
+        [Transaction]
         [HttpPost("Order/Add")]
         public async Task<IActionResult> AddOrder([FromBody] OrderRequest model)
         {
@@ -49,6 +51,7 @@ namespace DeliveryProject.Controllers
             return Ok(order);
         }
 
+        [Transaction]
         [HttpPut("Order/Update")]
         public async Task<IActionResult> UpdateOrder([FromBody] OrderRequest model)
         {
@@ -62,6 +65,7 @@ namespace DeliveryProject.Controllers
             return Ok(new { message = string.Format(InfoMessages.UpdatedOrder, order.Id) });
         }
 
+        [Transaction]
         [HttpDelete("Order/Delete/{orderId}")]
         public async Task<IActionResult> DeleteOrder(Guid orderId)
         {

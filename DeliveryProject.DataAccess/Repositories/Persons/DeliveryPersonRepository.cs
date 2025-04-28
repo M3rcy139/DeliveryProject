@@ -27,7 +27,6 @@ namespace DeliveryProject.DataAccess.Repositories.Persons
         public async Task AddSlot(DeliverySlotEntity slot)
         {
             await _dbContext.DeliverySlots.AddAsync(slot);
-            await _dbContext.SaveChangesAsync();
         }
     }
 }

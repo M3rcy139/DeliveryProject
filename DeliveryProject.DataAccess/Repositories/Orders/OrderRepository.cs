@@ -17,7 +17,6 @@ namespace DeliveryProject.DataAccess.Repositories.Orders
             _dbContext.AttachRange(orderEntity.OrderProducts.Select(op => op.Product));
 
             await _dbContext.Orders.AddAsync(orderEntity);
-            await _dbContext.SaveChangesAsync();
 
             _orderCache[orderEntity.Id] = orderEntity;
         }
@@ -56,8 +55,6 @@ namespace DeliveryProject.DataAccess.Repositories.Orders
             var orderUpdater = new OrderUpdater(_dbContext);
             await orderUpdater.UpdateOrder(existingEntity, orderEntity);
 
-            await _dbContext.SaveChangesAsync();
-
             _orderCache[orderEntity.Id] = orderEntity;
         }
 
@@ -65,8 +62,6 @@ namespace DeliveryProject.DataAccess.Repositories.Orders
         {
             _dbContext.Orders.Attach(orderEntity); 
             _dbContext.Entry(orderEntity).Property(o => o.Status).IsModified = true;
-
-            await _dbContext.SaveChangesAsync();
         }
         
         public async Task DeleteOrder(Guid id)
@@ -74,7 +69,6 @@ namespace DeliveryProject.DataAccess.Repositories.Orders
             var order = await _dbContext.Orders.FindAsync(id);
             
             _dbContext.Orders.Remove(order!);
-            await _dbContext.SaveChangesAsync();
 
             _orderCache.Remove(id, out _);
         }

@@ -13,7 +13,6 @@ public class InvoiceRepository : IInvoiceRepository
     public async Task AddInvoice(InvoiceEntity invoiceEntity)
     {
         await _dbContext.Invoices.AddAsync(invoiceEntity);
-        await _dbContext.SaveChangesAsync();
     }
     
     public async Task<InvoiceEntity?> GetInvoiceByOrderId(Guid orderId)
@@ -35,6 +34,5 @@ public class InvoiceRepository : IInvoiceRepository
         var invoice = await _dbContext.Invoices.FindAsync(invoiceId);
         
         _dbContext.Invoices.Remove(invoice!);
-        await _dbContext.SaveChangesAsync();
     }
 }

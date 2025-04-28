@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using AutoMapper;
 using DeliveryProject.Business.Extensions;
 using DeliveryProject.Business.Interfaces.Services;
+using DeliveryProject.Business.Mediators;
 using DeliveryProject.Core.Constants;
 using DeliveryProject.Core.Constants.ErrorMessages;
 using DeliveryProject.DataAccess.Entities;
@@ -17,112 +18,91 @@ namespace DeliveryProject.Business.Services
 {
     public class OrderService : BaseService, IOrderService
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly MediatorHelper<OrderEntity> _orderMediator;
+        private readonly MediatorHelper<CustomerEntity> _customerMediator;
         private readonly ILogger<OrderService> _logger;
         private readonly IMapper _mapper;
 
         public OrderService(
-            IUnitOfWork unitOfWork,
+            MediatorHelper<OrderEntity> orderMediator,
+            MediatorHelper<CustomerEntity> customerMediator,
             ILogger<OrderService> logger,
             IMapper mapper)
         {
-            _unitOfWork = unitOfWork;
+            _orderMediator = orderMediator;
+            _customerMediator = customerMediator;
             _logger = logger;
             _mapper = mapper;
         }
 
         public async Task<Order> AddOrder(Order order, List<ProductDto> products)
         {
-            return await _unitOfWork.ExecuteInTransaction(async () =>
-            {
-                var customer = await _unitOfWork.Customers.GetCustomerById(order.OrderPersons.First().PersonId);
-                customer.ValidateEntity(ErrorMessages.CustomerNotFound, ErrorCodes.CustomerNotFound);
+            var customer = await _customerMediator.GetEntityById(order.OrderPersons.First().PersonId);
+            
+            var orderProducts = await GetOrderProducts(order, products);
 
-                var orderProducts = await GetOrderProducts(order, products);
-                var amount = orderProducts.CalculateOrderAmount();
+            var amount = orderProducts.CalculateOrderAmount();
+            
+            var orderEntity = BuildNewOrderEntity(order, customer!, orderProducts, amount);
+            
+            await _orderMediator.AddEntity(orderEntity);
 
-                var orderEntity = BuildNewOrderEntity(order, customer!, orderProducts, amount);
+            _logger.LogInformation(InfoMessages.AddedOrder, order.Id);
 
-                await _unitOfWork.Orders.AddOrder(orderEntity);
-
-                _logger.LogInformation(InfoMessages.AddedOrder, order.Id);
-                return _mapper.Map<Order>(orderEntity);
-            }, _logger);
+            return _mapper.Map<Order>(orderEntity);
         }
 
         public async Task<Order> GetOrderById(Guid orderId)
         {
-            return await _unitOfWork.ExecuteInTransaction(async () =>
-            {
-                var orderEntity = await _unitOfWork.Orders.GetOrderById(orderId);
-                orderEntity.ValidateEntity(ErrorMessages.OrderNotFound, ErrorCodes.NoOrdersFound);
+            var orderEntity = await _orderMediator.GetEntityById(orderId);
             
-                return _mapper.Map<Order>(orderEntity);
-            }, _logger);
-            
+            return _mapper.Map<Order>(orderEntity);
         }
 
         public async Task UpdateOrderProducts(Order order, List<ProductDto> products)
         {
-            await _unitOfWork.ExecuteInTransaction(async () =>
-            {
-                var updatedOrder = await _unitOfWork.Orders.GetOrderById(order.Id);
-                updatedOrder.ValidateEntity(ErrorMessages.OrderNotFound, ErrorCodes.NoOrdersFound);
+            var updatedOrder = await _orderMediator.GetEntityById(order.Id);
+            
+            var orderProducts = await GetOrderProducts(order, products);
+            
+            decimal amount = orderProducts.CalculateOrderAmount();
+            
+            BuildUpdatedOrderEntity(updatedOrder!, orderProducts, amount);
+            
+            await _orderMediator.UpdateOrderProducts(updatedOrder);
 
-                var orderProducts = await GetOrderProducts(order, products);
-                decimal amount = orderProducts.CalculateOrderAmount();
-
-                BuildUpdatedOrderEntity(updatedOrder!, orderProducts, amount);
-
-                await _unitOfWork.Orders.UpdateOrderProducts(updatedOrder!);
-
-                _logger.LogInformation(InfoMessages.UpdatedOrder, updatedOrder.Id);
-            }, _logger);
+            _logger.LogInformation(InfoMessages.UpdatedOrder, updatedOrder.Id);
         }
 
         public async Task UpdateOrderStatus(Guid orderId, OrderStatus status)
         {
-            await _unitOfWork.ExecuteInTransaction(async () =>
-            {
-                var order = await _unitOfWork.Orders.GetOrderById(orderId);
-                order.ValidateEntity(ErrorMessages.OrderNotFound, ErrorCodes.NoOrdersFound);
-
-                order!.Status = status;
-
-                await _unitOfWork.Orders.UpdateOrderStatus(order);
-
-                _logger.LogInformation(InfoMessages.UpdatedOrderStatus, order.Id);
-            }, _logger);
+            var order = await _orderMediator.GetEntityById(orderId);
+            
+            order.Status = status;
+            
+            await _orderMediator.UpdateOrderStatus(order);
+            
+            _logger.LogInformation(InfoMessages.UpdatedOrderStatus, order.Id);
         }
 
         public async Task DeleteOrder(Guid orderId)
         {
-            await _unitOfWork.ExecuteInTransaction(async () =>
-            {
-                var order = await _unitOfWork.Orders.GetOrderById(orderId);
-                order.ValidateEntity(ErrorMessages.OrderNotFound, ErrorCodes.NoOrdersFound);
-
-                await _unitOfWork.Orders.DeleteOrder(orderId);
-                _logger.LogInformation(InfoMessages.DeletedOrder, orderId);
-            }, _logger);
+            await _orderMediator.DeleteEntityById(orderId);
+            
+            _logger.LogInformation(InfoMessages.DeletedOrder, orderId);
         }
 
         public Task<List<Order>> GetAllOrders(OrderSortField? sortBy, bool descending)
         {
             return Task.Factory.StartNew(async () =>
             {
-                var orders = await _unitOfWork.ExecuteInTransaction(async () =>
-                {
-                    var ordersList = await _unitOfWork.Orders.GetAllOrders();
-            
-                    if (sortBy != null)
-                    {
-                        var sortedOrders = GetSortDelegate(sortBy, descending);
-                        ordersList = sortedOrders?.Invoke(ordersList) ?? ordersList;
-                    }
+                var orders = await _orderMediator.GetAllOrders();
 
-                    return ordersList.IsNullOrEmpty() ? new List<OrderEntity>() : ordersList;
-                }, _logger);
+                if (sortBy != null)
+                {
+                    var sortedOrders = GetSortDelegate(sortBy, descending);
+                    orders = sortedOrders?.Invoke(orders) ?? orders;
+                }
 
                 _logger.LogInformation(InfoMessages.AllOrdersReceived, orders.Count);
 
@@ -165,9 +145,8 @@ namespace DeliveryProject.Business.Services
         
         private async Task<List<OrderProductEntity>> GetOrderProducts(Order order, List<ProductDto> products)
         {
-            var productEntities = await _unitOfWork.Products.GetProductsById(
+            var productEntities = await _orderMediator.GetProductsByIds(
                 products.Select(p => p.ProductId).Distinct().ToList());
-            productEntities.ValidateEntities(ErrorMessages.ProductNotFound, ErrorCodes.ProductNotFound);
 
             var orderProducts = products
                 .Select(p => new OrderProductEntity
