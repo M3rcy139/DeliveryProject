@@ -1,3 +1,4 @@
+using DeliveryProject.Attributes;
 using DeliveryProject.Business.Interfaces.Services;
 using DeliveryProject.Core.Constants.InfoMessages;
 using DeliveryProject.Core.Enums;
@@ -18,6 +19,7 @@ namespace DeliveryProject.Controllers
             _orderService = orderService;
         }
         
+        [Transaction]
         [HttpPost("Invoice/Add")]
         public async Task<IActionResult> AddInvoice(Guid orderId)
         {

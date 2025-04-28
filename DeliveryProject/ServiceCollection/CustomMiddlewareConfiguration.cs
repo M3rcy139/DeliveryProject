@@ -8,6 +8,7 @@ namespace DeliveryProject.ServiceCollection
         {
             app.UseMiddleware<HttpLoggerMiddleware>();
             app.UseMiddleware<ExceptionHandlingMiddleware>();
+            app.UseMiddleware<DbTransactionMiddleware>();
 
             return app;
         }
