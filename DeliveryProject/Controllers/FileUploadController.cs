@@ -1,4 +1,5 @@
-﻿using DeliveryProject.DataAccess.Interfaces;
+﻿using DeliveryProject.Attributes;
+using DeliveryProject.DataAccess.Interfaces;
 using DeliveryProject.DataAccess.Enums;
 using Microsoft.AspNetCore.Mvc;
 
@@ -15,6 +16,7 @@ namespace DeliveryProject.Controllers
             _fileUploadProcessor = fileUploadProcessor;
         }
 
+        [Transaction]
         [HttpPost("Upload")]
         public async Task<IActionResult> UploadFile(IFormFile file, [FromQuery] UploadType uploadType)
         {

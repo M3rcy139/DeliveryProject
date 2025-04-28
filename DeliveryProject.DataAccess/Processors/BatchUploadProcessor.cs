@@ -21,18 +21,14 @@ namespace DeliveryProject.DataAccess.Processors
     {
         private readonly IBatchUploadRepository _batchUploadRepository;
         private readonly IAttributeRepository _attributeRepository;
-        private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger<BatchUploadProcessor> _logger;
         private readonly int _batchSize;
         private Dictionary<AttributeKey, int> _attributeIds;
 
-        public BatchUploadProcessor(IBatchUploadRepository batchUploadRepository, 
-            IUnitOfWork unitOfWork,
-            ILogger<BatchUploadProcessor> logger,
+        public BatchUploadProcessor(IBatchUploadRepository batchUploadRepository, ILogger<BatchUploadProcessor> logger,
             IConfiguration configuration, IAttributeRepository attributeRepository)
         {
             _batchUploadRepository = batchUploadRepository;
-            _unitOfWork = unitOfWork;
             _logger = logger;
             _batchSize = configuration.GetValue<int>("BatchProcessing:BatchSize");
             _attributeRepository = attributeRepository;
@@ -40,27 +36,23 @@ namespace DeliveryProject.DataAccess.Processors
 
         public async Task ProcessUploadAsync(BatchUpload upload)
         {
-            await _unitOfWork.ExecuteInTransaction(async () =>
+            upload.Status = UploadStatus.Processing;
+            await _batchUploadRepository.UpdateAsync(upload);
+
+            try
             {
-                upload.Status = UploadStatus.Processing;
-                await _batchUploadRepository.UpdateAsync(upload);
+                await GetAttributeIds();
+                await ProcessBatchUploadAsync(upload);
+                upload.Status = UploadStatus.Completed;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, BatchUploadErrorMessages.UploadError, upload.Id);
+                upload.Status = UploadStatus.Failed;
+            }
 
-                try
-                {
-                    await GetAttributeIds();
-                    await ProcessBatchUploadAsync(upload);
-                    upload.Status = UploadStatus.Completed;
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, BatchUploadErrorMessages.UploadError, upload.Id);
-                    upload.Status = UploadStatus.Failed;
-                    throw;
-                }
-
-                await _batchUploadRepository.UpdateAsync(upload);
-                _logger.LogInformation(BatchUploadInfoMessages.ProcessIsCompleted);
-            }, _logger);
+            await _batchUploadRepository.UpdateAsync(upload);
+            _logger.LogInformation(BatchUploadInfoMessages.ProcessIsCompleted);
         }
 
         private async Task GetAttributeIds()

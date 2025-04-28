@@ -32,7 +32,6 @@ namespace DeliveryProject.DataAccess.Repositories.BatchUpload
         public async Task AddAsync(Entities.BatchUpload batchUpload)
         {
             await _dbContext.BatchUploads.AddAsync(batchUpload);
-            await _dbContext.SaveChangesAsync();
         }
 
         public async Task UpdateAsync(Entities.BatchUpload upload)
