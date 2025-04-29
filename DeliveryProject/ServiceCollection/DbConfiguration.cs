@@ -9,16 +9,26 @@ namespace DeliveryProject.ServiceCollection
         public static void AddDbServices(this IServiceCollection services, IConfiguration configuration)
         {
             var connectionString = configuration.GetConnectionString(nameof(DeliveryDbContext));
+            
+            var optionsBuilder = new DbContextOptionsBuilder<DeliveryDbContext>();
+            optionsBuilder.UseNpgsql(connectionString, b => b.MigrationsAssembly("DeliveryProject.Migrations"));
 
-            services.AddDbContext<DeliveryDbContext>(options =>
-                options.UseNpgsql(connectionString, b => b.MigrationsAssembly("DeliveryProject.Migrations"))
-            );
-
-            services.AddScoped<IDbContextFactory<DeliveryDbContext>>(provider =>
+            var dbContextOptions = optionsBuilder.Options;
+            
+            services.AddSingleton(dbContextOptions);
+            services.AddSingleton<DeliveryDbContext>(provider =>
             {
                 var options = provider.GetRequiredService<DbContextOptions<DeliveryDbContext>>();
-                return new PooledDbContextFactory<DeliveryDbContext>(options);
+                return new DeliveryDbContext(options);
             });
+            
+            services.AddSingleton<IDbContextFactory<DeliveryDbContext>>(
+                provider => new PooledDbContextFactory<DeliveryDbContext>(
+                    new DbContextOptionsBuilder<DeliveryDbContext>()
+                        .UseNpgsql(configuration.GetConnectionString(nameof(DeliveryDbContext)))
+                        .Options
+                )
+            );
         }
     }
 }

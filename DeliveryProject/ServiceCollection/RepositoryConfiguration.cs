@@ -12,16 +12,16 @@ namespace DeliveryProject.ServiceCollection
     {
         public static void AddRepositories(this IServiceCollection services)
         {
-            services.AddScoped<IOrderRepository, OrderRepository>();
-            services.AddScoped<IInvoiceRepository, InvoiceRepository>();
-            services.AddScoped<ISupplierRepository, SupplierRepository>();
-            services.AddScoped<IDeliveryPersonRepository, DeliveryPersonRepository>();
-            services.AddScoped<IProductRepository, ProductRepository>();
-            services.AddScoped<ICustomerRepository, CustomerRepository>();
-            services.AddScoped<IAttributeRepository, AttributeRepository>();
-            services.AddScoped<IAttributeValueRepository, AttributeValueRepository>();
+            services.AddSingleton<IOrderRepository, OrderRepository>();
+            services.AddSingleton<IInvoiceRepository, InvoiceRepository>();
+            services.AddSingleton<ISupplierRepository, SupplierRepository>();
+            services.AddSingleton<IDeliveryPersonRepository, DeliveryPersonRepository>();
+            services.AddSingleton<IProductRepository, ProductRepository>();
+            services.AddSingleton<ICustomerRepository, CustomerRepository>();
+            services.AddSingleton<IAttributeRepository, AttributeRepository>();
+            services.AddSingleton<IAttributeValueRepository, AttributeValueRepository>();
 
-            services.AddScoped<IBatchUploadRepository, BatchUploadRepository>();
+            services.AddSingleton<IBatchUploadRepository, BatchUploadRepository>();
         }
     }
 }
