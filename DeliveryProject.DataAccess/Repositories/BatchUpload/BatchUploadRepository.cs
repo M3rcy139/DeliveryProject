@@ -13,57 +13,62 @@ namespace DeliveryProject.DataAccess.Repositories.BatchUpload
 {
     public class BatchUploadRepository : IBatchUploadRepository
     {
-        private readonly DeliveryDbContext _dbContext;
+        private readonly IDbContextFactory<DeliveryDbContext> _dbContextFactory;
         private readonly ILogger<BatchUploadRepository> _logger;
 
-        public BatchUploadRepository(DeliveryDbContext dbContext, ILogger<BatchUploadRepository> logger)
+        public BatchUploadRepository(IDbContextFactory<DeliveryDbContext> dbContextFactory, ILogger<BatchUploadRepository> logger)
         {
-            _dbContext = dbContext;
+            _dbContextFactory = dbContextFactory;
             _logger = logger;
         }
 
         public async Task<List<Entities.BatchUpload>> GetPendingUploadsAsync()
         {
-            return await _dbContext.BatchUploads
+            await using var dbContext = await _dbContextFactory.CreateDbContextAsync();
+            
+            return await dbContext.BatchUploads
                 .Where(u => u.Status == UploadStatus.Pending)
                 .ToListAsync();
         }
 
-        public async Task AddAsync(Entities.BatchUpload batchUpload)
-        {
-            await _dbContext.BatchUploads.AddAsync(batchUpload);
-        }
-
         public async Task UpdateAsync(Entities.BatchUpload upload)
         {
-            _dbContext.BatchUploads.Update(upload);
-            await _dbContext.SaveChangesAsync();
+            await using var dbContext = await _dbContextFactory.CreateDbContextAsync();
+            
+            dbContext.BatchUploads.Update(upload);
+            await dbContext.SaveChangesAsync();
         }
 
         public async Task InsertIntoTempTableAsync<TDto, TEntity>(List<TDto> validRecords,
             Func<TDto, TEntity> entityMapper
         ) where TEntity : class
         {
+            await using var dbContext = await _dbContextFactory.CreateDbContextAsync();
+
             var entities = validRecords.Select(entityMapper).ToList();
 
-            await _dbContext.BulkInsertAsync(entities);
+            await dbContext.BulkInsertAsync(entities);
         }
 
         public async Task SaveErrorsAsync(List<UploadError> errorEntities)
         {
-            await _dbContext.BulkInsertAsync(errorEntities);
+            await using var dbContext = await _dbContextFactory.CreateDbContextAsync();
+
+            await dbContext.BulkInsertAsync(errorEntities);
         }
 
         public async Task<HashSet<string>> GetExistingPhoneNumbersAsync<TPerson>(List<string> phoneNumbers) where TPerson : PersonEntity
         {
-            var phoneNumberAttributeId = await _dbContext.Attributes
+            await using var dbContext = await _dbContextFactory.CreateDbContextAsync();
+
+            var phoneNumberAttributeId = await dbContext.Attributes
                 .Where(a => a.Key == AttributeKey.PhoneNumber)
                 .Select(a => a.Id)
                 .FirstOrDefaultAsync();
 
-            var existingPhoneNumbers = await _dbContext.AttributeValues
+            var existingPhoneNumbers = await dbContext.AttributeValues
                 .Where(av => av.AttributeId == phoneNumberAttributeId && phoneNumbers.Contains(av.Value)
-                    && av.Person is TPerson)
+                                                                      && av.Person is TPerson)
                 .Select(av => av.Value)
                 .ToListAsync();
 
@@ -72,9 +77,11 @@ namespace DeliveryProject.DataAccess.Repositories.BatchUpload
 
         public async Task ExecuteMergeProcedureAsync(string tableName)
         {
+            await using var dbContext = await _dbContextFactory.CreateDbContextAsync();
+            
             try
             {
-                await _dbContext.Database.ExecuteSqlRawAsync($"CALL Merge{tableName}();");
+                await dbContext.Database.ExecuteSqlRawAsync($"CALL Merge{tableName}();");
                 _logger.LogInformation(BatchUploadInfoMessages.MergeIsCompleted);
             }
             catch (Exception ex)

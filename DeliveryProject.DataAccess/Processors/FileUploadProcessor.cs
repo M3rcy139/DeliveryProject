@@ -12,13 +12,13 @@ namespace DeliveryProject.DataAccess.Processors
 {
     public class FileUploadProcessor : IFileUploadProcessor
     {
-        private readonly IBatchUploadRepository _batchUploadRepository;
+        private readonly IFileUploadRepository _fileUploadRepository;
         private readonly string _uploadFolder = "uploads";
         private readonly ILogger<FileUploadProcessor> _logger;
 
-        public FileUploadProcessor(IBatchUploadRepository batchUploadRepository, ILogger<FileUploadProcessor> logger)
+        public FileUploadProcessor(IFileUploadRepository fileUploadRepository, ILogger<FileUploadProcessor> logger)
         {
-            _batchUploadRepository = batchUploadRepository;
+            _fileUploadRepository = fileUploadRepository;
             _logger = logger;
         }
 
@@ -40,7 +40,7 @@ namespace DeliveryProject.DataAccess.Processors
             _logger.LogInformation(BatchUploadInfoMessages.FileIsSaved, file.FileName, filePath);
 
             var batchUpload = CreateBatchUpload(file, filePath, uploadType);
-            await _batchUploadRepository.AddAsync(batchUpload);
+            await _fileUploadRepository.AddAsync(batchUpload);
             return batchUpload;
         }
 
