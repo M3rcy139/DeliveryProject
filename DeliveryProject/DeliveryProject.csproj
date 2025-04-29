@@ -5,6 +5,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
 	  <PreserveCompilationContext>true</PreserveCompilationContext>
+    <IsPackable>true</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>
@@ -18,6 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Azure.Identity" Version="1.12.0" />
     <PackageReference Include="FluentValidation.AspNetCore" Version="11.3.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.11">
       <PrivateAssets>all</PrivateAssets>
@@ -26,16 +28,19 @@
     <PackageReference Include="NLog" Version="5.3.4" />
     <PackageReference Include="NLog.Web.AspNetCore" Version="5.3.15" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
+    <PackageReference Include="System.Text.Json" Version="8.0.5" />
+    <PackageReference Include="System.Text.RegularExpressions" Version="4.3.1" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\DeliveryProject.API\DeliveryProject.API.csproj" />
-    <ProjectReference Include="..\DeliveryProject.Application\DeliveryProject.Bussiness.csproj" />
     <ProjectReference Include="..\DeliveryProject.Bussiness\DeliveryProject.Bussiness.csproj" />
     <ProjectReference Include="..\DeliveryProject.Core\DeliveryProject.Core.csproj" />
     <ProjectReference Include="..\DeliveryProject.DataAccess\DeliveryProject.DataAccess.csproj" />
     <ProjectReference Include="..\DeliveryProject.Migrations\DeliveryProject.Migrations.csproj" />
-    <ProjectReference Include="..\DeliveryProject.Persistence\DeliveryProject.DataAccess.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="uploads\" />
   </ItemGroup>
 
 </Project>
