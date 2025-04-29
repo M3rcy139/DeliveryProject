@@ -4,15 +4,11 @@ using AutoMapper;
 using DeliveryProject.Business.Extensions;
 using DeliveryProject.Business.Interfaces.Services;
 using DeliveryProject.Business.Mediators;
-using DeliveryProject.Core.Constants;
-using DeliveryProject.Core.Constants.ErrorMessages;
 using DeliveryProject.DataAccess.Entities;
 using DeliveryProject.Core.Enums;
 using DeliveryProject.Core.Constants.InfoMessages;
 using DeliveryProject.Core.Dto;
 using DeliveryProject.Core.Extensions;
-using DeliveryProject.DataAccess.Interfaces;
-using DeliveryProject.DataAccess.Extensions;
 
 namespace DeliveryProject.Business.Services
 {

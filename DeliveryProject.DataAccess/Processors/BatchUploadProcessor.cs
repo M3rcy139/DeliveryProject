@@ -13,7 +13,6 @@ using Microsoft.Extensions.Configuration;
 using DeliveryProject.DataAccess.Mappings;
 using DeliveryProject.Core.Enums;
 using DeliveryProject.DataAccess.Interfaces.BatchUploads;
-using DeliveryProject.DataAccess.Extensions;
 
 namespace DeliveryProject.DataAccess.Processors
 {
