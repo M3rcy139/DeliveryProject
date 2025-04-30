@@ -7,14 +7,12 @@ namespace DeliveryProject.DataAccess.Repositories.Attributes
 {
     public class AttributeValueRepository : IAttributeValueRepository
     {
-        private readonly IDbContextFactory<DeliveryDbContext> _contextFactory;
+        private readonly DeliveryDbContext _dbContext;
 
-        public AttributeValueRepository(IDbContextFactory<DeliveryDbContext> contextFactory) => _contextFactory = contextFactory;
+        public AttributeValueRepository(DeliveryDbContext dbContext) => _dbContext = dbContext;
 
         public async Task SetAttributeValue(Guid personId, AttributeKey attributeKey, string? value)
         {
-            await using var dbContext = await _contextFactory.CreateDbContextAsync();
-
             var newAttributeValue = new AttributeValueEntity
             {
                 Id = Guid.NewGuid(),
@@ -22,16 +20,14 @@ namespace DeliveryProject.DataAccess.Repositories.Attributes
                 AttributeId = (int)attributeKey, 
                 Value = value
             };
-            dbContext.AttributeValues.Add(newAttributeValue);
+            _dbContext.AttributeValues.Add(newAttributeValue);
 
-            dbContext.SaveChanges();
+            _dbContext.SaveChanges();
         }
 
         public async Task<string?> GetAttributeValue(Guid personId, AttributeKey attributeKey)
         {
-            await using var dbContext = await _contextFactory.CreateDbContextAsync();
-
-            var attribute = dbContext.AttributeValues
+            var attribute = _dbContext.AttributeValues
                 .FirstOrDefault(av => av.PersonId == personId && av.Attribute.Key == attributeKey);
 
             return attribute?.Value;

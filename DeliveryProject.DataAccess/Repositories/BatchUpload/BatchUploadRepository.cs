@@ -13,62 +13,52 @@ namespace DeliveryProject.DataAccess.Repositories.BatchUpload
 {
     public class BatchUploadRepository : IBatchUploadRepository
     {
-        private readonly IDbContextFactory<DeliveryDbContext> _dbContextFactory;
+        private readonly DeliveryDbContext _dbContext;
         private readonly ILogger<BatchUploadRepository> _logger;
 
-        public BatchUploadRepository(IDbContextFactory<DeliveryDbContext> dbContextFactory, ILogger<BatchUploadRepository> logger)
+        public BatchUploadRepository(DeliveryDbContext dbContext, ILogger<BatchUploadRepository> logger)
         {
-            _dbContextFactory = dbContextFactory;
+            _dbContext = dbContext;
             _logger = logger;
         }
 
         public async Task<List<Entities.BatchUpload>> GetPendingUploadsAsync()
         {
-            await using var dbContext = await _dbContextFactory.CreateDbContextAsync();
-            
-            return await dbContext.BatchUploads
+            return await _dbContext.BatchUploads
                 .Where(u => u.Status == UploadStatus.Pending)
                 .ToListAsync();
         }
 
         public async Task UpdateAsync(Entities.BatchUpload upload)
         {
-            await using var dbContext = await _dbContextFactory.CreateDbContextAsync();
-            
-            dbContext.BatchUploads.Update(upload);
-            await dbContext.SaveChangesAsync();
+            _dbContext.BatchUploads.Update(upload);
+            await _dbContext.SaveChangesAsync();
         }
 
         public async Task InsertIntoTempTableAsync<TDto, TEntity>(List<TDto> validRecords,
             Func<TDto, TEntity> entityMapper
         ) where TEntity : class
         {
-            await using var dbContext = await _dbContextFactory.CreateDbContextAsync();
-
             var entities = validRecords.Select(entityMapper).ToList();
 
-            await dbContext.BulkInsertAsync(entities);
+            await _dbContext.BulkInsertAsync(entities);
         }
 
         public async Task SaveErrorsAsync(List<UploadError> errorEntities)
         {
-            await using var dbContext = await _dbContextFactory.CreateDbContextAsync();
-
-            await dbContext.BulkInsertAsync(errorEntities);
+            await _dbContext.BulkInsertAsync(errorEntities);
         }
 
         public async Task<HashSet<string>> GetExistingPhoneNumbersAsync<TPerson>(List<string> phoneNumbers) where TPerson : PersonEntity
         {
-            await using var dbContext = await _dbContextFactory.CreateDbContextAsync();
-
-            var phoneNumberAttributeId = await dbContext.Attributes
+            var phoneNumberAttributeId = await _dbContext.Attributes
                 .Where(a => a.Key == AttributeKey.PhoneNumber)
                 .Select(a => a.Id)
                 .FirstOrDefaultAsync();
 
-            var existingPhoneNumbers = await dbContext.AttributeValues
+            var existingPhoneNumbers = await _dbContext.AttributeValues
                 .Where(av => av.AttributeId == phoneNumberAttributeId && phoneNumbers.Contains(av.Value)
-                                                                      && av.Person is TPerson)
+                    && av.Person is TPerson)
                 .Select(av => av.Value)
                 .ToListAsync();
 
@@ -77,11 +67,9 @@ namespace DeliveryProject.DataAccess.Repositories.BatchUpload
 
         public async Task ExecuteMergeProcedureAsync(string tableName)
         {
-            await using var dbContext = await _dbContextFactory.CreateDbContextAsync();
-            
             try
             {
-                await dbContext.Database.ExecuteSqlRawAsync($"CALL Merge{tableName}();");
+                await _dbContext.Database.ExecuteSqlRawAsync($"CALL Merge{tableName}();");
                 _logger.LogInformation(BatchUploadInfoMessages.MergeIsCompleted);
             }
             catch (Exception ex)
