@@ -19,11 +19,15 @@ namespace DeliveryProject.DataAccess.Repositories.Persons
 
         public async Task<List<SupplierEntity>> GetSuppliersByProductIdsAsync(List<Guid> productIds)
         {
-            return await _dbContext.Products
+            var supplierIds = await _dbContext.Products
                 .Where(p => productIds.Contains(p.Id))
                 .Select(p => p.SupplierId)
-                .OfType<SupplierEntity>()
                 .Distinct()
+                .ToListAsync();
+
+            return await _dbContext.Persons
+                .OfType<SupplierEntity>()
+                .Where(s => supplierIds.Contains(s.Id))
                 .ToListAsync();
         }
     }
