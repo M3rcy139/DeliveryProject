@@ -8,8 +8,13 @@ namespace DeliveryProject.DataAccess.Repositories.Orders
     {
         private readonly DeliveryDbContext _dbContext;
         private readonly Dictionary<Guid, OrderEntity> _orderCache = new();
+        private readonly OrderUpdater _orderUpdater;
 
-        public OrderRepository(DeliveryDbContext dbContext) => _dbContext = dbContext;
+        public OrderRepository(DeliveryDbContext dbContext)
+        {
+            _dbContext = dbContext;
+            _orderUpdater = new OrderUpdater(_dbContext);
+        }
 
         public async Task AddOrder(OrderEntity orderEntity)
         {
@@ -51,9 +56,8 @@ namespace DeliveryProject.DataAccess.Repositories.Orders
                 .FirstAsync(o => o.Id == orderEntity.Id);
 
             _dbContext.Entry(existingEntity).CurrentValues.SetValues(orderEntity);
-
-            var orderUpdater = new OrderUpdater(_dbContext);
-            await orderUpdater.UpdateOrder(existingEntity, orderEntity);
+            
+            await _orderUpdater.UpdateOrder(existingEntity, orderEntity);
 
             _orderCache[orderEntity.Id] = orderEntity;
         }
