@@ -62,7 +62,7 @@ namespace DeliveryProject.DataAccess.Repositories.Orders
             _orderCache[orderEntity.Id] = orderEntity;
         }
 
-        public async Task UpdateOrderStatus(OrderEntity orderEntity)
+        public void UpdateOrderStatus(OrderEntity orderEntity)
         {
             _dbContext.Orders.Attach(orderEntity); 
             _dbContext.Entry(orderEntity).Property(o => o.Status).IsModified = true;

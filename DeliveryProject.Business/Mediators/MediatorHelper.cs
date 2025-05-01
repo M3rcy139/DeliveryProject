@@ -85,9 +85,9 @@ namespace DeliveryProject.Business.Mediators
             await _orderRepository.UpdateOrderProducts(order);
         }
 
-        public async Task UpdateOrderStatus(OrderEntity order)
+        public void UpdateOrderStatus(OrderEntity order)
         {
-            await _orderRepository.UpdateOrderStatus(order);
+            _orderRepository.UpdateOrderStatus(order);
         }
 
         private async Task AddOrder(OrderEntity orderEntity)

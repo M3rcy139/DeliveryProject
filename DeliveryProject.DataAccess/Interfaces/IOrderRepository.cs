@@ -7,7 +7,7 @@ namespace DeliveryProject.DataAccess.Interfaces
         Task AddOrder(OrderEntity order);
         Task<OrderEntity?> GetOrderById(Guid id);
         Task UpdateOrderProducts(OrderEntity orderEntity);
-        Task UpdateOrderStatus(OrderEntity orderEntity);
+        void UpdateOrderStatus(OrderEntity orderEntity);
         Task DeleteOrder(Guid id);
         Task<List<OrderEntity>> GetAllOrders();
     }
