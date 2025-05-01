@@ -38,7 +38,7 @@ public class DeliveryService : IDeliveryService
         
         await _invoiceMediator.AddEntity(invoice);
         
-        _logger.LogInformation(InfoMessages.AddedInvoice, orderId);
+        _logger.LogInformation(InfoMessages.AddedInvoiceDetail + "{@InvoiceEntity}.", invoice);
     }
 
     public async Task<Invoice> GetInvoice(Guid orderId)
@@ -52,6 +52,6 @@ public class DeliveryService : IDeliveryService
     {
         await _invoiceMediator.DeleteEntityById(orderId);
         
-        _logger.LogInformation(InfoMessages.DeletedInvoice, orderId);
+        _logger.LogInformation(InfoMessages.DeletedInvoiceDetail + "{@InvoiceEntity}.", orderId);
     }
 }

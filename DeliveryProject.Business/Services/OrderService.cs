@@ -43,7 +43,7 @@ namespace DeliveryProject.Business.Services
             
             await _orderMediator.AddEntity(orderEntity);
 
-            _logger.LogInformation(InfoMessages.AddedOrder, order.Id);
+            _logger.LogInformation(InfoMessages.AddedOrderDetail + "{@OrderEntity}.", orderEntity);
 
             return _mapper.Map<Order>(orderEntity);
         }
@@ -67,7 +67,7 @@ namespace DeliveryProject.Business.Services
             
             await _orderMediator.UpdateOrderProducts(updatedOrder);
 
-            _logger.LogInformation(InfoMessages.UpdatedOrder, updatedOrder.Id);
+            _logger.LogInformation(InfoMessages.UpdatedOrderDetail + "{@OrderEntity}.", updatedOrder.Id);
         }
 
         public async Task UpdateOrderStatus(Guid orderId, OrderStatus status)
@@ -78,14 +78,14 @@ namespace DeliveryProject.Business.Services
             
             await _orderMediator.UpdateOrderStatus(order);
             
-            _logger.LogInformation(InfoMessages.UpdatedOrderStatus, order.Id);
+            _logger.LogInformation(InfoMessages.UpdatedOrderStatusDetail + "{@OrderEntity}.", order.Id);
         }
 
         public async Task DeleteOrder(Guid orderId)
         {
             await _orderMediator.DeleteEntityById(orderId);
             
-            _logger.LogInformation(InfoMessages.DeletedOrder, orderId);
+            _logger.LogInformation(InfoMessages.DeletedOrderDetail + "{@OrderEntity}.", orderId);
         }
 
         public Task<List<Order>> GetAllOrders(OrderSortField? sortBy, bool descending)
