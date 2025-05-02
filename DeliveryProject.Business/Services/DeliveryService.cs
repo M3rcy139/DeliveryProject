@@ -27,16 +27,20 @@ public class DeliveryService : IDeliveryService
     public async Task AddInvoice(Guid orderId)
     {
         var deliveryTime = _deliveryTimeCalculatorService.CalculateDeliveryTime();
-
+        var availableDeliveryPerson = await _invoiceMediator.GetDeliveryPersonByTime(deliveryTime);
+        
         var invoice =  new InvoiceEntity
         {
             Id = Guid.NewGuid(),
             OrderId = orderId,
             DeliveryTime = deliveryTime.ToUniversalTime(),
-            IsExecuted = false
+            IsExecuted = false,
+            DeliveryPersonId = availableDeliveryPerson.Id,
         };
         
         await _invoiceMediator.AddEntity(invoice);
+        
+        await _invoiceMediator.AddDeliverySlot(availableDeliveryPerson.Id, deliveryTime);
         
         _logger.LogInformation(InfoMessages.AddedInvoiceDetail + "{@InvoiceEntity}.", invoice);
     }

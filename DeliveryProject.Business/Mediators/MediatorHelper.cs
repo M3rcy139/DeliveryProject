@@ -1,31 +1,29 @@
+using DeliveryProject.Business.DomainServices;
 using DeliveryProject.Core.Constants.ErrorMessages;
-using DeliveryProject.Core.Constants;
 using DeliveryProject.DataAccess.Entities;
-using DeliveryProject.Core.Extensions;
-using DeliveryProject.DataAccess.Interfaces;
 
 namespace DeliveryProject.Business.Mediators
 {
     public class MediatorHelper<TEntity> where TEntity : class
     {
-        private readonly IOrderRepository _orderRepository;
-        private readonly IInvoiceRepository _invoiceRepository;
-        private readonly IDeliveryPersonRepository _deliveryPersonRepository;
-        private readonly ICustomerRepository _customerRepository;
-        private readonly IProductRepository _productRepository;
+        private readonly OrderDomainService _orderDomainService;
+        private readonly CustomerDomainService _customerDomainService;
+        private readonly ProductDomainService _productDomainService;
+        private readonly InvoiceDomainService _invoiceDomainService;
+        private readonly DeliveryPersonDomainService _deliveryPersonDomainService;
 
         public MediatorHelper(
-            IOrderRepository orderRepository,
-            IInvoiceRepository invoiceRepository,
-            IDeliveryPersonRepository deliveryPersonRepository,
-            ICustomerRepository customerRepository,
-            IProductRepository productRepository)
+            OrderDomainService orderDomainService,
+            CustomerDomainService customerDomainService,
+            ProductDomainService productDomainService,
+            InvoiceDomainService invoiceDomainService,
+            DeliveryPersonDomainService deliveryPersonDomainService)
         {
-            _orderRepository = orderRepository;
-            _invoiceRepository = invoiceRepository;
-            _deliveryPersonRepository = deliveryPersonRepository;
-            _customerRepository = customerRepository;
-            _productRepository = productRepository;
+            _orderDomainService = orderDomainService;
+            _customerDomainService = customerDomainService;
+            _productDomainService = productDomainService;
+            _invoiceDomainService = invoiceDomainService;
+            _deliveryPersonDomainService = deliveryPersonDomainService;
         }
 
         public async Task AddEntity(TEntity entity)
@@ -33,9 +31,9 @@ namespace DeliveryProject.Business.Mediators
             await (typeof(TEntity) switch
             {
                 var t when t == typeof(OrderEntity) =>
-                    AddOrder((entity as OrderEntity)!),
+                    _orderDomainService.AddOrder((entity as OrderEntity)!),
                 var t when t == typeof(InvoiceEntity) =>
-                    AddInvoice((entity as InvoiceEntity)!),
+                    _invoiceDomainService.AddInvoice((entity as InvoiceEntity)!),
                 _ => throw new ArgumentException(ErrorMessages.NotSupportedEntityType, typeof(TEntity).Name)
             });
         }
@@ -45,11 +43,11 @@ namespace DeliveryProject.Business.Mediators
             return typeof(TEntity) switch
             {
                 var t when t == typeof(CustomerEntity) =>
-                    (await GetCustomerById(id) as TEntity)!,
+                    (await _customerDomainService.GetCustomerById(id) as TEntity)!,
                 var t when t == typeof(OrderEntity) =>
-                    (await GetOrderById(id) as TEntity)!,
+                    (await _orderDomainService.GetOrderById(id) as TEntity)!,
                 var t when t == typeof(InvoiceEntity) =>
-                    (await GetInvoiceById(id) as TEntity)!,
+                    (await _invoiceDomainService.GetInvoiceById(id) as TEntity)!,
                 _ =>
                     throw new ArgumentException(ErrorMessages.NotSupportedEntityType, typeof(TEntity).Name)
             };
@@ -60,107 +58,41 @@ namespace DeliveryProject.Business.Mediators
             await (typeof(TEntity) switch
             {
                 var t when t == typeof(OrderEntity) =>
-                    DeleteOrder(id),
+                    _orderDomainService.DeleteOrder(id),
                 var t when t == typeof(InvoiceEntity) =>
-                    DeleteInvoice(id),
+                    _invoiceDomainService.DeleteInvoice(id),
                 _ => throw new ArgumentException(ErrorMessages.NotSupportedEntityType, typeof(TEntity).Name)
             });
         }
-        
+
+        public async Task AddDeliverySlot(Guid deliveryPersonId, DateTime deliveryTime)
+        {
+            await _deliveryPersonDomainService.AddDeliverySlot(deliveryPersonId, deliveryTime);
+        }
+
         public async Task<List<ProductEntity>> GetProductsByIds(List<Guid> ids)
         {
-            var products = await _productRepository.GetProductsById(ids);
-            products.ValidateEntities(ErrorMessages.ProductNotFound, ErrorCodes.ProductNotFound);
-            return products!;
+            return await _productDomainService.GetProductsByIds(ids);
+        }
+
+        public async Task<PersonEntity> GetDeliveryPersonByTime(DateTime deliveryTime)
+        {
+            return await _deliveryPersonDomainService.GetDeliveryPersonByTime(deliveryTime);
         }
 
         public async Task<List<OrderEntity>> GetAllOrders()
         {
-            var orders = (await _orderRepository.GetAllOrders()).ToList();
-            return orders.IsNullOrEmpty() ? new List<OrderEntity>() : orders;
+            return await _orderDomainService.GetAllOrders();
         }
 
         public async Task UpdateOrderProducts(OrderEntity order)
         {
-            await _orderRepository.UpdateOrderProducts(order);
+            await _orderDomainService.UpdateOrderProducts(order);
         }
 
         public void UpdateOrderStatus(OrderEntity order)
         {
-            _orderRepository.UpdateOrderStatus(order);
-        }
-
-        private async Task AddOrder(OrderEntity orderEntity)
-        {
-            await _orderRepository.AddOrder(orderEntity);
-        }
-
-        private async Task AddInvoice(InvoiceEntity invoiceEntity)
-        {
-            var availableDeliveryPerson = await GetDeliveryPersonByTime(invoiceEntity);
-
-            invoiceEntity.DeliveryPersonId = availableDeliveryPerson.Id;
-
-            await _invoiceRepository.AddInvoice(invoiceEntity);
-            await AddDeliverySlot(availableDeliveryPerson.Id, invoiceEntity.DeliveryTime);
-        }
-
-        private async Task<PersonEntity> GetDeliveryPersonByTime(InvoiceEntity invoiceEntity)
-        {
-            var availableDeliveryPerson = await _deliveryPersonRepository
-                .GetDeliveryPersonByTime(invoiceEntity.DeliveryTime);
-
-            availableDeliveryPerson.ValidateEntity(ErrorMessages.NoAvailableDeliveryPersons,
-                ErrorCodes.NoAvailableDeliveryPersons);
-
-            return availableDeliveryPerson!;
-        }
-        
-        private async Task AddDeliverySlot(Guid deliveryPersonId, DateTime deliveryTime)
-        {
-            await _deliveryPersonRepository.AddSlot(new DeliverySlotEntity
-            {
-                DeliveryPersonId = deliveryPersonId,
-                SlotTime = deliveryTime
-            });
-        }
-        
-        private async Task<OrderEntity> GetOrderById(Guid orderId)
-        {
-            var order = await _orderRepository.GetOrderById(orderId);
-            order.ValidateEntity(ErrorMessages.OrderNotFound, ErrorCodes.NoOrdersFound);
-
-            return order!;
-        }
-
-        private async Task<CustomerEntity> GetCustomerById(Guid personId)
-        {
-            var customer = await _customerRepository.GetCustomerById(personId);
-            customer.ValidateEntity(ErrorMessages.CustomerNotFound, ErrorCodes.CustomerNotFound);
-
-            return customer!;
-        }
-
-        private async Task<InvoiceEntity> GetInvoiceById(Guid orderId)
-        {
-            var invoice = await _invoiceRepository.GetInvoiceByOrderId(orderId);
-            invoice.ValidateEntity(ErrorMessages.InvoiceNotFound, ErrorCodes.InvoiceNotFound);
-            
-            return invoice!;
-        }
-
-        private async Task DeleteOrder(Guid orderId)
-        {
-            await GetOrderById(orderId);
-
-            await _orderRepository.DeleteOrder(orderId);
-        }
-
-        private async Task DeleteInvoice(Guid orderId)
-        {
-            var invoice = await _invoiceRepository.GetInvoiceByOrderId(orderId);
-            invoice.ValidateEntity(ErrorMessages.InvoiceNotFound, ErrorCodes.InvoiceNotFound);
-            await _invoiceRepository.DeleteInvoice(invoice!.Id);
+            _orderDomainService.UpdateOrderStatus(order);
         }
     }
 }
