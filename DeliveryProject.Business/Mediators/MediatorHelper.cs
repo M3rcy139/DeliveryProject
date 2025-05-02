@@ -53,14 +53,14 @@ namespace DeliveryProject.Business.Mediators
             };
         }
 
-        public async Task DeleteEntityById(Guid id)
+        public async Task RemoveEntityById(Guid id)
         {
             await (typeof(TEntity) switch
             {
                 var t when t == typeof(OrderEntity) =>
-                    _orderDomainService.DeleteOrder(id),
+                    _orderDomainService.RemoveOrder(id),
                 var t when t == typeof(InvoiceEntity) =>
-                    _invoiceDomainService.DeleteInvoice(id),
+                    _invoiceDomainService.RemoveInvoice(id),
                 _ => throw new ArgumentException(ErrorMessages.NotSupportedEntityType, typeof(TEntity).Name)
             });
         }

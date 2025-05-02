@@ -81,11 +81,11 @@ namespace DeliveryProject.Business.Services
             _logger.LogInformation(InfoMessages.UpdatedOrderStatusDetail + "{@OrderEntity}.", order);
         }
 
-        public async Task DeleteOrder(Guid orderId)
+        public async Task RemoveOrder(Guid orderId)
         {
-            await _orderMediator.DeleteEntityById(orderId);
+            await _orderMediator.RemoveEntityById(orderId);
             
-            _logger.LogInformation(InfoMessages.DeletedOrder, orderId);
+            _logger.LogInformation(InfoMessages.RemovedOrder, orderId);
         }
 
         public Task<List<Order>> GetAllOrders(OrderSortField? sortBy, bool descending)

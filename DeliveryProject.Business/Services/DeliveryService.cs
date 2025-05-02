@@ -52,10 +52,10 @@ public class DeliveryService : IDeliveryService
         return _mapper.Map<Invoice>(invoice);
     }
 
-    public async Task DeleteInvoice(Guid orderId)
+    public async Task RemoveInvoice(Guid orderId)
     {
-        await _invoiceMediator.DeleteEntityById(orderId);
+        await _invoiceMediator.RemoveEntityById(orderId);
         
-        _logger.LogInformation(InfoMessages.DeletedInvoice, orderId);
+        _logger.LogInformation(InfoMessages.RemovedInvoice, orderId);
     }
 }

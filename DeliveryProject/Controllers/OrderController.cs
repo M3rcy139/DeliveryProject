@@ -66,13 +66,13 @@ namespace DeliveryProject.Controllers
         }
 
         [Transaction]
-        [HttpDelete("Order/Delete/{orderId}")]
-        public async Task<IActionResult> DeleteOrder(Guid orderId)
+        [HttpDelete("Order/Remove/{orderId}")]
+        public async Task<IActionResult> RemoveOrder(Guid orderId)
         {
-            await _deliveryService.DeleteInvoice(orderId);
-            await _orderService.DeleteOrder(orderId);
+            await _deliveryService.RemoveInvoice(orderId);
+            await _orderService.RemoveOrder(orderId);
             
-            return Ok(new { message = string.Format(InfoMessages.DeletedOrder, orderId) });
+            return Ok(new { message = string.Format(InfoMessages.RemovedOrder, orderId) });
         }
 
         [HttpGet("Orders/GetAll")]

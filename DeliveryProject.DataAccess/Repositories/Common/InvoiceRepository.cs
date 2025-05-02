@@ -29,7 +29,7 @@ public class InvoiceRepository : IInvoiceRepository
         await _dbContext.SaveChangesAsync();
     }
     
-    public async Task DeleteInvoice(Guid invoiceId)
+    public async Task RemoveInvoice(Guid invoiceId)
     {
         var invoice = await _dbContext.Invoices.FindAsync(invoiceId);
         

@@ -43,10 +43,10 @@ public class OrderDomainService
         _orderRepository.UpdateOrderStatus(order);
     }
     
-    public async Task DeleteOrder(Guid orderId)
+    public async Task RemoveOrder(Guid orderId)
     {
         await GetOrderById(orderId);
 
-        await _orderRepository.DeleteOrder(orderId);
+        await _orderRepository.RemoveOrder(orderId);
     }
 }

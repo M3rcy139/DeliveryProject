@@ -68,7 +68,7 @@ namespace DeliveryProject.DataAccess.Repositories.Orders
             _dbContext.Entry(orderEntity).Property(o => o.Status).IsModified = true;
         }
         
-        public async Task DeleteOrder(Guid id)
+        public async Task RemoveOrder(Guid id)
         {
             var order = await _dbContext.Orders.FindAsync(id);
             

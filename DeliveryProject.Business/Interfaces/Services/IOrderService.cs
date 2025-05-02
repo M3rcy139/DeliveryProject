@@ -10,7 +10,7 @@ namespace DeliveryProject.Business.Interfaces.Services
         Task<Order> GetOrderById(Guid id);
         Task UpdateOrderProducts(Order order, List<ProductDto> products);
         Task UpdateOrderStatus(Guid orderId, OrderStatus status);
-        Task DeleteOrder(Guid id);
+        Task RemoveOrder(Guid id);
         Task<List<Order>> GetAllOrders(OrderSortField? sortBy, bool descending);
     }
 }

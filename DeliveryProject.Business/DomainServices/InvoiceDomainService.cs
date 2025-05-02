@@ -26,11 +26,11 @@ public class InvoiceDomainService
         return invoice!;
     }
 
-    public async Task DeleteInvoice(Guid orderId)
+    public async Task RemoveInvoice(Guid orderId)
     {
         var invoice = await _invoiceRepository.GetInvoiceByOrderId(orderId);
         invoice.ValidateEntity(ErrorMessages.InvoiceNotFound, ErrorCodes.InvoiceNotFound);
         
-        await _invoiceRepository.DeleteInvoice(invoice!.Id);
+        await _invoiceRepository.RemoveInvoice(invoice!.Id);
     }
 }

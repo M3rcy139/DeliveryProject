@@ -6,5 +6,5 @@ public interface IDeliveryService
 {
     Task AddInvoice(Guid orderId);
     Task<Invoice> GetInvoice(Guid orderId);
-    Task DeleteInvoice(Guid orderId);
+    Task RemoveInvoice(Guid orderId);
 }
