@@ -151,8 +151,7 @@ namespace DeliveryProject.Business.Mediators
 
         private async Task DeleteOrder(Guid orderId)
         {
-            var order = await _orderRepository.GetOrderById(orderId);
-            order.ValidateEntity(ErrorMessages.OrderNotFound, ErrorCodes.NoOrdersFound);
+            await GetOrderById(orderId);
 
             await _orderRepository.DeleteOrder(orderId);
         }
