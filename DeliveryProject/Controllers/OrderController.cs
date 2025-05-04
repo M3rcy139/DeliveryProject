@@ -64,7 +64,7 @@ namespace DeliveryProject.Controllers
             await _deliveryService.RemoveInvoice(orderId);
             await _orderService.RemoveOrder(orderId);
             
-            return Ok(new { message = string.Format(InfoMessages.RemovedOrder, orderId) });
+            return Ok(new { message = string.Format(InfoMessages.RemovedOrder) });
         }
 
         [HttpGet("Orders/GetAll")]

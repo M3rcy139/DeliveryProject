@@ -12,7 +12,7 @@
         public const string UpdatedOrderDetail = "Updated an order: ";
         public const string UpdatedOrderStatus ="Updated an order status with an ID: {0}.";
         public const string UpdatedOrderStatusDetail = "Updated an order status: ";
-        public const string RemovedOrder = "Removed an order with an ID: {0}.";
+        public const string RemovedOrder = "The order was removed successfully";
         public const string DeletedOrderDetail = "Deleted an order: ";
         public const string RemovedInvoice = "Removed an invoice with for Order with ID: {0}.";
         public const string DeletedInvoiceDetail = "Deleted an invoice: ";
