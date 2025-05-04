@@ -1,8 +1,8 @@
 ﻿using DeliveryProject.Settings;
 using Serilog.Sinks.Elasticsearch;
 using Serilog;
-using Serilog.Events;
 using Serilog.Formatting.Compact;
+using Serilog.Formatting.Json;
 using RollingInterval = Serilog.RollingInterval;
 
 namespace DeliveryProject.ServiceCollection
@@ -20,7 +20,7 @@ namespace DeliveryProject.ServiceCollection
                 .Enrich.WithProperty("Application", logSettings.ApplicationName)
                 .WriteTo.Console(restrictedToMinimumLevel: logSettings.ConsoleLogLevel)
                 .WriteTo.File(
-                    new RenderedCompactJsonFormatter(),
+                    new JsonFormatter(),
                     path: logSettings.FilePath,
                     rollingInterval: RollingInterval.Day,
                     restrictedToMinimumLevel: logSettings.FileLogLevel,
