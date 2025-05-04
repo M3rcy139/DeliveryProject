@@ -15,7 +15,8 @@
 
         public const string NoAvailableDeliveryPersons = "There are no available delivery persons at the specified time.";
 
-        public const string ProductNotFound = "The product was not found";
+        public const string ProductNotFound = "The product was not found.";
+        public const string WeightMustBeLower = "Weight must be lower than {0} gram.";
 
         public const string NotSupportedEntityType = "Unsupported entity type: {0}";
 

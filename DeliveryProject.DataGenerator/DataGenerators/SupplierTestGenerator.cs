@@ -39,7 +39,7 @@ namespace DeliveryProject.DataGenerator.DataGenerators
                     {
                         Id = Guid.NewGuid(),
                         Name = $"Product {i}-{j}",
-                        Weight = Math.Round(random.NextDouble() * 10, 2),
+                        Weight = Math.Round(random.NextDouble() * 1000, 0),
                         Price = Math.Round((decimal)(random.NextDouble() * 300), 2),
                         SupplierId = supplier.Id
                     });

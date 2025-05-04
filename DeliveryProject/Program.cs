@@ -20,6 +20,7 @@ try
 
     services.AddControllersAndSwagger();
 
+    services.AddSettings(configuration);
     services.AddServices();
     services.AddDomainServices();
     services.AddProcessors();

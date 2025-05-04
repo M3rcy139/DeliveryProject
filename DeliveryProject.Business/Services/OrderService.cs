@@ -4,10 +4,14 @@ using AutoMapper;
 using DeliveryProject.Business.Extensions;
 using DeliveryProject.Business.Interfaces.Services;
 using DeliveryProject.Business.Mediators;
+using DeliveryProject.Core.Constants.ErrorMessages;
 using DeliveryProject.DataAccess.Entities;
 using DeliveryProject.Core.Enums;
 using DeliveryProject.Core.Constants.InfoMessages;
 using DeliveryProject.Core.Dto;
+using DeliveryProject.Core.Extensions;
+using DeliveryProject.Core.Settings;
+using Microsoft.Extensions.Options;
 
 namespace DeliveryProject.Business.Services
 {
@@ -17,17 +21,20 @@ namespace DeliveryProject.Business.Services
         private readonly MediatorHelper<CustomerEntity> _customerMediator;
         private readonly ILogger<OrderService> _logger;
         private readonly IMapper _mapper;
+        private readonly OrderSettings _orderSettings;
 
         public OrderService(
             MediatorHelper<OrderEntity> orderMediator,
             MediatorHelper<CustomerEntity> customerMediator,
             ILogger<OrderService> logger,
-            IMapper mapper)
+            IMapper mapper,
+            IOptions<OrderSettings> orderSettings)
         {
             _orderMediator = orderMediator;
             _customerMediator = customerMediator;
             _logger = logger;
             _mapper = mapper;
+            _orderSettings = orderSettings.Value;
         }
 
         public async Task CreateOrder(Order order, List<ProductDto> products)
@@ -97,7 +104,7 @@ namespace DeliveryProject.Business.Services
         {
             await _orderMediator.RemoveEntityById(orderId);
             
-            _logger.LogInformation(InfoMessages.RemovedOrder, orderId);
+            _logger.LogInformation(InfoMessages.RemovedOrder);
         }
 
         private async Task<List<OrderProductEntity>> GetOrderProducts(Order order, List<ProductDto> products)
@@ -105,6 +112,9 @@ namespace DeliveryProject.Business.Services
             var productEntities = await _orderMediator.GetProductsByIds(
                 products.Select(p => p.ProductId).Distinct().ToList());
 
+            var totalWeight = productEntities.CalculateTotalWeight(products);
+            totalWeight.ValidateTotalWeight(_orderSettings.MaxTotalWeight, ErrorMessages.WeightMustBeLower);
+            
             var orderProducts = BuildEntity
                 .BuildOrderProductsEntity(order, productEntities, products);
 
