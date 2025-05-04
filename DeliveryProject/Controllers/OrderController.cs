@@ -21,7 +21,7 @@ namespace DeliveryProject.Controllers
         }
         
         [HttpPost("Order/Add")]
-        public async Task<IActionResult> CreateOrder([FromBody] OrderRequest model)
+        public async Task<IActionResult> CreateOrder([FromBody] CreateOrderDto model)
         {
             var order = new Order()
             {
@@ -50,11 +50,11 @@ namespace DeliveryProject.Controllers
         }
         
         [HttpPut("Order/Update")]
-        public async Task<IActionResult> UpdateOrder([FromBody] OrderRequest model)
+        public async Task<IActionResult> UpdateOrder([FromBody] UpdateOrderDto model)
         {
             var order = new Order()
             {
-                Id = model.Id.Value,
+                Id = model.Id,
             };
 
             await _orderService.UpdateOrderProducts(order, model.Products);
