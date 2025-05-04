@@ -57,7 +57,7 @@ namespace DeliveryProject.Controllers
         {
             var order = new Order()
             {
-                Id = model.OrderId.Value,
+                Id = model.Id.Value,
             };
 
             await _orderService.UpdateOrderProducts(order, model.Products);

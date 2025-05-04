@@ -24,5 +24,5 @@
     <ProjectReference Include="..\DeliveryProject.Core\DeliveryProject.Core.csproj" />
     <ProjectReference Include="..\DeliveryProject.DataAccess\DeliveryProject.DataAccess.csproj" />
   </ItemGroup>
-
+  
 </Project>

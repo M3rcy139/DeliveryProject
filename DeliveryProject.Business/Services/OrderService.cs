@@ -8,7 +8,6 @@ using DeliveryProject.DataAccess.Entities;
 using DeliveryProject.Core.Enums;
 using DeliveryProject.Core.Constants.InfoMessages;
 using DeliveryProject.Core.Dto;
-using DeliveryProject.Business.Helpers;
 
 namespace DeliveryProject.Business.Services
 {
@@ -34,17 +33,13 @@ namespace DeliveryProject.Business.Services
         public async Task<Order> AddOrder(Order order, List<ProductDto> products)
         {
             var customer = await _customerMediator.GetEntityById(order.OrderPersons.First().PersonId);
-            
             var orderProducts = await GetOrderProducts(order, products);
-
             var amount = orderProducts.CalculateOrderAmount();
             
-            var orderEntity = BuildEntityHelper.BuildNewOrderEntity(order, customer!, orderProducts, amount);
-            
+            var orderEntity = BuildEntity.BuildNewOrderEntity(order, customer!, orderProducts, amount);
             await _orderMediator.AddEntity(orderEntity);
 
             _logger.LogInformation(InfoMessages.AddedOrderDetail + "{@OrderEntity}.", orderEntity);
-
             return _mapper.Map<Order>(orderEntity);
         }
 
@@ -63,7 +58,7 @@ namespace DeliveryProject.Business.Services
             
             decimal amount = orderProducts.CalculateOrderAmount();
             
-            BuildEntityHelper.BuildUpdatedOrderEntity(updatedOrder!, orderProducts, amount);
+            BuildEntity.BuildUpdatedOrderEntity(updatedOrder!, orderProducts, amount);
             
             await _orderMediator.UpdateOrderProducts(updatedOrder);
 
@@ -111,7 +106,7 @@ namespace DeliveryProject.Business.Services
             var productEntities = await _orderMediator.GetProductsByIds(
                 products.Select(p => p.ProductId).Distinct().ToList());
 
-            var orderProducts = BuildEntityHelper
+            var orderProducts = BuildEntity
                 .BuildOrderProductsEntity(order, productEntities, products);
 
             return orderProducts;

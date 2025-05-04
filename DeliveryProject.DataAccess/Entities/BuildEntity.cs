@@ -2,11 +2,10 @@ using DeliveryProject.Core.Dto;
 using DeliveryProject.Core.Enums;
 using DeliveryProject.Core.Extensions;
 using DeliveryProject.Core.Models;
-using DeliveryProject.DataAccess.Entities;
 
-namespace DeliveryProject.Business.Helpers;
+namespace DeliveryProject.DataAccess.Entities;
 
-public static class BuildEntityHelper
+public static class BuildEntity
 {
     public static OrderEntity BuildNewOrderEntity(Order order,
         CustomerEntity customer,
