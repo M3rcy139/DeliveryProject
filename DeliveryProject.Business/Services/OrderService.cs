@@ -30,7 +30,7 @@ namespace DeliveryProject.Business.Services
             _mapper = mapper;
         }
 
-        public async Task<Order> CreateOrder(Order order, List<ProductDto> products)
+        public async Task CreateOrder(Order order, List<ProductDto> products)
         {
             var customer = await _customerMediator.GetEntityById(order.OrderPersons.First().PersonId);
             var orderProducts = await GetOrderProducts(order, products);
@@ -40,7 +40,6 @@ namespace DeliveryProject.Business.Services
             await _orderMediator.AddEntity(orderEntity);
 
             _logger.LogInformation(InfoMessages.AddedOrderDetail + "{@OrderEntity}.", orderEntity);
-            return _mapper.Map<Order>(orderEntity);
         }
 
         public async Task<Order> GetOrderById(Guid orderId)

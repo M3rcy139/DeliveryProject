@@ -32,13 +32,9 @@ namespace DeliveryProject.Controllers
                 },
             };
 
-            var result = await _orderService.CreateOrder(order, model.Products);
+            await _orderService.CreateOrder(order, model.Products);
 
-            return Ok(new
-            {
-                result,
-                message = string.Format(InfoMessages.AddedOrder, order.Id),
-            });
+            return Ok(new { message = string.Format(InfoMessages.AddedOrder, order.Id) });
         }
 
         [HttpGet("Order/{orderId}")]
