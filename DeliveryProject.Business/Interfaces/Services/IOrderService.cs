@@ -8,9 +8,9 @@ namespace DeliveryProject.Business.Interfaces.Services
     {
         Task CreateOrder(Order order, List<ProductDto> products);
         Task<Order> GetOrderById(Guid id);
+        Task<List<Order>> GetOrdersByRegionId(int regionId, OrderSortField? sortBy, bool descending);
         Task UpdateOrderProducts(Order order, List<ProductDto> products);
         Task UpdateOrderStatus(Guid orderId, OrderStatus status);
         Task RemoveOrder(Guid id);
-        Task<List<Order>> GetAllOrders(OrderSortField? sortBy, bool descending);
     }
 }

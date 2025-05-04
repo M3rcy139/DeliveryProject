@@ -49,6 +49,24 @@ namespace DeliveryProject.Business.Services
             return _mapper.Map<Order>(orderEntity);
         }
 
+        public Task<List<Order>> GetOrdersByRegionId(int regionId, OrderSortField? sortBy, bool descending)
+        {
+            return Task.Factory.StartNew(async () =>
+            {
+                var orders = await _orderMediator.GetOrdersByRegionId(regionId);
+
+                if (sortBy != null)
+                {
+                    var sortedOrders = GetSortDelegate(sortBy, descending);
+                    orders = sortedOrders?.Invoke(orders) ?? orders;
+                }
+
+                _logger.LogInformation(InfoMessages.AllOrdersReceived, orders.Count);
+
+                return _mapper.Map<List<Order>>(orders);
+            }, TaskCreationOptions.LongRunning).Unwrap();
+        }
+
         public async Task UpdateOrderProducts(Order order, List<ProductDto> products)
         {
             var updatedOrder = await _orderMediator.GetEntityById(order.Id);
@@ -82,24 +100,6 @@ namespace DeliveryProject.Business.Services
             _logger.LogInformation(InfoMessages.RemovedOrder, orderId);
         }
 
-        public Task<List<Order>> GetAllOrders(OrderSortField? sortBy, bool descending)
-        {
-            return Task.Factory.StartNew(async () =>
-            {
-                var orders = await _orderMediator.GetAllOrders();
-
-                if (sortBy != null)
-                {
-                    var sortedOrders = GetSortDelegate(sortBy, descending);
-                    orders = sortedOrders?.Invoke(orders) ?? orders;
-                }
-
-                _logger.LogInformation(InfoMessages.AllOrdersReceived, orders.Count);
-
-                return _mapper.Map<List<Order>>(orders);
-            }, TaskCreationOptions.LongRunning).Unwrap();
-        }
-        
         private async Task<List<OrderProductEntity>> GetOrderProducts(Order order, List<ProductDto> products)
         {
             var productEntities = await _orderMediator.GetProductsByIds(

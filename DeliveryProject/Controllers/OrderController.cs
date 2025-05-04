@@ -44,7 +44,16 @@ namespace DeliveryProject.Controllers
 
             return Ok(order);
         }
-        
+
+        [HttpGet("Orders/{regionId}")]
+        public async Task<IActionResult> GetOrdersByRegionId(int regionId, [FromQuery] OrderSortField? sortBy = null,
+            [FromQuery] bool descending = false)
+        {
+            var orders = await _orderService.GetOrdersByRegionId(regionId, sortBy, descending);
+
+            return Ok(orders);
+        }
+
         [HttpPut("Order/Update")]
         public async Task<IActionResult> UpdateOrder([FromBody] UpdateOrderDto model)
         {
@@ -57,7 +66,7 @@ namespace DeliveryProject.Controllers
 
             return Ok(new { message = string.Format(InfoMessages.UpdatedOrder, order.Id) });
         }
-        
+
         [HttpDelete("Order/Remove/{orderId}")]
         public async Task<IActionResult> RemoveOrder(Guid orderId)
         {
@@ -65,15 +74,6 @@ namespace DeliveryProject.Controllers
             await _orderService.RemoveOrder(orderId);
             
             return Ok(new { message = string.Format(InfoMessages.RemovedOrder) });
-        }
-
-        [HttpGet("Orders/GetAll")]
-        public async Task<IActionResult> GetAllOrders([FromQuery] OrderSortField? sortBy = null,
-            [FromQuery] bool descending = false)
-        {
-            var orders = await _orderService.GetAllOrders(sortBy, descending);
-
-            return Ok(orders);
         }
     }
 }
