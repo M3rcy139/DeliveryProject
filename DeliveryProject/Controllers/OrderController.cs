@@ -21,7 +21,7 @@ namespace DeliveryProject.Controllers
         }
         
         [HttpPost("Order/Add")]
-        public async Task<IActionResult> AddOrder([FromBody] OrderRequest model)
+        public async Task<IActionResult> CreateOrder([FromBody] OrderRequest model)
         {
             var order = new Order()
             {
@@ -32,7 +32,7 @@ namespace DeliveryProject.Controllers
                 },
             };
 
-            var result = await _orderService.AddOrder(order, model.Products);
+            var result = await _orderService.CreateOrder(order, model.Products);
 
             return Ok(new
             {

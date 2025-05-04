@@ -6,7 +6,7 @@ namespace DeliveryProject.Business.Interfaces.Services
 {
     public interface IOrderService
     {
-        Task<Order> AddOrder(Order order, List<ProductDto> products);
+        Task<Order> CreateOrder(Order order, List<ProductDto> products);
         Task<Order> GetOrderById(Guid id);
         Task UpdateOrderProducts(Order order, List<ProductDto> products);
         Task UpdateOrderStatus(Guid orderId, OrderStatus status);
