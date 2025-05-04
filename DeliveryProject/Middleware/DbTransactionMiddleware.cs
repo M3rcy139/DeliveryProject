@@ -1,4 +1,3 @@
-using DeliveryProject.Attributes;
 using DeliveryProject.DataAccess;
 using Microsoft.EntityFrameworkCore.Storage;
 
@@ -15,21 +14,6 @@ public class DbTransactionMiddleware
 
     public async Task InvokeAsync(HttpContext context, DeliveryDbContext dbContext)
     {
-        if (context.Request.Method.Equals("GET", StringComparison.OrdinalIgnoreCase))
-        {
-            await _next(context);
-            return;
-        }
-        
-        var endpoint = context.GetEndpoint();
-        var hasTransactionAttribute = endpoint?.Metadata.GetMetadata<TransactionAttribute>() != null;
-        
-        if (!hasTransactionAttribute)
-        {
-            await _next(context);
-            return;
-        }
-
         IDbContextTransaction transaction = null;
         
         try
