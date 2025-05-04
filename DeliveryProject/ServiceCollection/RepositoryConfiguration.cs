@@ -20,7 +20,8 @@ namespace DeliveryProject.ServiceCollection
             services.AddSingleton<ICustomerRepository, CustomerRepository>();
             services.AddSingleton<IAttributeRepository, AttributeRepository>();
             services.AddSingleton<IAttributeValueRepository, AttributeValueRepository>();
-
+            services.AddSingleton<IFileUploadRepository, FileUploadRepository>();
+            
             services.AddSingleton<IBatchUploadRepository, BatchUploadRepository>();
         }
     }

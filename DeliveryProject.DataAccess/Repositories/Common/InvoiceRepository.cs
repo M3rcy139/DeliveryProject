@@ -6,43 +6,33 @@ namespace DeliveryProject.DataAccess.Repositories.Common;
 
 public class InvoiceRepository : IInvoiceRepository
 {
-    private readonly IDbContextFactory<DeliveryDbContext> _contextFactory;
+    private readonly DeliveryDbContext _dbContext;
     
-    public InvoiceRepository(IDbContextFactory<DeliveryDbContext> contextFactory) => _contextFactory = contextFactory;
+    public InvoiceRepository(DeliveryDbContext dbContext) => _dbContext = dbContext;
     
     public async Task AddInvoice(InvoiceEntity invoiceEntity)
     {
-        await using var dbContext = await _contextFactory.CreateDbContextAsync();
-        
-        await dbContext.Invoices.AddAsync(invoiceEntity);
-        await dbContext.SaveChangesAsync();
+        await _dbContext.Invoices.AddAsync(invoiceEntity);
     }
     
     public async Task<InvoiceEntity?> GetInvoiceByOrderId(Guid orderId)
     {
-        await using var dbContext = await _contextFactory.CreateDbContextAsync();
-        
-        var invoice = await dbContext.Invoices.FirstOrDefaultAsync(i => i.OrderId == orderId);
+        var invoice = await _dbContext.Invoices.FirstOrDefaultAsync(i => i.OrderId == orderId);
 
         return invoice;
     }
 
     public async Task UpdateInvoice(InvoiceEntity invoiceEntity)
     {
-        await using var dbContext = await _contextFactory.CreateDbContextAsync();
+        _dbContext.Invoices.Update(invoiceEntity);
 
-        dbContext.Invoices.Update(invoiceEntity);
-
-        await dbContext.SaveChangesAsync();
+        await _dbContext.SaveChangesAsync();
     }
     
-    public async Task DeleteInvoice(Guid invoiceId)
+    public async Task RemoveInvoice(Guid invoiceId)
     {
-        await using var dbContext = await _contextFactory.CreateDbContextAsync();
+        var invoice = await _dbContext.Invoices.FindAsync(invoiceId);
         
-        var invoice = await dbContext.Invoices.FindAsync(invoiceId);
-        
-        dbContext.Invoices.Remove(invoice!);
-        await dbContext.SaveChangesAsync();
+        _dbContext.Invoices.Remove(invoice!);
     }
 }

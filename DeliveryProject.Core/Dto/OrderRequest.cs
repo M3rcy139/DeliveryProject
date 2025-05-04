@@ -2,7 +2,7 @@
 {
     public class OrderRequest
     {
-        public Guid? OrderId { get; set; }
+        public Guid? Id { get; set; }
         public Guid CustomerId { get; set; }
         public List<ProductDto> Products { get; set; }
     }

@@ -2,14 +2,20 @@
 {
     public static class InfoMessages
     {
-        public const string AddedOrder = "Added an order with an ID: {0}.";
+        public const string AddedOrder = "Added an order with id: {0}: ";
+        public const string AddedOrderDetail = "Added an order: ";
         public const string AddedInvoice = "Added an invoice with for Order with ID: {0}.";
+        public const string AddedInvoiceDetail = "Added an invoice: ";
         public const string FoundInRegion = "{0} orders found for the {1} area in the range from {2} to {3}.";
         public const string AllOrdersReceived = "{0} orders received.";
         public const string UpdatedOrder = "Updated an order with an ID: {0}.";
+        public const string UpdatedOrderDetail = "Updated an order: ";
         public const string UpdatedOrderStatus ="Updated an order status with an ID: {0}.";
-        public const string DeletedOrder = "Deleted an order with an ID: {0}.";
-        public const string DeletedInvoice = "Deleted an invoice with for Order with ID: {0}.";
+        public const string UpdatedOrderStatusDetail = "Updated an order status: ";
+        public const string RemovedOrder = "Removed an order with an ID: {0}.";
+        public const string DeletedOrderDetail = "Deleted an order: ";
+        public const string RemovedInvoice = "Removed an invoice with for Order with ID: {0}.";
+        public const string DeletedInvoiceDetail = "Deleted an invoice: ";
 
         public const string ProcessingStarted = "Started processing region data for {0}.";
 

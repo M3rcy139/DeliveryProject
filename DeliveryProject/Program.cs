@@ -21,6 +21,7 @@ try
     services.AddControllersAndSwagger();
 
     services.AddServices();
+    services.AddDomainServices();
     services.AddProcessors();
     services.AddRepositories();
 

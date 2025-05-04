@@ -8,7 +8,6 @@ using DeliveryProject.DataAccess.Entities;
 using DeliveryProject.Core.Enums;
 using DeliveryProject.Core.Constants.InfoMessages;
 using DeliveryProject.Core.Dto;
-using DeliveryProject.Core.Extensions;
 
 namespace DeliveryProject.Business.Services
 {
@@ -34,28 +33,13 @@ namespace DeliveryProject.Business.Services
         public async Task<Order> AddOrder(Order order, List<ProductDto> products)
         {
             var customer = await _customerMediator.GetEntityById(order.OrderPersons.First().PersonId);
-            
             var orderProducts = await GetOrderProducts(order, products);
-
             var amount = orderProducts.CalculateOrderAmount();
             
-            var orderEntity = new OrderEntity()
-            {
-                Id = order.Id,
-                CreatedTime = DateTime.UtcNow,
-                Status = OrderStatus.Pending,
-                Amount = amount,
-                OrderPersons = new List<OrderPersonEntity>
-                {
-                    new OrderPersonEntity { Person = customer }
-                },
-                OrderProducts = orderProducts,
-            };
-            
+            var orderEntity = BuildEntity.BuildNewOrderEntity(order, customer!, orderProducts, amount);
             await _orderMediator.AddEntity(orderEntity);
 
-            _logger.LogInformation(InfoMessages.AddedOrder, order.Id);
-
+            _logger.LogInformation(InfoMessages.AddedOrderDetail + "{@OrderEntity}.", orderEntity);
             return _mapper.Map<Order>(orderEntity);
         }
 
@@ -74,19 +58,11 @@ namespace DeliveryProject.Business.Services
             
             decimal amount = orderProducts.CalculateOrderAmount();
             
-            updatedOrder.Amount = amount;
-            updatedOrder.OrderProducts.Clear();
-            updatedOrder.OrderProducts.AddRange(orderProducts.Select(op =>
-                new OrderProductEntity
-                {
-                    ProductId = op.ProductId,
-                    OrderId = op.OrderId,
-                    Quantity = op.Quantity
-                }));
+            BuildEntity.BuildUpdatedOrderEntity(updatedOrder!, orderProducts, amount);
             
             await _orderMediator.UpdateOrderProducts(updatedOrder);
 
-            _logger.LogInformation(InfoMessages.UpdatedOrder, updatedOrder.Id);
+            _logger.LogInformation(InfoMessages.UpdatedOrderDetail + "{@OrderEntity}.", updatedOrder);
         }
 
         public async Task UpdateOrderStatus(Guid orderId, OrderStatus status)
@@ -95,16 +71,16 @@ namespace DeliveryProject.Business.Services
             
             order.Status = status;
             
-            await _orderMediator.UpdateOrderStatus(order);
+            _orderMediator.UpdateOrderStatus(order);
             
-            _logger.LogInformation(InfoMessages.UpdatedOrderStatus, order.Id);
+            _logger.LogInformation(InfoMessages.UpdatedOrderStatusDetail + "{@OrderEntity}.", order);
         }
 
-        public async Task DeleteOrder(Guid orderId)
+        public async Task RemoveOrder(Guid orderId)
         {
-            await _orderMediator.DeleteEntityById(orderId);
+            await _orderMediator.RemoveEntityById(orderId);
             
-            _logger.LogInformation(InfoMessages.DeletedOrder, orderId);
+            _logger.LogInformation(InfoMessages.RemovedOrder, orderId);
         }
 
         public Task<List<Order>> GetAllOrders(OrderSortField? sortBy, bool descending)
@@ -124,20 +100,14 @@ namespace DeliveryProject.Business.Services
                 return _mapper.Map<List<Order>>(orders);
             }, TaskCreationOptions.LongRunning).Unwrap();
         }
-
+        
         private async Task<List<OrderProductEntity>> GetOrderProducts(Order order, List<ProductDto> products)
         {
             var productEntities = await _orderMediator.GetProductsByIds(
                 products.Select(p => p.ProductId).Distinct().ToList());
 
-            var orderProducts = products
-                .Select(p => new OrderProductEntity
-                {
-                    OrderId = order.Id,
-                    ProductId = p.ProductId,
-                    Product = productEntities.First(pe => pe.Id == p.ProductId),
-                    Quantity = p.Quantity
-                }).ToList();
+            var orderProducts = BuildEntity
+                .BuildOrderProductsEntity(order, productEntities, products);
 
             return orderProducts;
         }

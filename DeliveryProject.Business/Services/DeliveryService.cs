@@ -27,18 +27,22 @@ public class DeliveryService : IDeliveryService
     public async Task AddInvoice(Guid orderId)
     {
         var deliveryTime = _deliveryTimeCalculatorService.CalculateDeliveryTime();
-
+        var availableDeliveryPerson = await _invoiceMediator.GetDeliveryPersonByTime(deliveryTime);
+        
         var invoice =  new InvoiceEntity
         {
             Id = Guid.NewGuid(),
             OrderId = orderId,
             DeliveryTime = deliveryTime.ToUniversalTime(),
-            IsExecuted = false
+            IsExecuted = false,
+            DeliveryPersonId = availableDeliveryPerson.Id,
         };
         
         await _invoiceMediator.AddEntity(invoice);
         
-        _logger.LogInformation(InfoMessages.AddedInvoice, orderId);
+        await _invoiceMediator.AddDeliverySlot(availableDeliveryPerson.Id, deliveryTime);
+        
+        _logger.LogInformation(InfoMessages.AddedInvoiceDetail + "{@InvoiceEntity}.", invoice);
     }
 
     public async Task<Invoice> GetInvoice(Guid orderId)
@@ -48,10 +52,10 @@ public class DeliveryService : IDeliveryService
         return _mapper.Map<Invoice>(invoice);
     }
 
-    public async Task DeleteInvoice(Guid orderId)
+    public async Task RemoveInvoice(Guid orderId)
     {
-        await _invoiceMediator.DeleteEntityById(orderId);
+        await _invoiceMediator.RemoveEntityById(orderId);
         
-        _logger.LogInformation(InfoMessages.DeletedInvoice, orderId);
+        _logger.LogInformation(InfoMessages.RemovedInvoice, orderId);
     }
 }

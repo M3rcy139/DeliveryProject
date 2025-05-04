@@ -30,8 +30,4 @@
     <ProjectReference Include="..\DeliveryProject.Core\DeliveryProject.Core.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Extensions\" />
-  </ItemGroup>
-
 </Project>

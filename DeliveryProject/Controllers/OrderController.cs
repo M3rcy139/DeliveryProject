@@ -19,7 +19,7 @@ namespace DeliveryProject.Controllers
             _orderService = orderService;
             _deliveryService = deliveryService;
         }
-
+        
         [HttpPost("Order/Add")]
         public async Task<IActionResult> AddOrder([FromBody] OrderRequest model)
         {
@@ -48,27 +48,27 @@ namespace DeliveryProject.Controllers
 
             return Ok(order);
         }
-
+        
         [HttpPut("Order/Update")]
         public async Task<IActionResult> UpdateOrder([FromBody] OrderRequest model)
         {
             var order = new Order()
             {
-                Id = model.OrderId.Value,
+                Id = model.Id.Value,
             };
 
             await _orderService.UpdateOrderProducts(order, model.Products);
 
             return Ok(new { message = string.Format(InfoMessages.UpdatedOrder, order.Id) });
         }
-
-        [HttpDelete("Order/Delete/{orderId}")]
-        public async Task<IActionResult> DeleteOrder(Guid orderId)
+        
+        [HttpDelete("Order/Remove/{orderId}")]
+        public async Task<IActionResult> RemoveOrder(Guid orderId)
         {
-            await _deliveryService.DeleteInvoice(orderId);
-            await _orderService.DeleteOrder(orderId);
+            await _deliveryService.RemoveInvoice(orderId);
+            await _orderService.RemoveOrder(orderId);
             
-            return Ok(new { message = string.Format(InfoMessages.DeletedOrder, orderId) });
+            return Ok(new { message = string.Format(InfoMessages.RemovedOrder, orderId) });
         }
 
         [HttpGet("Orders/GetAll")]

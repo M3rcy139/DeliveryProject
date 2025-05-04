@@ -14,7 +14,7 @@ namespace DeliveryProject.Controllers
         {
             _fileUploadProcessor = fileUploadProcessor;
         }
-
+        
         [HttpPost("Upload")]
         public async Task<IActionResult> UploadFile(IFormFile file, [FromQuery] UploadType uploadType)
         {

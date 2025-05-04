@@ -8,8 +8,8 @@ namespace DeliveryProject.Core.Validators
     {
         public OrderRequestValidator()
         {
-            RuleFor(x => x.OrderId)
-                .NotEmpty().When(x => x.OrderId.HasValue)
+            RuleFor(x => x.Id)
+                .NotEmpty().When(x => x.Id.HasValue)
                 .WithMessage(ValidationErrorMessages.RequiredOrderId);
 
             RuleFor(x => x.CustomerId)

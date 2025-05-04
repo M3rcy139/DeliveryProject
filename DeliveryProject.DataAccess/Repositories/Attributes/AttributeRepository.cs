@@ -6,15 +6,13 @@ namespace DeliveryProject.DataAccess.Repositories.Attributes
 {
     public class AttributeRepository : IAttributeRepository
     {
-        private readonly IDbContextFactory<DeliveryDbContext> _contextFactory;
+        private readonly DeliveryDbContext _dbContext;
 
-        public AttributeRepository(IDbContextFactory<DeliveryDbContext> contextFactory) => _contextFactory = contextFactory;
+        public AttributeRepository(DeliveryDbContext dbContext) => _dbContext = dbContext;
 
         public async Task<Dictionary<AttributeKey, int>> GetAttributeIdsByKeys(IEnumerable<AttributeKey> keys)
         {
-            await using var dbContext = await _contextFactory.CreateDbContextAsync();
-
-            return await dbContext.Attributes
+            return await _dbContext.Attributes
                 .Where(a => keys.Contains(a.Key))
                 .ToDictionaryAsync(a => a.Key, a => a.Id);
         }

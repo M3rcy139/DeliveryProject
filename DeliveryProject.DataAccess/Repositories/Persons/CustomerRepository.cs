@@ -6,14 +6,13 @@ namespace DeliveryProject.DataAccess.Repositories.Persons
 {
     public class CustomerRepository : ICustomerRepository
     {
-        private readonly IDbContextFactory<DeliveryDbContext> _contextFactory;
+        private readonly DeliveryDbContext _dbContext;
 
-        public CustomerRepository(IDbContextFactory<DeliveryDbContext> contextFactory) => _contextFactory = contextFactory;
+        public CustomerRepository(DeliveryDbContext dbContext) => _dbContext = dbContext;
 
         public async Task<CustomerEntity?> GetCustomerById(Guid personId)
         {
-            await using var dbContext = await _contextFactory.CreateDbContextAsync();
-            return await dbContext.Persons
+            return await _dbContext.Persons
                 .OfType<CustomerEntity>() 
                 .AsNoTracking()
                 .FirstOrDefaultAsync(p => p.Id == personId);
