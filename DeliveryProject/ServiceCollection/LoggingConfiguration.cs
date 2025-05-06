@@ -11,6 +11,20 @@ namespace DeliveryProject.ServiceCollection
     {
         public static void ConfigureLogging(this IHostBuilder hostBuilder, IConfiguration configuration)
         {
+            ConfigureLogger(configuration);
+            hostBuilder.UseSerilog();
+        }
+
+        public static void ConfigureLogging(this HostApplicationBuilder builder, IConfiguration configuration)
+        {
+            ConfigureLogger(configuration);
+            
+            builder.Logging.ClearProviders();
+            builder.Logging.AddSerilog();
+        }
+        
+        private static void ConfigureLogger(IConfiguration configuration)
+        {
             var logSettings = configuration.GetSection("Logging").Get<LoggingSettings>();
             
             Log.Logger = new LoggerConfiguration()
@@ -34,8 +48,6 @@ namespace DeliveryProject.ServiceCollection
                     NumberOfReplicas = logSettings.ElasticSearchNumberOfReplicas,
                 })
                 .CreateLogger();
-
-            hostBuilder.UseSerilog();
         }
     }
 }
