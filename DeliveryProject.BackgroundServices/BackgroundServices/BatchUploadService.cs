@@ -1,6 +1,6 @@
 ﻿using DeliveryProject.DataAccess.Interfaces.BatchUploads;
 
-namespace DeliveryProject.BackgroundServices
+namespace DeliveryProject.BackgroundServices.BackgroundServices
 {
     public class BatchUploadService : BackgroundService
     {
