@@ -1,3 +1,36 @@
+Работа с БД:
+
+1. Настройка подключения
+   
+В appsettings.json указана строка подключения:
+
+
+"ConnectionStrings": {
+  "DeliveryDbContext": "Host=localhost;User ID=postgres;Password=1234;Port=5432;Database=delivery;"
+}
+
+Параметры:
+
+Host: Адрес сервера (например, localhost или IP)
+
+User ID: Логин пользователя PostgreSQL
+
+Password: Пароль пользователя
+
+Port: Порт PostgreSQL (по умолчанию 5432)
+
+Database: Имя БД (создается путем миграции)
+
+2. Выполнение миграции
+
+В проекте есть возможность миграций, для создания таблицы по строке подключения нужно ввести команду в консоль `dotnet ef database update --project DeliveryProject.Migrations\DeliveryProject.Migrations.csproj --startup-project DeliveryProject\DeliveryProject.csproj`  
+
+3. Заполнение БД тестовыми данными
+
+Для заполнения БД в проекте уже имеется сборка DeliveryProject.DataGenerator. Нужно запустить ее и БД автоматически получит сгенерированные данные
+
+---
+
 Параметры конфигурации:
 
 1. Logging (Настройки логирования)
