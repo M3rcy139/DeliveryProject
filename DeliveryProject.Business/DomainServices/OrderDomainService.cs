@@ -26,9 +26,9 @@ public class OrderDomainService
         return order!;
     }
     
-    public async Task<List<OrderEntity>> GetAllOrders()
+    public async Task<List<OrderEntity>> GetOrdersByRegionId(int regionId)
     {
-        var orders = (await _orderRepository.GetAllOrders()).ToList();
+        var orders = (await _orderRepository.GetOrdersByRegionId(regionId)).ToList();
         
         return orders.IsNullOrEmpty() ? new List<OrderEntity>() : orders;
     }

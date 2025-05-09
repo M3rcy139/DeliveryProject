@@ -47,6 +47,16 @@ namespace DeliveryProject.DataAccess.Repositories.Orders
             return order;
         }
 
+        public async Task<List<OrderEntity>> GetOrdersByRegionId(int regionId)
+        {
+            var orders = await _dbContext.Orders
+                .AsNoTracking()
+                .Where(o => o.OrderPersons.Any(op => op.Person.RegionId == regionId))
+                .ToListAsync();
+
+            return new List<OrderEntity>(orders);
+        }
+
         public async Task UpdateOrderProducts(OrderEntity orderEntity)
         {
             var existingEntity = await _dbContext.Orders
@@ -67,7 +77,7 @@ namespace DeliveryProject.DataAccess.Repositories.Orders
             _dbContext.Orders.Attach(orderEntity); 
             _dbContext.Entry(orderEntity).Property(o => o.Status).IsModified = true;
         }
-        
+
         public async Task RemoveOrder(Guid id)
         {
             var order = await _dbContext.Orders.FindAsync(id);
@@ -75,19 +85,6 @@ namespace DeliveryProject.DataAccess.Repositories.Orders
             _dbContext.Orders.Remove(order!);
 
             _orderCache.Remove(id, out _);
-        }
-
-        public async Task<List<OrderEntity>> GetAllOrders()
-        {
-            var orders = await _dbContext.Orders
-                .AsNoTracking()
-                .Include(o => o.OrderPersons)
-                    .ThenInclude(op => op.Person)
-                .Include(o => o.OrderProducts)
-                    .ThenInclude(op => op.Product)
-                .ToListAsync();
-
-            return new List<OrderEntity>(orders);
         }
     }
 }

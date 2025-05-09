@@ -8,15 +8,14 @@ namespace DeliveryProject.DataGenerator.DataGenerators
 {
     public static class CustomerTestGenerator
     {
-        public static async Task GenerateCustomers(this DeliveryDbContext context, int count)
+        public static async Task GenerateCustomers(this DeliveryDbContext context, int customersCount)
         {
             var customers = new List<PersonEntity>();
-            var attributes = new List<AttributeValueEntity>();
             var random = new Random();
 
             var customerRole = await context.Roles.FirstAsync(r => r.RoleType == RoleType.Customer);
 
-            for (int i = 1; i <= count; i++)
+            for (int i = 1; i <= customersCount; i++)
             {
                 var sex = (Sex)random.Next(0, 2);
 

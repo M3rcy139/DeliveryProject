@@ -37,5 +37,11 @@ namespace DeliveryProject.Core.Extensions
                 throw new BussinessArgumentException(errorMessage, errorCode);
             }
         }
+
+        public static void ValidateTotalWeight(this double totalWeight, int maxTotalWeight, string errorMessage)
+        {
+            if (totalWeight > maxTotalWeight)
+                throw new ArgumentException(string.Format(errorMessage, maxTotalWeight));
+        }
     }
 }

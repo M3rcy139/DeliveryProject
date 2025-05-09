@@ -56,6 +56,6 @@ public class DeliveryService : IDeliveryService
     {
         await _invoiceMediator.RemoveEntityById(orderId);
         
-        _logger.LogInformation(InfoMessages.RemovedInvoice, orderId);
+        _logger.LogInformation(InfoMessages.RemovedInvoice);
     }
 }

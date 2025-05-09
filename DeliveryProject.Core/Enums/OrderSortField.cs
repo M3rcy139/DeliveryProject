@@ -5,7 +5,7 @@ namespace DeliveryProject.Core.Enums
     [JsonConverter(typeof(JsonStringEnumConverter))]
     public enum OrderSortField
     {
-        RegionId,
+        Amount,
         CreatedTime
     }
 }

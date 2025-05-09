@@ -21,7 +21,7 @@ namespace DeliveryProject.Controllers
         }
         
         [HttpPost("Order/Add")]
-        public async Task<IActionResult> AddOrder([FromBody] OrderRequest model)
+        public async Task<IActionResult> CreateOrder([FromBody] CreateOrderDto model)
         {
             var order = new Order()
             {
@@ -32,13 +32,9 @@ namespace DeliveryProject.Controllers
                 },
             };
 
-            var result = await _orderService.AddOrder(order, model.Products);
+            await _orderService.CreateOrder(order, model.Products);
 
-            return Ok(new
-            {
-                result,
-                message = string.Format(InfoMessages.AddedOrder, order.Id),
-            });
+            return Ok(new { message = string.Format(InfoMessages.AddedOrder, order.Id) });
         }
 
         [HttpGet("Order/{orderId}")]
@@ -48,36 +44,36 @@ namespace DeliveryProject.Controllers
 
             return Ok(order);
         }
-        
+
+        [HttpGet("Orders/{regionId}")]
+        public async Task<IActionResult> GetOrdersByRegionId(int regionId, [FromQuery] OrderSortField? sortBy = null,
+            [FromQuery] bool descending = false)
+        {
+            var orders = await _orderService.GetOrdersByRegionId(regionId, sortBy, descending);
+
+            return Ok(orders);
+        }
+
         [HttpPut("Order/Update")]
-        public async Task<IActionResult> UpdateOrder([FromBody] OrderRequest model)
+        public async Task<IActionResult> UpdateOrder([FromBody] UpdateOrderDto model)
         {
             var order = new Order()
             {
-                Id = model.Id.Value,
+                Id = model.Id,
             };
 
             await _orderService.UpdateOrderProducts(order, model.Products);
 
             return Ok(new { message = string.Format(InfoMessages.UpdatedOrder, order.Id) });
         }
-        
+
         [HttpDelete("Order/Remove/{orderId}")]
         public async Task<IActionResult> RemoveOrder(Guid orderId)
         {
             await _deliveryService.RemoveInvoice(orderId);
             await _orderService.RemoveOrder(orderId);
             
-            return Ok(new { message = string.Format(InfoMessages.RemovedOrder, orderId) });
-        }
-
-        [HttpGet("Orders/GetAll")]
-        public async Task<IActionResult> GetAllOrders([FromQuery] OrderSortField? sortBy = null,
-            [FromQuery] bool descending = false)
-        {
-            var orders = await _orderService.GetAllOrders(sortBy, descending);
-
-            return Ok(orders);
+            return Ok(new { message = string.Format(InfoMessages.RemovedOrder) });
         }
     }
 }

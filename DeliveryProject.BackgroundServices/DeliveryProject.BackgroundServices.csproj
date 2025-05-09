@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk.Worker">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <UserSecretsId>dotnet-DeliveryProject.BackgroundServices-87a48ff5-b849-434f-8b33-ef915057621f</UserSecretsId>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.1"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Include="..\DeliveryProject\appsettings.json">
+            <Link>appsettings.json</Link>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    </ItemGroup>
+
+
+    <ItemGroup>
+      <ProjectReference Include="..\DeliveryProject.DataAccess\DeliveryProject.DataAccess.csproj" />
+      <ProjectReference Include="..\DeliveryProject\DeliveryProject.csproj" />
+    </ItemGroup>
+</Project>

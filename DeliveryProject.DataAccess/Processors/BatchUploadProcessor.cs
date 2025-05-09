@@ -23,6 +23,8 @@ namespace DeliveryProject.DataAccess.Processors
         private readonly ILogger<BatchUploadProcessor> _logger;
         private readonly int _batchSize;
         private Dictionary<AttributeKey, int> _attributeIds;
+        private readonly string _uploadsRootPath;
+
 
         public BatchUploadProcessor(IBatchUploadRepository batchUploadRepository, ILogger<BatchUploadProcessor> logger,
             IConfiguration configuration, IAttributeRepository attributeRepository)
@@ -31,6 +33,7 @@ namespace DeliveryProject.DataAccess.Processors
             _logger = logger;
             _batchSize = configuration.GetValue<int>("BatchProcessing:BatchSize");
             _attributeRepository = attributeRepository;
+            _uploadsRootPath = configuration.GetValue<string>("Uploads:RootPath")!;
         }
 
         public async Task ProcessUploadAsync(BatchUpload upload)
@@ -91,7 +94,8 @@ namespace DeliveryProject.DataAccess.Processors
 
         private async IAsyncEnumerable<List<DeliveryPersonDto>> ReadCsvFileInBatchesAsync(string filePath, int batchSize)
         {
-            using var reader = new StreamReader(filePath);
+            var fullFilePath = Path.Combine(_uploadsRootPath, filePath);
+            using var reader = new StreamReader(fullFilePath);
             using var csv = new CsvReader(reader, new CsvConfiguration(System.Globalization.CultureInfo.InvariantCulture)
             {
                 Delimiter = ",",

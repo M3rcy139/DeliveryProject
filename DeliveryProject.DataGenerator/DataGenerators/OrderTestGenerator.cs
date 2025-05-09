@@ -8,7 +8,7 @@ namespace DeliveryProject.DataGenerator.DataGenerators
 {
     public static class OrderTestGenerator
     {
-        public static async Task GenerateOrders(this DeliveryDbContext context, int count)
+        public static async Task GenerateOrders(this DeliveryDbContext context, int ordersCount)
         {
             var random = new Random();
             var orders = new List<OrderEntity>();
@@ -24,7 +24,7 @@ namespace DeliveryProject.DataGenerator.DataGenerators
 
             var products = await context.Products.ToListAsync();
 
-            for (int i = 0; i < count; i++)
+            for (int i = 0; i < ordersCount; i++)
             {
                 var customer = customers[random.Next(customers.Count)];
                 var deliveryPerson = deliveryPersons[random.Next(deliveryPersons.Count)];

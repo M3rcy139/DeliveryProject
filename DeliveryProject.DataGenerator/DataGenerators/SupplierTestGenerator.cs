@@ -8,16 +8,15 @@ namespace DeliveryProject.DataGenerator.DataGenerators
 {
     public static class SupplierTestGenerator
     {
-        public static async Task GenerateSuppliers(this DeliveryDbContext context, int count)
+        public static async Task GenerateSuppliers(this DeliveryDbContext context, int suppliersCount)
         {
             var suppliers = new List<PersonEntity>();
-            var attributes = new List<AttributeValueEntity>();
             var products = new List<ProductEntity>();
             var random = new Random();
 
             var supplierRole = await context.Roles.FirstAsync(r => r.RoleType == RoleType.Supplier);
 
-            for (int i = 1; i <= count; i++)
+            for (int i = 1; i <= suppliersCount; i++)
             {
                 var supplier = new SupplierEntity
                 {
@@ -35,14 +34,7 @@ namespace DeliveryProject.DataGenerator.DataGenerators
                 int productCount = random.Next(3, 11);
                 for (int j = 1; j <= productCount; j++)
                 {
-                    products.Add(new ProductEntity
-                    {
-                        Id = Guid.NewGuid(),
-                        Name = $"Product {i}-{j}",
-                        Weight = Math.Round(random.NextDouble() * 10, 2),
-                        Price = Math.Round((decimal)(random.NextDouble() * 300), 2),
-                        SupplierId = supplier.Id
-                    });
+                    products.Add(ProductTestHelper.CreateProduct(supplier.Id, i, j));
                 }
             }
 

@@ -80,9 +80,9 @@ namespace DeliveryProject.Business.Mediators
             return await _deliveryPersonDomainService.GetDeliveryPersonByTime(deliveryTime);
         }
 
-        public async Task<List<OrderEntity>> GetAllOrders()
+        public async Task<List<OrderEntity>> GetOrdersByRegionId(int regionId)
         {
-            return await _orderDomainService.GetAllOrders();
+            return await _orderDomainService.GetOrdersByRegionId(regionId);
         }
 
         public async Task UpdateOrderProducts(OrderEntity order)
