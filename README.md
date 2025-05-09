@@ -1,3 +1,67 @@
+Параметры конфигурации:
+
+1. Logging (Настройки логирования)
+   
+ApplicationName - Название приложения в логах
+
+DefaultLogLevel - Уровень логирования по умолчанию (Information, Debug, Warning, Error)
+
+AspNetCoreLogLevel - Уровень логирования для ASP.NET Core
+
+ConsoleLogLevel - Уровень логирования в консоль
+
+FileLogLevel - Уровень логирования в файл
+
+ElasticSearchLogLevel - Уровень логирования в Elasticsearch
+
+FilePath - Путь и шаблон имени лог-файлов (например, logs/log-.json)
+
+RetainedFileCountLimit - Макс. количество хранимых лог-файлов (создается 1 раз в день)
+
+ElasticIndexFormat - Префикс названия индекса в Elasticsearch
+
+ElasticSearchNumberOfShards - Количество шардов в Elasticsearch
+
+ElasticSearchNumberOfReplicas - Количество реплик в Elasticsearch
+
+2. ConnectionStrings (Строки подключения)
+   
+DeliveryDbContext - Подключение к PostgreSQL для основного контекста БД
+
+3. ElasticConfiguration (Elasticsearch)
+   
+Uri - Адрес сервера Elasticsearch
+
+4. OrderSettings (Настройки заказов)
+   
+MaxTotalWeight - Максимальный допустимый вес заказа (в граммах)
+
+5. DataGenerationSettings (Генерация тестовых данных)
+   
+RegionsCount - Количество регионов для генерации
+
+DeliveryPersonsCount - Количество курьеров
+
+SuppliersCount - Количество поставщиков
+
+CustomersCount - Количество клиентов
+
+OrdersCount - Количество тестовых заказов
+
+6. BatchProcessing (Пакетная обработка)
+
+BatchSize - Размер пачки для дальнейшего сохранения в БД
+
+7. Uploads (Загрузки)
+   
+RootPath - Корневая директория для загружаемых файлов
+
+8. AllowedHosts
+    
+Разрешённые хосты для CORS (значение * разрешает все)
+
+---
+
 Настройка логирования
 
 Elasticsearch
