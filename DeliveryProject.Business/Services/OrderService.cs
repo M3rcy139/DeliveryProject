@@ -111,9 +111,6 @@ namespace DeliveryProject.Business.Services
         {
             var productEntities = await _orderMediator.GetProductsByIds(
                 products.Select(p => p.ProductId).Distinct().ToList());
-
-            var totalWeight = productEntities.CalculateTotalWeight(products);
-            totalWeight.ValidateTotalWeight(_orderSettings.MaxTotalWeight, ErrorMessages.WeightMustBeLower);
             
             var orderProducts = BuildEntity
                 .BuildOrderProductsEntity(order, productEntities, products);
