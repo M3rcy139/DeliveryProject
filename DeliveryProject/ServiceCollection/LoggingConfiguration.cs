@@ -1,7 +1,6 @@
 ﻿using DeliveryProject.Settings;
 using Serilog.Sinks.Elasticsearch;
 using Serilog;
-using Serilog.Formatting.Compact;
 using Serilog.Formatting.Json;
 using RollingInterval = Serilog.RollingInterval;
 
@@ -15,7 +14,7 @@ namespace DeliveryProject.ServiceCollection
             hostBuilder.UseSerilog();
         }
 
-        public static void ConfigureLogging(this HostApplicationBuilder builder, IConfiguration configuration)
+        public static void ConfigureBackgroundServiceLogging(this HostApplicationBuilder builder, IConfiguration configuration)
         {
             ConfigureLogger(configuration);
             

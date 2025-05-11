@@ -12,7 +12,7 @@ builder.Configuration
 var configuration = builder.Configuration;
 var services = builder.Services;
 
-builder.ConfigureLogging(configuration);
+builder.ConfigureBackgroundServiceLogging(configuration);
 
 try
 {
