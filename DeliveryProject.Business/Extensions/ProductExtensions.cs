@@ -9,8 +9,10 @@ public static class ProductExtensions
         this List<ProductEntity> productEntities,
         List<ProductDto> productDtos)
     {
+        var productById = productEntities.ToDictionary(e => e.Id);
+
         return productDtos
-            .Sum(dto => productEntities
-                .FirstOrDefault(pe => pe.Id == dto.ProductId)!.Weight * dto.Quantity);
+            .Select(dto => productById[dto.ProductId].Weight * dto.Quantity)
+            .Sum();
     }
 }
