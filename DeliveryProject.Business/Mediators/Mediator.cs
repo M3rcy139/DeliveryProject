@@ -4,7 +4,7 @@ using DeliveryProject.DataAccess.Entities;
 
 namespace DeliveryProject.Business.Mediators
 {
-    public class MediatorHelper<TEntity> where TEntity : class
+    public class Mediator<TEntity> where TEntity : class
     {
         private readonly OrderDomainService _orderDomainService;
         private readonly CustomerDomainService _customerDomainService;
@@ -12,7 +12,7 @@ namespace DeliveryProject.Business.Mediators
         private readonly InvoiceDomainService _invoiceDomainService;
         private readonly DeliveryPersonDomainService _deliveryPersonDomainService;
 
-        public MediatorHelper(
+        public Mediator(
             OrderDomainService orderDomainService,
             CustomerDomainService customerDomainService,
             ProductDomainService productDomainService,
@@ -80,9 +80,9 @@ namespace DeliveryProject.Business.Mediators
             return await _deliveryPersonDomainService.GetDeliveryPersonByTime(deliveryTime);
         }
 
-        public async Task<List<OrderEntity>> GetAllOrders()
+        public async Task<List<OrderEntity>> GetOrdersByRegionId(int regionId)
         {
-            return await _orderDomainService.GetAllOrders();
+            return await _orderDomainService.GetOrdersByRegionId(regionId);
         }
 
         public async Task UpdateOrderProducts(OrderEntity order)

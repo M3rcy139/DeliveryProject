@@ -1,6 +1,5 @@
 using DeliveryProject.ServiceCollection;
 using DeliveryProject.Business.Mappings;
-using DeliveryProject.BackgroundServices;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -20,12 +19,11 @@ try
 
     services.AddControllersAndSwagger();
 
+    services.AddSettings(configuration);
     services.AddServices();
     services.AddDomainServices();
     services.AddProcessors();
     services.AddRepositories();
-
-    services.AddHostedService<BatchUploadService>();
 
     services.AddAutoMapper(typeof(DataBaseMappings));
 

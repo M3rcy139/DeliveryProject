@@ -1,8 +1,7 @@
 ﻿using DeliveryProject.Settings;
 using Serilog.Sinks.Elasticsearch;
 using Serilog;
-using Serilog.Events;
-using Serilog.Formatting.Compact;
+using Serilog.Formatting.Json;
 using RollingInterval = Serilog.RollingInterval;
 
 namespace DeliveryProject.ServiceCollection
@@ -10,6 +9,20 @@ namespace DeliveryProject.ServiceCollection
     public static class LoggingConfiguration
     {
         public static void ConfigureLogging(this IHostBuilder hostBuilder, IConfiguration configuration)
+        {
+            ConfigureLogger(configuration);
+            hostBuilder.UseSerilog();
+        }
+
+        public static void ConfigureBackgroundServiceLogging(this HostApplicationBuilder builder, IConfiguration configuration)
+        {
+            ConfigureLogger(configuration);
+            
+            builder.Logging.ClearProviders();
+            builder.Logging.AddSerilog();
+        }
+        
+        private static void ConfigureLogger(IConfiguration configuration)
         {
             var logSettings = configuration.GetSection("Logging").Get<LoggingSettings>();
             
@@ -20,7 +33,7 @@ namespace DeliveryProject.ServiceCollection
                 .Enrich.WithProperty("Application", logSettings.ApplicationName)
                 .WriteTo.Console(restrictedToMinimumLevel: logSettings.ConsoleLogLevel)
                 .WriteTo.File(
-                    new RenderedCompactJsonFormatter(),
+                    new JsonFormatter(),
                     path: logSettings.FilePath,
                     rollingInterval: RollingInterval.Day,
                     restrictedToMinimumLevel: logSettings.FileLogLevel,
@@ -34,8 +47,6 @@ namespace DeliveryProject.ServiceCollection
                     NumberOfReplicas = logSettings.ElasticSearchNumberOfReplicas,
                 })
                 .CreateLogger();
-
-            hostBuilder.UseSerilog();
         }
     }
 }

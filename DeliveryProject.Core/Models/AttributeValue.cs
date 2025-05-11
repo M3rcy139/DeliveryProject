@@ -8,6 +8,5 @@
 
         public Person Person { get; set; }
         public Attribute Attribute { get; set; }
-
     }
 }

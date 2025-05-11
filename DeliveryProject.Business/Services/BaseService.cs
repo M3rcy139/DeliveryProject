@@ -8,13 +8,9 @@ namespace DeliveryProject.Business.Services
         protected static Func<List<OrderEntity>, List<OrderEntity>>? GetSortDelegate(OrderSortField? sortBy, bool descending) =>
             sortBy switch
             {
-                OrderSortField.RegionId => orders => descending
-                    ? orders.OrderByDescending(o => o.OrderPersons
-                        .FirstOrDefault(op => op.Person.RoleId == (int)RoleType.Customer)
-                        ?.Person.RegionId).ToList()
-                    : orders.OrderBy(o => o.OrderPersons
-                        .FirstOrDefault(op => op.Person.RoleId == (int)RoleType.Customer)
-                        ?.Person.RegionId).ToList(),
+                OrderSortField.Amount => orders => descending
+                    ? orders.OrderByDescending(o => o.Amount).ToList()
+                    : orders.OrderBy(o => o.Amount).ToList(),
                 OrderSortField.CreatedTime => orders => descending
                     ? orders.OrderByDescending(o => o.CreatedTime).ToList()
                     : orders.OrderBy(o => o.CreatedTime).ToList(),
