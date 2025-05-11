@@ -4,7 +4,7 @@ using DeliveryProject.DataAccess.Entities;
 
 namespace DeliveryProject.Business.Mediators
 {
-    public class MediatorHelper<TEntity> where TEntity : class
+    public class Mediator<TEntity> where TEntity : class
     {
         private readonly OrderDomainService _orderDomainService;
         private readonly CustomerDomainService _customerDomainService;
@@ -12,7 +12,7 @@ namespace DeliveryProject.Business.Mediators
         private readonly InvoiceDomainService _invoiceDomainService;
         private readonly DeliveryPersonDomainService _deliveryPersonDomainService;
 
-        public MediatorHelper(
+        public Mediator(
             OrderDomainService orderDomainService,
             CustomerDomainService customerDomainService,
             ProductDomainService productDomainService,

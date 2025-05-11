@@ -10,12 +10,12 @@ namespace DeliveryProject.Business.Services;
 
 public class DeliveryService : IDeliveryService
 {
-    private readonly MediatorHelper<InvoiceEntity> _invoiceMediator;
+    private readonly Mediator<InvoiceEntity> _invoiceMediator;
     private readonly IDeliveryTimeCalculatorService _deliveryTimeCalculatorService;
     private readonly ILogger<DeliveryService> _logger;
     private readonly IMapper _mapper;
     
-    public DeliveryService(MediatorHelper<InvoiceEntity> invoiceMediator,
+    public DeliveryService(Mediator<InvoiceEntity> invoiceMediator,
         IDeliveryTimeCalculatorService deliveryTimeCalculatorService, ILogger<DeliveryService> logger, IMapper mapper)
     {
         _invoiceMediator = invoiceMediator;

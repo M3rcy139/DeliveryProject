@@ -17,15 +17,15 @@ namespace DeliveryProject.Business.Services
 {
     public class OrderService : BaseService, IOrderService
     {
-        private readonly MediatorHelper<OrderEntity> _orderMediator;
-        private readonly MediatorHelper<CustomerEntity> _customerMediator;
+        private readonly Mediator<OrderEntity> _orderMediator;
+        private readonly Mediator<CustomerEntity> _customerMediator;
         private readonly ILogger<OrderService> _logger;
         private readonly IMapper _mapper;
         private readonly OrderSettings _orderSettings;
 
         public OrderService(
-            MediatorHelper<OrderEntity> orderMediator,
-            MediatorHelper<CustomerEntity> customerMediator,
+            Mediator<OrderEntity> orderMediator,
+            Mediator<CustomerEntity> customerMediator,
             ILogger<OrderService> logger,
             IMapper mapper,
             IOptions<OrderSettings> orderSettings)
