@@ -23,10 +23,13 @@ public class DeliveryControllerTests
     [Fact]
     public async Task AddInvoice_Should_Return_Success_Message()
     {
+        //Arrange
         var orderId = Guid.NewGuid();
 
+        //Act
         var result = await _controller.AddInvoice(orderId) as OkObjectResult;
 
+        //Assert
         result.Should().NotBeNull();
         var message = result!.Value!.GetType().GetProperty("message")?.GetValue(result.Value, null)?.ToString();
         message.Should().Be(string.Format(InfoMessages.AddedInvoice, orderId));
@@ -38,12 +41,16 @@ public class DeliveryControllerTests
     [Fact]
     public async Task AddInvoice_Should_Return_Not_Order_Found()
     {
+        //Arrange
         var orderId = Guid.NewGuid();
         _orderServiceMock.Setup(x => x.UpdateOrderStatus(orderId, OrderStatus.Active))
             .ThrowsAsync(new BussinessArgumentException(ErrorMessages.OrderNotFound, ErrorCodes.NoOrdersFound));
 
+        //Act
         Func<Task> act = async () => await _controller.AddInvoice(orderId);
 
+        
+        //Assert
         await act.Should().ThrowAsync<Exception>().WithMessage(ErrorMessages.OrderNotFound);
     }
 }
