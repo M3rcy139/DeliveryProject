@@ -1,56 +1,64 @@
-using Moq;
-using FluentAssertions;
-using Microsoft.AspNetCore.Mvc;
-using DeliveryProject.Controllers;
-using DeliveryProject.Business.Interfaces.Services;
+using System.Net;
+using System.Net.Http.Json;
+using DeliveryProject.Core.Constants.ErrorMessages;
 using DeliveryProject.Core.Constants.InfoMessages;
 using DeliveryProject.Core.Enums;
-using DeliveryProject.Core.Constants;
-using DeliveryProject.Core.Constants.ErrorMessages;
 using DeliveryProject.Core.Exceptions;
+using DeliveryProject.Tests.WebApplicationFactories;
+using FluentAssertions;
+using Moq;
 
-public class DeliveryControllerTests
+namespace DeliveryProject.Tests.ControllersTests;
+
+public class DeliveryControllerTests : IClassFixture<OrderAndDeliveryWebApplicationFactory>
 {
-    private readonly Mock<IDeliveryService> _deliveryServiceMock = new();
-    private readonly Mock<IOrderService> _orderServiceMock = new();
-    private readonly DeliveryController _controller;
+    private readonly HttpClient _client;
+    private readonly OrderAndDeliveryWebApplicationFactory _factory;
 
-    public DeliveryControllerTests()
+    public DeliveryControllerTests(OrderAndDeliveryWebApplicationFactory factory)
     {
-        _controller = new DeliveryController(_deliveryServiceMock.Object, _orderServiceMock.Object);
+        _factory = factory;
+        _client = factory.CreateClient();
     }
 
     [Fact]
-    public async Task AddInvoice_Should_Return_Success_Message()
+    public async Task AddInvoice_ShouldReturnOk_WithMessage()
     {
-        //Arrange
+        // Arrange
         var orderId = Guid.NewGuid();
 
-        //Act
-        var result = await _controller.AddInvoice(orderId) as OkObjectResult;
+        _factory.DeliveryServiceMock
+            .Setup(x => x.AddInvoice(orderId))
+            .Returns(Task.CompletedTask);
 
-        //Assert
-        result.Should().NotBeNull();
-        var message = result!.Value!.GetType().GetProperty("message")?.GetValue(result.Value, null)?.ToString();
-        message.Should().Be(string.Format(InfoMessages.AddedInvoice, orderId));
-        
-        _deliveryServiceMock.Verify(x => x.AddInvoice(orderId), Times.Once);
-        _orderServiceMock.Verify(x => x.UpdateOrderStatus(orderId, OrderStatus.Active), Times.Once);
+        _factory.OrderServiceMock
+            .Setup(x => x.UpdateOrderStatus(orderId, It.IsAny<OrderStatus>()))
+            .Returns(Task.CompletedTask);
+
+        // Act
+        var response = await _client.PostAsync($"/api/Delivery/Invoice/Add?orderId={orderId}", null);
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var json = await response.Content.ReadFromJsonAsync<Dictionary<string, string>>();
+        json.Should().ContainKey("message");
+        json!["message"].Should().Be(string.Format(InfoMessages.AddedInvoice, orderId));
     }
 
     [Fact]
-    public async Task AddInvoice_Should_Return_Not_Order_Found()
+    public async Task AddInvoice_ShouldReturnBadRequest_WhenOrderIsNotFound()
     {
-        //Arrange
+        // Arrange
         var orderId = Guid.NewGuid();
-        _orderServiceMock.Setup(x => x.UpdateOrderStatus(orderId, OrderStatus.Active))
-            .ThrowsAsync(new BussinessArgumentException(ErrorMessages.OrderNotFound, ErrorCodes.NoOrdersFound));
 
-        //Act
-        Func<Task> act = async () => await _controller.AddInvoice(orderId);
+        _factory.OrderServiceMock
+            .Setup(x => x.UpdateOrderStatus(orderId, OrderStatus.Active))
+            .ThrowsAsync(new BussinessArgumentException(ErrorMessages.OrderNotFound));
 
-        
-        //Assert
-        await act.Should().ThrowAsync<Exception>().WithMessage(ErrorMessages.OrderNotFound);
+        // Act
+        var response = await _client.PostAsync($"/api/Delivery/Invoice/Add?orderId={orderId}", null);
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
 }

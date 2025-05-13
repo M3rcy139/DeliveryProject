@@ -168,7 +168,7 @@ namespace DeliveryProject.Tests.ServicesTests
         public async Task GetOrdersByRegionId_ShouldReturnEmpty_WhenRepositoryReturnsEmpty()
         {
             // Arrange
-            var regionId = 10;
+            var regionId = 1;
 
             _mockFactory.OrderRepositoryMock
                 .Setup(r => r.GetOrdersByRegionId(regionId))

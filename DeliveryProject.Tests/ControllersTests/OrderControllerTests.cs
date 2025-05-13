@@ -1,28 +1,75 @@
-using Moq;
-using FluentAssertions;
-using Microsoft.AspNetCore.Mvc;
-using DeliveryProject.Controllers;
-using DeliveryProject.Business.Interfaces.Services;
-using DeliveryProject.Core.Dto;
-using DeliveryProject.Core.Models;
+using System.Net;
+using System.Net.Http.Json;
+using System.Text.Json;
+using DeliveryProject.Core.Constants.ErrorMessages;
 using DeliveryProject.Core.Constants.InfoMessages;
-using DeliveryProject.Core.Enums;
+using DeliveryProject.Core.Dto;
+using DeliveryProject.Core.Exceptions;
+using DeliveryProject.Core.Models;
+using DeliveryProject.Tests.WebApplicationFactories;
+using FluentAssertions;
+using Moq;
 
 namespace DeliveryProject.Tests.ControllersTests;
 
-public class OrderControllerTests
+public class OrderControllerTests : IClassFixture<OrderAndDeliveryWebApplicationFactory>
 {
-    private readonly Mock<IOrderService> _orderServiceMock = new();
-    private readonly Mock<IDeliveryService> _deliveryServiceMock = new();
-    private readonly OrderController _controller;
+    private readonly HttpClient _client;
+    private readonly OrderAndDeliveryWebApplicationFactory _factory;
 
-    public OrderControllerTests()
+    public OrderControllerTests(OrderAndDeliveryWebApplicationFactory factory)
     {
-        _controller = new OrderController(_orderServiceMock.Object, _deliveryServiceMock.Object);
+        _factory = factory;
+        _client = factory.CreateClient();
     }
 
     [Fact]
-    public async Task CreateOrder_Should_Return_Message_With_Generated_Id()
+    public async Task CreateOrder_ShouldReturnOk_WithMessage()
+    {
+        // Arrange
+        var dto = new CreateOrderDto
+        {
+            CustomerId = Guid.NewGuid(),
+            Products = new List<ProductDto> { new ProductDto { ProductId = Guid.NewGuid(), Quantity = 1}}
+        };
+
+        _factory.OrderServiceMock
+            .Setup(x => x.CreateOrder(It.IsAny<Order>(), It.IsAny<List<ProductDto>>()))
+            .Returns(Task.CompletedTask);
+
+        // Act
+        var response = await _client.PostAsJsonAsync("/api/Order/Order/Add", dto);
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var json = await response.Content.ReadFromJsonAsync<Dictionary<string, string>>();
+        json.Should().ContainKey("message");
+    }
+    
+    [Fact]
+    public async Task CreateOrder_ShouldReturnInternalServerError_OnException()
+    {
+        // Arrange
+        var dto = new CreateOrderDto
+        {
+            CustomerId = Guid.NewGuid(),
+            Products = new List<ProductDto> { new ProductDto { ProductId = Guid.NewGuid(), Quantity = 1 } }
+        };
+
+        _factory.OrderServiceMock
+            .Setup(x => x.CreateOrder(It.IsAny<Order>(), It.IsAny<List<ProductDto>>()))
+            .ThrowsAsync(new Exception(ErrorMessages.UnexpectedErrorWithMessage));
+
+        // Act
+        var response = await _client.PostAsJsonAsync("/api/Order/Order/Add", dto);
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.InternalServerError);
+    }
+
+    
+    [Fact]
+    public async Task CreateOrder_ShouldReturnBadRequest_WhenProductDtoIsEmpty()
     {
         // Arrange
         var dto = new CreateOrderDto
@@ -30,84 +77,227 @@ public class OrderControllerTests
             CustomerId = Guid.NewGuid(),
             Products = new List<ProductDto>()
         };
+    
+        _factory.OrderServiceMock
+            .Setup(x => x.CreateOrder(It.IsAny<Order>(), It.IsAny<List<ProductDto>>()))
+            .Returns(Task.CompletedTask);
+    
+        // Act
+        var response = await _client.PostAsJsonAsync("/api/Order/Order/Add", dto);
+    
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+
+        var json = await response.Content.ReadFromJsonAsync<Dictionary<string, object>>();
+        json.Should().ContainKey("errors");
+
+        var errors = JsonDocument.Parse(json["errors"]!.ToString()).RootElement;
+        errors.ToString().Should().Contain(ValidationErrorMessages.ProductListNotEmpty);
+        errors.ToString().Should().Contain(ValidationErrorMessages.RequiredProducts);
+    }
+
+    [Fact]
+    public async Task GetOrderById_ShouldReturnOk_WithOrder()
+    {
+        // Arrange
+        var orderId = Guid.NewGuid();
+        var fakeOrder = new Order
+        {
+            Id = orderId,
+            OrderPersons = new List<OrderPerson>
+            {
+                new OrderPerson { PersonId = Guid.NewGuid() }
+            }
+        };
+
+        _factory.OrderServiceMock
+            .Setup(x => x.GetOrderById(orderId))
+            .ReturnsAsync(fakeOrder);
 
         // Act
-        var result = await _controller.CreateOrder(dto) as OkObjectResult;
+        var response = await _client.GetAsync($"/api/Order/Order/{orderId}");
 
         // Assert
-        result.Should().NotBeNull();
-        var message = result.Value!.GetType().GetProperty("message")?.GetValue(result.Value, null)?.ToString();
-        message.Should().StartWith("Added an order with id: ");
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        using var doc = await JsonDocument.ParseAsync(await response.Content.ReadAsStreamAsync());
+        var root = doc.RootElement;
+        var returnedOrderId = root.GetProperty("id").GetGuid();
+
+        returnedOrderId.Should().Be(orderId);
     }
-    
+
     [Fact]
-    public async Task GetOrderById_Should_Return_Order()
+    public async Task GetOrderById_ShouldReturnBadRequest_WhenOrderIsNotFound()
     {
-        //Arrange
+        // Arrange
         var orderId = Guid.NewGuid();
-        var expected = new Order { Id = orderId };
-        _orderServiceMock.Setup(s => s.GetOrderById(orderId)).ReturnsAsync(expected);
 
-        //Act
-        var result = await _controller.GetOrderById(orderId) as OkObjectResult;
+        _factory.OrderServiceMock
+            .Setup(x => x.GetOrderById(orderId))!
+            .ThrowsAsync(new BussinessArgumentException(ErrorMessages.OrderNotFound));
 
+        // Act
+        var response = await _client.GetAsync($"/api/Order/Order/{orderId}");
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+
+    
+    [Fact]
+    public async Task GetOrdersByRegionId_ShouldReturnOk_WithList()
+    {
+        // Arrange
+        var regionId = 1;
+        var fakeOrders = new List<Order> { new Order { Id = Guid.NewGuid() } };
+
+        _factory.OrderServiceMock
+            .Setup(x => x.GetOrdersByRegionId(regionId, null, false))
+            .ReturnsAsync(fakeOrders);
+
+        // Act
+        var response = await _client.GetAsync($"/api/Order/Orders/{regionId}");
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
         
-        //Assert
-        result.Should().NotBeNull();
-        result!.Value.Should().BeEquivalentTo(expected);
+        using var doc = await JsonDocument.ParseAsync(await response.Content.ReadAsStreamAsync());
+        var root = doc.RootElement;
+
+        root.ValueKind.Should().Be(JsonValueKind.Object);
+        root.TryGetProperty("$values", out var ordersArray).Should().BeTrue();
+        ordersArray.ValueKind.Should().Be(JsonValueKind.Array);
+        ordersArray.GetArrayLength().Should().Be(1);
+
+    }
+
+    [Fact]
+    public async Task GetOrdersByRegionId_ShouldReturnInternalServerError_OnException()
+    {
+        // Arrange
+        var regionId = 1;
+
+        _factory.OrderServiceMock
+            .Setup(x => x.GetOrdersByRegionId(regionId, null, false))
+            .ThrowsAsync(new Exception(ErrorMessages.UnexpectedErrorWithMessage));
+
+        // Act
+        var response = await _client.GetAsync($"/api/Order/Orders/{regionId}");
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.InternalServerError);
     }
     
     [Fact]
-    public async Task GetOrdersByRegionId_Should_Respect_Sorting_Params()
+    public async Task UpdateOrder_ShouldReturnOk_WithMessage()
     {
-        //Arrange
-        var regionId = 1;
-        var expected = new List<Order> { new() { Id = Guid.NewGuid() } };
-        _orderServiceMock
-            .Setup(s => s.GetOrdersByRegionId(regionId, OrderSortField.CreatedTime, true))
-            .ReturnsAsync(expected);
+        // Arrange
+        var dto = new UpdateOrderDto
+        {
+            Id = Guid.NewGuid(),
+            Products = new List<ProductDto> { new ProductDto {ProductId = Guid.NewGuid(), Quantity = 1}}
+        };
 
-        //Act
-        var result = await _controller.GetOrdersByRegionId(regionId, OrderSortField.CreatedTime, true) as OkObjectResult;
+        _factory.OrderServiceMock
+            .Setup(x => x.UpdateOrderProducts(It.IsAny<Order>(), It.IsAny<List<ProductDto>>()))
+            .Returns(Task.CompletedTask);
 
-        
-        //Assert
-        result.Should().NotBeNull();
-        result!.Value.Should().BeEquivalentTo(expected);
+        // Act
+        var response = await _client.PutAsJsonAsync("/api/Order/Order/Update", dto);
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var json = await response.Content.ReadFromJsonAsync<Dictionary<string, string>>();
+        json.Should().ContainKey("message");
     }
 
     [Fact]
-    public async Task UpdateOrder_Should_Return_Success_Message()
+    public async Task UpdateOrder_ShouldReturnInternalServerError_OnException()
     {
-        //Arrange
+        // Arrange
+        var dto = new UpdateOrderDto
+        {
+            Id = Guid.NewGuid(),
+            Products = new List<ProductDto> { new ProductDto { ProductId = Guid.NewGuid(), Quantity = 1 } }
+        };
+
+        _factory.OrderServiceMock
+            .Setup(x => x.UpdateOrderProducts(It.IsAny<Order>(), It.IsAny<List<ProductDto>>()))
+            .ThrowsAsync(new Exception(ErrorMessages.UnexpectedErrorWithMessage));
+
+        // Act
+        var response = await _client.PutAsJsonAsync("/api/Order/Order/Update", dto);
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.InternalServerError);
+    }
+
+    [Fact]
+    public async Task UpdateOrder_ShouldReturnBadRequest_WhenProductDtoIsEmpty()
+    {
+        // Arrange
         var dto = new UpdateOrderDto
         {
             Id = Guid.NewGuid(),
             Products = new List<ProductDto>()
         };
 
-        
-        //Act
-        var result = await _controller.UpdateOrder(dto) as OkObjectResult;
+        _factory.OrderServiceMock
+            .Setup(x => x.UpdateOrderProducts(It.IsAny<Order>(), It.IsAny<List<ProductDto>>()))
+            .Returns(Task.CompletedTask);
 
-        //Assert
-        result.Should().NotBeNull();
-        var message = result!.Value!.GetType().GetProperty("message")?.GetValue(result.Value, null)?.ToString();
-        message.Should().Be(string.Format(InfoMessages.UpdatedOrder, dto.Id));
+        // Act
+        var response = await _client.PutAsJsonAsync("/api/Order/Order/Update", dto);
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+
+        var json = await response.Content.ReadFromJsonAsync<Dictionary<string, object>>();
+        json.Should().ContainKey("errors");
+
+        var errors = JsonDocument.Parse(json["errors"]!.ToString()).RootElement;
+        errors.ToString().Should().Contain(ValidationErrorMessages.ProductListNotEmpty);
+        errors.ToString().Should().Contain(ValidationErrorMessages.RequiredProducts);
+    }
+    
+    [Fact]
+    public async Task RemoveOrder_ShouldReturnOk_WithMessage()
+    {
+        // Arrange
+        var orderId = Guid.NewGuid();
+
+        _factory.OrderServiceMock
+            .Setup(x => x.RemoveOrder(orderId))
+            .Returns(Task.CompletedTask);
+
+        _factory.DeliveryServiceMock
+            .Setup(x => x.RemoveInvoice(orderId))
+            .Returns(Task.CompletedTask);
+
+        // Act
+        var response = await _client.DeleteAsync($"/api/Order/Order/Remove/{orderId}");
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var json = await response.Content.ReadFromJsonAsync<Dictionary<string, string>>();
+        json!["message"].Should().Be(InfoMessages.RemovedOrder);
     }
 
     [Fact]
-    public async Task RemoveOrder_Should_Return_Removed_Message()
+    public async Task RemoveOrder_ShouldReturnBadRequest_OnException()
     {
-        //Arrange
+        // Arrange
         var orderId = Guid.NewGuid();
 
-        //Act
-        var result = await _controller.RemoveOrder(orderId) as OkObjectResult;
+        _factory.DeliveryServiceMock
+            .Setup(x => x.RemoveInvoice(orderId))
+            .ThrowsAsync(new BussinessArgumentException(ErrorMessages.InvoiceNotFound));
 
-        //Assert
-        result.Should().NotBeNull();
-        var message = result!.Value!.GetType().GetProperty("message")?.GetValue(result.Value, null)?.ToString();
-        message.Should().Be(InfoMessages.RemovedOrder);
+        // Act
+        var response = await _client.DeleteAsync($"/api/Order/Order/Remove/{orderId}");
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
 }

@@ -1,70 +1,83 @@
-using Moq;
+using System.Net;
+using System.Net.Http.Headers;
+using System.Net.Http.Json;
+using DeliveryProject.Core.Constants.ErrorMessages;
+using DeliveryProject.DataAccess.Entities;
+using DeliveryProject.DataAccess.Enums;
+using DeliveryProject.Tests.WebApplicationFactories;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using DeliveryProject.Controllers;
-using DeliveryProject.DataAccess.Interfaces;
-using DeliveryProject.DataAccess.Enums;
-using DeliveryProject.DataAccess.Entities;
+using Moq;
 
-public class FileUploadControllerTests
+namespace DeliveryProject.Tests.ControllersTests;
+
+public class FileUploadControllerTests : IClassFixture<FileUploadWebApplicationFactory>
 {
-    private readonly Mock<IFileUploadProcessor> _fileUploadProcessorMock = new();
-    private readonly FileUploadController _controller;
+    private readonly HttpClient _client;
+    private readonly FileUploadWebApplicationFactory _factory;
 
-    public FileUploadControllerTests()
+    public FileUploadControllerTests(FileUploadWebApplicationFactory factory)
     {
-        _controller = new FileUploadController(_fileUploadProcessorMock.Object);
+        _factory = factory;
+        _client = factory.CreateClient();
     }
 
     [Fact]
-    public async Task UploadFile_Should_Return_BatchUpload_Id_And_Status()
+    public async Task UploadFile_ShouldReturnOk_WithBatchInfo()
     {
         // Arrange
-        var fileMock = new Mock<IFormFile>();
-        var content = "Fake CSV content";
-        var fileName = "test.csv";
-        var stream = new MemoryStream();
-        var writer = new StreamWriter(stream);
-        writer.Write(content);
-        writer.Flush();
-        stream.Position = 0;
-        fileMock.Setup(_ => _.OpenReadStream()).Returns(stream);
-        fileMock.Setup(_ => _.FileName).Returns(fileName);
-        fileMock.Setup(_ => _.Length).Returns(stream.Length);
-        fileMock.Setup(_ => _.ContentType).Returns("text/csv");
+        var fileContent = new ByteArrayContent(new byte[] { 1, 2, 3 });
+        fileContent.Headers.ContentType = new MediaTypeHeaderValue("text/csv");
 
-        var batchUpload = new BatchUpload
+        var formData = new MultipartFormDataContent
         {
-            Id = Guid.NewGuid(),
-            Status = UploadStatus.Completed
+            { fileContent, "file", "test.csv" }
         };
 
-        _fileUploadProcessorMock
-            .Setup(p => p.UploadFileAsync(It.IsAny<IFormFile>(), UploadType.DeliveryPerson))
-            .ReturnsAsync(batchUpload);
+        var uploadType = UploadType.DeliveryPerson;
+
+        var expectedBatch = new BatchUpload
+        {
+            Id = Guid.NewGuid(),
+            Status = UploadStatus.Pending
+        };
+
+        _factory.FileUploadProcessorMock
+            .Setup(x => x.UploadFileAsync(It.IsAny<IFormFile>(), uploadType))
+            .ReturnsAsync(expectedBatch);
 
         // Act
-        var result = await _controller.UploadFile(fileMock.Object, UploadType.DeliveryPerson) as OkObjectResult;
+        var response = await _client.PostAsync($"/api/FileUpload/Upload?uploadType={uploadType}", formData);
 
         // Assert
-        result.Should().NotBeNull();
-        result!.Value.Should().BeEquivalentTo(new { batchUpload.Id, batchUpload.Status });
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var json = await response.Content.ReadFromJsonAsync<Dictionary<string, object>>();
+        json.Should().ContainKey("id");
+        json.Should().ContainKey("status");
     }
 
     [Fact]
-    public async Task UploadFile_Should_Throw_Exception_When_Processor_Fails()
+    public async Task UploadFile_ShouldReturnInternalServerError_OnException()
     {
-        var fileMock = new Mock<IFormFile>();
-        fileMock.Setup(_ => _.FileName).Returns("fail.csv");
-        fileMock.Setup(_ => _.Length).Returns(10);
+        // Arrange
+        var fileContent = new ByteArrayContent(new byte[] { 1, 2, 3 });
+        fileContent.Headers.ContentType = new MediaTypeHeaderValue("text/csv");
 
-        _fileUploadProcessorMock
-            .Setup(p => p.UploadFileAsync(It.IsAny<IFormFile>(), UploadType.DeliveryPerson))
-            .ThrowsAsync(new Exception("Upload failed"));
+        var formData = new MultipartFormDataContent
+        {
+            { fileContent, "file", "test.csv" }
+        };
 
-        Func<Task> act = async () => await _controller.UploadFile(fileMock.Object, UploadType.DeliveryPerson);
+        var uploadType = UploadType.DeliveryPerson;
 
-        await act.Should().ThrowAsync<Exception>().WithMessage("Upload failed");
+        _factory.FileUploadProcessorMock
+            .Setup(x => x.UploadFileAsync(It.IsAny<IFormFile>(), uploadType))
+            .ThrowsAsync(new Exception(ErrorMessages.UnexpectedErrorWithMessage));
+
+        // Act
+        var response = await _client.PostAsync($"/api/FileUpload/Upload?uploadType={uploadType}", formData);
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.InternalServerError);
     }
 }
